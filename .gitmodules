@@ -1,0 +1,3 @@
+[submodule "simmopp"]
+	path = simmopp
+	url = https://github.com/sim642/simmopp.git
