@@ -9,7 +9,7 @@ namespace nm
     {
         CLOSED, OPENED, FLAGGED
     };
-    
+
     typedef struct __attribute__((packed))
     {
         SquareState state   : 3;

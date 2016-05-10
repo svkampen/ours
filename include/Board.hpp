@@ -15,7 +15,7 @@ namespace nm
     {
         private:
             std::unordered_map<Coordinates, Chunk> chunks;
-            
+
         public:
             Square& get(Coordinates coordinates);
     };
