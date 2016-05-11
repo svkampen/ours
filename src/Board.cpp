@@ -25,7 +25,7 @@ namespace nm {
             // The chunk does not exist, so we generate it.
             std::cerr << "[board] generating chunk at (" << chunk_coordinates.x()
                       << ", " << chunk_coordinates.y() << ")" << std::endl;
-            chunks[chunk_coordinates] = ChunkGenerator::generate(0.20, 0.05);
+            chunks[chunk_coordinates] = ChunkGenerator::generate(0.15, 0.03);
         }
 
         return chunks[chunk_coordinates].get(local_coords);
