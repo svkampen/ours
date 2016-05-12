@@ -13,6 +13,15 @@ namespace nm {
         return (temp < 0) ? (mod - temp) : temp;
     }
 
+    Board::Board(ChunkGenerator chunkGenerator) : chunkGenerator(chunkGenerator) {
+        // generate the (0,0) chunk with an empty center.
+        chunkGenerator.setEmptyCenter(true);
+        chunks[{0,0}] = chunkGenerator.generate();
+        chunkGenerator.setEmptyCenter(false);
+    }
+
+    Board::Board() : Board(ChunkGenerator(0.15, 0.03)) {}
+
     Square& Board::get(Coordinates coordinates)
     {
         simmo::vector<int32_t, 2> local_coords = {modulo(coordinates.x(), NM_CHUNK_SIZE),
@@ -25,7 +34,7 @@ namespace nm {
             // The chunk does not exist, so we generate it.
             std::cerr << "[board] generating chunk at (" << chunk_coordinates.x()
                       << ", " << chunk_coordinates.y() << ")" << std::endl;
-            chunks[chunk_coordinates] = ChunkGenerator::generate(0.15, 0.03);
+            chunks[chunk_coordinates] = chunkGenerator.generate();
         }
 
         return chunks[chunk_coordinates].get(local_coords);

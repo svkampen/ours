@@ -8,6 +8,7 @@
 #include "Typedefs.hpp"
 #include "Square.hpp"
 #include "Chunk.hpp"
+#include "ChunkGenerator.hpp"
 
 namespace nm
 {
@@ -15,8 +16,11 @@ namespace nm
     {
         private:
             std::unordered_map<Coordinates, Chunk> chunks;
+            ChunkGenerator chunkGenerator;
 
         public:
+            Board();
+            Board(ChunkGenerator chunkGenerator);
             Square& get(Coordinates coordinates);
     };
 };
