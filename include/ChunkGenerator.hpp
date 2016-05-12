@@ -7,8 +7,24 @@ namespace nm
 {
     class ChunkGenerator
     {
+        private:
+            double mean_density, variation;
+            bool empty_center = false;
         public:
-            static Chunk generate(double mean_density, double variation);
+            ChunkGenerator(double mean_density, double variation);
+            Chunk generate();
+
+            void setEmptyCenter(bool empty_center) {
+                this->empty_center = empty_center;
+            }
+
+            void setMeanDensity(double density) {
+                this->mean_density = density;
+            }
+
+            void setVariation(double variation) {
+                this->variation = variation;
+            }
     };
 }
 

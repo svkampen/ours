@@ -7,7 +7,10 @@
 
 namespace nm
 {
-    Chunk ChunkGenerator::generate(double mean_density, double variation) {
+    ChunkGenerator::ChunkGenerator(double mean_density, double variation)
+        : mean_density(mean_density), variation(variation) {}
+
+    Chunk ChunkGenerator::generate() {
         Chunk chunk;
 
         // rd is used to seed the Mersenne Twister
