@@ -75,8 +75,15 @@ namespace nm
 			);
 		}
 
+		void Server::square_flag_handler(Connection::ptr connection, const message::SquareFlag& msg)
+		{
+			BOOST_LOG_TRIVIAL(info) << "[Server] Received SQUARE_FLAG message: " << msg.DebugString();
+			game.flag_square_handler(msg.x(), msg.y());
 
+			int x = ((int)std::floor(msg.x() / (double)NM_CHUNK_SIZE));
+			int y = ((int)std::floor(msg.y() / (double)NM_CHUNK_SIZE));
 
+			this->send_chunk_update(x, y);
 		}
 
 		void Server::player_join_handler(Connection::ptr connection, const message::PlayerJoin& msg)
