@@ -1,0 +1,61 @@
+package nm.message;
+
+message MessageWrapper {
+	enum Type { CURSOR_MOVE = 1; SQUARE_FLAG = 2; SQUARE_OPEN = 3; PLAYER_JOIN = 4; PLAYER_QUIT = 5; WELCOME = 6; CHUNK_BYTES = 7; }
+
+	required Type type = 1;
+
+	optional CursorMove cursorMove = 2;
+	optional SquareOpen squareOpen = 3;
+	optional ChunkBytes chunkBytes = 4;
+	optional SquareFlag squareFlag = 5;
+	optional PlayerJoin playerJoin = 6;
+	optional PlayerQuit playerQuit = 7;
+	optional Welcome welcome = 8;
+}
+
+message ChunkBytes {
+	required int32 x = 1;
+	required int32 y = 2;
+	required bytes data = 3;
+}
+
+message CursorMove {
+	required int32 x = 1;
+	required int32 y = 2;
+	optional int32 id = 3;
+}
+
+message SquareOpen {
+	required int32 x = 1;
+	required int32 y = 2;
+	optional int32 id = 3;
+}
+
+message SquareFlag {
+	required int32 x = 1;
+	required int32 y = 2;
+	optional int32 id = 3;
+}
+
+message PlayerJoin {
+	required int32 x = 1;
+	required int32 y = 2;
+	optional int32 id = 3;
+}
+
+message PlayerQuit {
+	optional int32 id = 1;
+}
+
+message Client {
+	required int32 x = 1;
+	required int32 y = 2;
+	required int32 id = 3;
+}
+
+message Welcome {
+	required int32 version = 1;
+	required int32 nClients = 2;
+	repeated Client clients = 3;
+}
