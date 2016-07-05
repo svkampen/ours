@@ -6,6 +6,37 @@ namespace nm
         return chunk[coordinates.y()][coordinates.x()];
     }
 }	Chunk Chunk::transform_copy(std::function<void(Square&)> functor)
+	char *Chunk::serialize()
+	{
+		char *data = new char[NM_CHUNK_SIZE * NM_CHUNK_SIZE];
+
+		for (int x = 0; x < NM_CHUNK_SIZE; x++)
+		{
+			for (int y = 0; y < NM_CHUNK_SIZE; y++)
+			{
+				Square &square = chunk[x][y];
+				char sq_data = *reinterpret_cast<char*>(&square);
+				data[x * NM_CHUNK_SIZE + y] = sq_data;
+			}
+		}
+
+		return data;
+	}
+
+	Chunk Chunk::deserialize(char *data) {
+		Chunk temp;
+		for (int x = 0; x < NM_CHUNK_SIZE; x++)
+		{
+			for (int y = 0; y < NM_CHUNK_SIZE; y++)
+			{
+				Square &square = temp.get(x, y);
+				char *sq_data = reinterpret_cast<char*>(&square);
+				*sq_data = data[x * NM_CHUNK_SIZE + y];
+			}
+		}
+		return temp;
+	}
+
 	Chunk Chunk::transform_copy(std::function<void(Square&)> functor)
 	{
 		Chunk temp = *this;
