@@ -54,7 +54,7 @@ namespace nm
 			boost::asio::async_read(
 					socket_,
 					boost::asio::buffer(header_buf.get(), 4),
-					boost::asio::transfer_at_least(4),
+					boost::asio::transfer_exactly(4),
 					boost::bind(
 						&Connection::header_callback,
 						shared_from_this(),
@@ -91,7 +91,7 @@ namespace nm
 			boost::asio::async_read(
 					socket_,
 					boost::asio::buffer(message_buf.get(), length),
-					boost::asio::transfer_at_least(length),
+					boost::asio::transfer_exactly(length),
 					boost::bind(
 						&Connection::message_callback,
 						shared_from_this(),
