@@ -1,6 +1,6 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${netmine_SOURCE_DIR}/bin)
 set(netmine_SRC_FILES main.cpp Board.cpp Chunk.cpp ChunkGenerator.cpp Server.cpp Gui.cpp Game.cpp
-	ConnectionManager.cpp netmine.pb.cc)
+	ConnectionManager.cpp netmine.pb.cc NetworkGame.cpp Client.cpp)
 
 INCLUDE_DIRECTORIES(${netmine_SOURCE_DIR}/include ${netmine_SOURCE_DIR}/simmopp/include)
 LINK_DIRECTORIES(${netmine_SOURCE_DIR}/bin)
