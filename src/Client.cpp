@@ -32,11 +32,6 @@ namespace nm
 	{
 		if (!ec)
 		{
-			message::MessageWrapper wrapper;
-			wrapper.set_type(wrapper.PLAYER_JOIN);
-			wrapper.mutable_playerjoin()->set_x(0);
-			wrapper.mutable_playerjoin()->set_y(0);
-			send_message(wrapper);
 			start_read();
 		} else
 		{
