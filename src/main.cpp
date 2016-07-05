@@ -1,4 +1,8 @@
-#include "Board.hpp"
+#include <nm/Gui.hpp>
+#include <nm/Game.hpp>
+#include <nm/Square.hpp>
+#include <nm/ConnectionManager.hpp>
+#include <nm/Server.hpp>
 #include <iostream>
 
 #include <boost/log/core.hpp>
@@ -32,16 +36,32 @@ void logging_init() {
 			boost::log::trivial::severity >= boost::log::trivial::info
 	);
 }
-int main(int argc, char *argv[]) {
-    nm::Board board;
-    for (int i = 0; i < 32; i++) {
-        for (int j = 0; j < 32; j++) {
-            nm::Square& square = board.get({i, j});
-            if (square.is_mine)
-                std::cout << " * ";
-            else
-                std::cout << "   ";
-        }
-        std::cout << std::endl;
-    }
+
+void nm_exit()
+{
+	endwin();
+	exit(0);
+}
+
+int main(int argc, char *argv[])
+{
+	logging_init();
+	nm::server::Server server;
+	server.start();
+
+	while(true) {
+		server.poll();
+	}
+	/*
+	nm::Gui gui;
+	nm::Game game;
+
+	gui.ev_square_open.connect(boost::bind(&nm::Game::open_square_handler, &game, _1, _2));
+	gui.ev_square_flag.connect(boost::bind(&nm::Game::flag_square_handler, &game, _1, _2));
+	gui.ev_exit.connect(&nm_exit);
+
+	while (true) {
+		gui.poll(game.board);
+	}
+	*/
 }
