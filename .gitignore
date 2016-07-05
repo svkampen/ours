@@ -3,3 +3,8 @@
 build
 bin
 *.pb.*
+
+*.py
+*.pyc
+
+*.org
