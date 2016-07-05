@@ -82,7 +82,11 @@ namespace nm
 				return this->connection_closed();
 			}
 
-			int length = deref_cast<int>(data.get());
+			uint8_t* bytes = data.get();
+			uint32_t header;
+			memcpy(&header, bytes, 4);
+
+			uint32_t length = ntohl(header);
 
 			BOOST_LOG_TRIVIAL(info) << "[net] read header: length " << length;
 
