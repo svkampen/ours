@@ -1,11 +1,18 @@
-#include "Chunk.hpp"
+#include <nm/Chunk.hpp>
+#include <algorithm>
 
 namespace nm
 {
-    Square& Chunk::get(Coordinates coordinates) {
-        return chunk[coordinates.y()][coordinates.x()];
-    }
-}	Chunk Chunk::transform_copy(std::function<void(Square&)> functor)
+	Square& Chunk::get(Coordinates coordinates)
+	{
+		return chunk[coordinates.y()][coordinates.x()];
+	}
+
+	Square& Chunk::get(int x, int y)
+	{
+		return chunk[y][x];
+	}
+
 	char *Chunk::serialize()
 	{
 		char *data = new char[NM_CHUNK_SIZE * NM_CHUNK_SIZE];
@@ -46,3 +53,4 @@ namespace nm
 		});
 		return temp;
 	}
+}
