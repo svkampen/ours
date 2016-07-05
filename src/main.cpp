@@ -1,5 +1,6 @@
 #include <nm/Gui.hpp>
-#include <nm/Game.hpp>
+#include <nm/Client.hpp>
+#include <nm/NetworkGame.hpp>
 #include <nm/Square.hpp>
 #include <nm/ConnectionManager.hpp>
 #include <nm/Server.hpp>
@@ -46,11 +47,30 @@ void nm_exit()
 int main(int argc, char *argv[])
 {
 	logging_init();
-	nm::server::Server server;
-	server.start();
+	if (strcmp("-s", argv[1]) == 0)
+	{
+		nm::server::Server server;
+		server.start();
 
-	while(true) {
-		server.poll();
+		while(true) {
+			server.poll();
+		}
+	} else
+	{
+		boost::asio::io_service io_service;
+		nm::Client client(io_service, "localhost", "4096");
+		nm::NetworkGame game(client);
+		nm::Gui gui;
+
+		gui.ev_square_open.connect(boost::bind(&nm::NetworkGame::open_square_handler, &game, _1, _2));
+		gui.ev_square_flag.connect(boost::bind(&nm::NetworkGame::flag_square_handler, &game, _1, _2));
+
+		client.ev_update_chunk.connect(boost::bind(&nm::NetworkGame::chunk_update_handler, &game, _1, _2));
+
+		while (true) {
+			client.poll();
+			gui.poll(game.board);
+		}
 	}
 	/*
 	nm::Gui gui;
