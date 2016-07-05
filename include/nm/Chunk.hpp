@@ -19,7 +19,7 @@ namespace nm
 			Square& get(int x, int y);
 			Chunk transform_copy(std::function<void(Square&)> functor);
 			char *serialize();
-			static Chunk deserialize(char* data);
+			void deserialize(char* data);
 	};
 }
 
