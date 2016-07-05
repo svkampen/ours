@@ -29,6 +29,9 @@ namespace server
 			ConnectionManager connectionManager;
 			client_bimap clients;
 			Game game;
+
+			void send_chunk_update(int x, int y, Chunk &chunk);
+			void send_chunk_update(int x, int y);
 	};
 }
 }

@@ -22,6 +22,35 @@ namespace nm
 			message_event_connect(connectionManager.ev_square_open, &Server::square_open_handler, this);
 		}
 
+		void Server::send_chunk_update(int x, int y)
+		{
+			send_chunk_update(x, y, this->game.board.get_chunk({x, y}));
+		}	
+
+		void Server::send_chunk_update(int x, int y, Chunk &chunk)
+		{
+			Chunk transformed_chunk = chunk.transform_copy([](Square& square){
+				if (square.state == SquareState::CLOSED)
+					square.is_mine = false;
+			});
+
+			char *data = transformed_chunk.serialize();
+
+			message::MessageWrapper chunkWrapper;
+			chunkWrapper.set_type(chunkWrapper.CHUNK_BYTES);
+			auto cBytes = chunkWrapper.mutable_chunkbytes();
+			cBytes->set_data(std::string(data, NM_CHUNK_SIZE * NM_CHUNK_SIZE));
+
+			delete[] data;
+
+			cBytes->set_x(x);
+			cBytes->set_y(y);
+
+			BOOST_LOG_TRIVIAL(info) << "[Server] Sending chunk update: " << chunkWrapper.DebugString();
+
+			this->connectionManager.send_all(chunkWrapper);
+		}
+
 		void Server::cursor_move_handler(Connection::ptr connection, const message::CursorMove& msg)
 		{
 			auto id_iter = this->clients.left.find(connection);
@@ -41,28 +70,13 @@ namespace nm
 			BOOST_LOG_TRIVIAL(info) << "[Server] Received SQUARE_OPEN message: " << msg.DebugString();
 			game.open_square_handler(msg.x(), msg.y(),
 					[this](int x, int y, Chunk &chunk) {
-						Chunk transformed_chunk = chunk.transform_copy([](Square& square){
-							if (square.state == SquareState::CLOSED)
-								square.is_mine = false;
-						});
-
-						char *data = reinterpret_cast<char*>(transformed_chunk.serialize());
-
-						message::MessageWrapper chunkWrapper;
-						chunkWrapper.set_type(chunkWrapper.CHUNK_BYTES);
-						auto cBytes = chunkWrapper.mutable_chunkbytes();
-						cBytes->set_data(std::string(data, NM_CHUNK_SIZE * NM_CHUNK_SIZE));
-
-						delete[] data;
-
-						cBytes->set_x(x);
-						cBytes->set_y(y);
-
-						BOOST_LOG_TRIVIAL(info) << "[Server] Sending chunk update: " << chunkWrapper.DebugString();
-
-						this->connectionManager.send_all(chunkWrapper);
+						this->send_chunk_update(x, y, chunk);
 					}
 			);
+		}
+
+
+
 		}
 
 		void Server::player_join_handler(Connection::ptr connection, const message::PlayerJoin& msg)
