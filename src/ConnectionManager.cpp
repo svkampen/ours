@@ -5,8 +5,6 @@
 #include <boost/log/trivial.hpp>
 #include <boost/bind.hpp>
 
-#include <nm/netmine.pb.h>
-
 using boost::asio::ip::tcp;
 namespace placeholders = boost::asio::placeholders;
 
