@@ -46,7 +46,7 @@ namespace nm
 			cBytes->set_x(x);
 			cBytes->set_y(y);
 
-			BOOST_LOG_TRIVIAL(info) << "[Server] Sending chunk update: " << chunkWrapper.DebugString();
+			BOOST_LOG_TRIVIAL(info) << "[Server] Sending chunk update: (" << x << ", " << y << ")";
 
 			this->connectionManager.send_all(chunkWrapper);
 		}
