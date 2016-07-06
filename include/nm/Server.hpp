@@ -19,6 +19,7 @@ namespace server
 			void poll();
 
 			/* event handlers */
+			void chunk_request_handler(Connection::ptr connection, const message::ChunkRequest& msg);
 			void player_join_handler(Connection::ptr connection, const message::PlayerJoin& msg);
 			void cursor_move_handler(Connection::ptr connection, const message::CursorMove& msg);
 			void square_open_handler(Connection::ptr connection, const message::SquareOpen& msg);

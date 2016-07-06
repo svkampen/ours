@@ -20,6 +20,7 @@ namespace nm
 			message_event_connect(connectionManager.ev_player_join, &Server::player_join_handler, this);
 			message_event_connect(connectionManager.ev_cursor_move, &Server::cursor_move_handler, this);
 			message_event_connect(connectionManager.ev_square_open, &Server::square_open_handler, this);
+			message_event_connect(connectionManager.ev_chunk_request, &Server::chunk_request_handler, this);
 		}
 
 		void Server::send_chunk_update(int x, int y)
@@ -49,6 +50,11 @@ namespace nm
 			BOOST_LOG_TRIVIAL(info) << "[Server] Sending chunk update: " << chunkWrapper.DebugString();
 
 			this->connectionManager.send_all(chunkWrapper);
+		}
+
+		void Server::chunk_request_handler(Connection::ptr connection, const message::ChunkRequest& msg)
+		{
+			send_chunk_update(msg.x(), msg.y());
 		}
 
 		void Server::cursor_move_handler(Connection::ptr connection, const message::CursorMove& msg)

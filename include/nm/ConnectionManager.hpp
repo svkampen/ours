@@ -67,6 +67,7 @@ namespace server
 			events::signal<void (Connection::ptr, const message::PlayerJoin&)> ev_player_join;
 			events::signal<void (Connection::ptr, const message::PlayerQuit&)> ev_player_quit;
 			events::signal<void (Connection::ptr, const message::CursorMove&)> ev_cursor_move;
+			events::signal<void (Connection::ptr, const message::ChunkRequest&)> ev_chunk_request;
 
 			ConnectionManager(boost::asio::ip::tcp::endpoint& endpoint);
 			ConnectionManager(boost::asio::ip::tcp::endpoint endpoint);

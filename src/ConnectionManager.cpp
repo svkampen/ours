@@ -135,6 +135,9 @@ namespace nm
 		{
 			switch (message.type())
 			{
+				case message::MessageWrapper_Type_CHUNK_REQUEST:
+					this->ev_chunk_request(connection, message.chunkrequest());
+					break;
 				case message::MessageWrapper_Type_SQUARE_OPEN:
 					this->ev_square_open(connection, message.squareopen());
 					break;
