@@ -10,6 +10,8 @@
 
 namespace nm
 {
+	Coordinates to_chunk_coordinates(Coordinates c);
+
 	class Chunk
 	{
 		private:

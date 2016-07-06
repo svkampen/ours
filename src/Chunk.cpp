@@ -3,6 +3,14 @@
 
 namespace nm
 {
+	Coordinates to_chunk_coordinates(Coordinates c)
+	{
+		int x = ((int)std::floor(c.x() / (double)NM_CHUNK_SIZE));
+		int y = ((int)std::floor(c.y() / (double)NM_CHUNK_SIZE));
+
+		return {x, y};
+	}
+
 	Square& Chunk::get(Coordinates coordinates)
 	{
 		return chunk[coordinates.y()][coordinates.x()];
