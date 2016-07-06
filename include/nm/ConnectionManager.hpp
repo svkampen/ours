@@ -5,7 +5,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/signals2.hpp>
 
-#include "netmine.pb.h"
+#include <netmine.pb.h>
 
 namespace events = boost::signals2;
 

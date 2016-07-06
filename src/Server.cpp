@@ -1,5 +1,4 @@
 #include <nm/Server.hpp>
-#include <netmine.pb.h>
 #include <nm/Hash.hpp>
 #include <boost/log/trivial.hpp>
 #include <iostream>
