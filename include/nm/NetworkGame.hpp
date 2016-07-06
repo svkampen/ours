@@ -7,9 +7,11 @@
 #include <nm/Flag.hpp>
 #include <netmine.pb.h>
 
+#include <vector>
+
 namespace nm
 {
-	class NetworkGame
+	class NetworkGame : public SquareSource
 	{
 		private:
 			Client& client;
@@ -21,6 +23,8 @@ namespace nm
 		public:
 			NetworkGame(Client& client);
 			Board board;
+			virtual Square& get(Coordinates c);
+			virtual Square& get(int x, int y);
 			void chunk_update_handler(Client *client, const message::ChunkBytes& msg);
 			void flag_square_handler(int x, int y);
 			void open_square_handler(int x, int y);

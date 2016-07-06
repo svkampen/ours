@@ -1,5 +1,8 @@
 #include <nm/NetworkGame.hpp>
 #include <netmine.pb.h>
+#include <algorithm>
+
+#include <boost/log/trivial.hpp>
 
 namespace nm
 {
@@ -47,6 +50,24 @@ namespace nm
 	{
 		return std::find(requested_chunks.begin(), requested_chunks.end(), c) != requested_chunks.end();
 	}
+
+	Square& NetworkGame::get(Coordinates c)
+	{
+		Coordinates chunk_coords = to_chunk_coordinates(c);
+		if (!chunk_requested(chunk_coords))
+		{
+			BOOST_LOG_TRIVIAL(info) << "Requesting chunk at (" << chunk_coords.x() << ", " << chunk_coords.y() << ")";
+			request_chunk(chunk_coords);
+		}
+
+		return board.get(c);
+	}
+
+	Square& NetworkGame::get(int x, int y)
+	{
+		return this->get({x, y});
+	}
+
 	void NetworkGame::send_player_join(int x, int y)
 	{
 		message::MessageWrapper wrapper;
