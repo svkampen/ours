@@ -28,6 +28,24 @@ namespace nm
 		client.send_message(wrapper);
 	}
 
+	void NetworkGame::request_chunk(Coordinates c)
+	{
+		requested_chunks.push_back(c);
+
+		message::MessageWrapper wrapper;
+		wrapper.set_type(wrapper.CHUNK_REQUEST);
+		auto chunkRequest = wrapper.mutable_chunkrequest();
+
+		chunkRequest->set_x(c.x());
+		chunkRequest->set_y(c.y());
+
+		client.send_message(wrapper);
+	}
+
+	bool NetworkGame::chunk_requested(Coordinates c)
+	{
+		return std::find(requested_chunks.begin(), requested_chunks.end(), c) != requested_chunks.end();
+	}
 	void NetworkGame::open_square_handler(int x, int y)
 	{
 		message::MessageWrapper wrapper;

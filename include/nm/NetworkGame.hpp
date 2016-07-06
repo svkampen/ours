@@ -12,6 +12,9 @@ namespace nm
 	{
 		private:
 			Client& client;
+			std::vector<Coordinates> requested_chunks;
+			void request_chunk(Coordinates c);
+			bool chunk_requested(Coordinates c);
 		public:
 			NetworkGame(Client& client);
 			Board board;
