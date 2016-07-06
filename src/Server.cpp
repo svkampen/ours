@@ -111,15 +111,15 @@ namespace nm
 
 			this->connectionManager.send_all_other(connection, wrapper);
 
-			message::MessageWrapper welcome_wrapper;
+			wrapper.Clear();
 
-			auto welcome = welcome_wrapper.mutable_welcome();
+			auto welcome = wrapper.mutable_welcome();
 
 			welcome->set_version(1);
 			welcome->set_nclients(this->clients.size());
-			welcome_wrapper.set_type(welcome_wrapper.WELCOME);
+			wrapper.set_type(wrapper.WELCOME);
 
-			connection->sendMessage(welcome_wrapper);
+			connection->sendMessage(wrapper);
 		}
 
 		void Server::start()
