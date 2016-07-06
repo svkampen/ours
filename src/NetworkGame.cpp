@@ -16,8 +16,15 @@ namespace nm
 	{
 		char *data = const_cast<char*>(msg.data().c_str());
 
-		Chunk &chunk = board.get_chunk({msg.x(), msg.y()});
+		Chunk chunk;
 		chunk.deserialize(data);
+
+		Coordinates coordinates = {msg.x(), msg.y()};
+
+		board.add_chunk(coordinates, chunk);
+
+		if (!chunk_requested(coordinates))
+			requested_chunks.push_back(coordinates);
 	}
 
 	void NetworkGame::flag_square_handler(int x, int y)
