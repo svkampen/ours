@@ -1,5 +1,4 @@
 #include <nm/Game.hpp>
-#include <vector>
 
 namespace nm
 {
@@ -44,15 +43,9 @@ namespace nm
 		}
 	}
 
-	void Game::open_square_handler(int x, int y, std::function<void (int, int, Chunk&)> functor)
+	std::unordered_set<Coordinates> Game::open_square_recursive(int x, int y)
 	{
-		if (this->initialized == false)
-		{
-			this->initialized = true;
-			board.clear_at(x, y);
-		}
-
-		std::vector<Coordinates> affected_chunks;
+		std::unordered_set<Coordinates> affected_chunks;
 
 		Square &square = board.get(x, y);
 		static int around_offsets[3] = {-1, 0, 1};
@@ -61,20 +54,27 @@ namespace nm
 		{
 			// Do nothing, as flagged squares cannot be opened
 			// and opened squares are already opened
-			return;
+			return {};
 		}
 
-		if (affected_chunks.push_back(open_square(x, y)), square.number == 0)
+		if (affected_chunks.insert(open_square(x, y)), square.number == 0)
 		{
 			for (auto&& xoff : around_offsets)
 			{
 				for (auto&& yoff : around_offsets)
 				{
-					open_square_handler(x+xoff, y+yoff, functor);
+					auto rec_chunks = open_square_recursive(x+xoff, y+yoff);
+					affected_chunks.insert(rec_chunks.begin(), rec_chunks.end());
 				}
 			}
 		}
 
+		return affected_chunks;
+	}
+
+	void Game::open_square_handler(int x, int y, std::function<void (int, int, Chunk&)> functor)
+	{
+		auto affected_chunks = open_square_recursive(x, y);
 		for (auto coordinates : affected_chunks)
 		{
 			Chunk &chunk = board.get_chunk(coordinates);
