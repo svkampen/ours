@@ -5,7 +5,8 @@ namespace nm
 {
 	NetworkGame::NetworkGame(Client& client) : board(ChunkGenerator(0.0, 0.0)), client(client)
 	{
-
+		board.set_client_mode(true);
+		is_first_open.set();
 	}
 
 	void NetworkGame::chunk_update_handler(Client *client, const message::ChunkBytes& msg)
@@ -46,8 +47,23 @@ namespace nm
 	{
 		return std::find(requested_chunks.begin(), requested_chunks.end(), c) != requested_chunks.end();
 	}
+	void NetworkGame::send_player_join(int x, int y)
+	{
+		message::MessageWrapper wrapper;
+		wrapper.set_type(wrapper.PLAYER_JOIN);
+		auto playerJoin = wrapper.mutable_playerjoin();
+		playerJoin->set_x(x);
+		playerJoin->set_y(y);
+
+		client.send_message(wrapper);
+	}
+
 	void NetworkGame::open_square_handler(int x, int y)
 	{
+		if (this->is_first_open())
+		{
+			send_player_join(x, y);
+		}
 		message::MessageWrapper wrapper;
 		wrapper.set_type(wrapper.SQUARE_OPEN);
 
