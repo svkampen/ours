@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
 		while (true) {
 			client.poll();
-			gui.poll(game.board);
+			gui.poll(game);
 		}
 	}
 	/*
