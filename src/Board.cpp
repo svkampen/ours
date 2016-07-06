@@ -20,6 +20,8 @@ namespace nm
 			return temp;
 	}
 
+	Chunk Board::CHUNK_EMPTY = {};
+
 	Board::Board(ChunkGenerator chunkGenerator) : chunkGenerator(chunkGenerator)
 	{
 	};
@@ -28,9 +30,19 @@ namespace nm
 	{
 	};
 
+	void Board::add_chunk(Coordinates c, Chunk chunk)
+	{
+		chunks[c] = chunk;
+	}
+
 	Chunk& Board::get_chunk(Coordinates c)
 	{
 		return chunks[c];
+	}
+
+	void Board::set_client_mode(bool b)
+	{
+		client_mode = b;
 	}
 
 	void Board::clear_at(int x, int y)
@@ -65,6 +77,8 @@ namespace nm
 		auto chunk_iterator = chunks.find(chunk_coordinates);
 		if (chunk_iterator == chunks.end())
 		{
+			if (client_mode)
+				return CHUNK_EMPTY.get(local_coords);
 			// The chunk does not exist, so we generate it.
 			BOOST_LOG_TRIVIAL(info) << "[board] generating chunk at (" << chunk_coordinates.x()
 					  << ", " << chunk_coordinates.y() << ")";
