@@ -6,7 +6,7 @@
 
 namespace nm
 {
-	NetworkGame::NetworkGame(Client& client) : board(ChunkGenerator(0.0, 0.0)), client(client)
+	NetworkGame::NetworkGame(Client& client) : client(client), board(ChunkGenerator(0.0, 0.0)) 
 	{
 		board.set_client_mode(true);
 		is_first_open.set();
