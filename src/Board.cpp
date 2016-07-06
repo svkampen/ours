@@ -37,6 +37,8 @@ namespace nm
 
 	Chunk& Board::get_chunk(Coordinates c)
 	{
+		if (chunks.find(c) == chunks.end() && !client_mode)
+			chunks[c] = chunkGenerator.generate();
 		return chunks[c];
 	}
 
