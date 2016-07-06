@@ -102,6 +102,8 @@ namespace nm
 			BOOST_LOG_TRIVIAL(info) << "[Server] received PLAYER_JOIN message (X: " << msg.x()
 				<< " Y: " << msg.y() << " ID: " << hash << ")";
 
+			game.board.clear_at(msg.x(), msg.y());
+
 			message::MessageWrapper wrapper;
 			wrapper.set_type(wrapper.PLAYER_JOIN);
 
