@@ -55,6 +55,9 @@ namespace nm
 		Coordinates chunk_coordinates = {static_cast<int>(std::floor(x / static_cast<double>(NM_CHUNK_SIZE))),
 										 static_cast<int>(std::floor(y / static_cast<double>(NM_CHUNK_SIZE)))};
 
+		BOOST_LOG_TRIVIAL(info) << "Clearing around (X: " << local_coords.x() << " Y: " << local_coords.y() << "), "
+			<< "Chunk " << chunk_coordinates.x() << ", " << chunk_coordinates.y() << ".";
+
 		Chunk& chunk = chunks[chunk_coordinates];
 		static int around_offsets[3] = {-1, 0, 1};
 
