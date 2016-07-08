@@ -38,7 +38,7 @@ void logging_init() {
 	);
 }
 
-void nm_exit()
+void nm_exit(int x)
 {
 	endwin();
 	exit(0);
@@ -47,6 +47,7 @@ void nm_exit()
 int main(int argc, char *argv[])
 {
 	logging_init();
+	signal(SIGINT, nm_exit);
 	if (strcmp("-s", argv[1]) == 0)
 	{
 		nm::server::Server server;
