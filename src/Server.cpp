@@ -19,6 +19,7 @@ namespace nm
 			message_event_connect(connectionManager.ev_player_join, &Server::player_join_handler, this);
 			message_event_connect(connectionManager.ev_cursor_move, &Server::cursor_move_handler, this);
 			message_event_connect(connectionManager.ev_square_open, &Server::square_open_handler, this);
+			message_event_connect(connectionManager.ev_square_flag, &Server::square_flag_handler, this);
 			message_event_connect(connectionManager.ev_chunk_request, &Server::chunk_request_handler, this);
 		}
 
