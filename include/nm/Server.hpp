@@ -16,7 +16,6 @@ namespace server
 		public:
 			Server();
 			void start();
-			void poll();
 
 			/* event handlers */
 			void chunk_request_handler(Connection::ptr connection, const message::ChunkRequest& msg);

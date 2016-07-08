@@ -124,11 +124,7 @@ namespace nm
 		{
 			BOOST_LOG_TRIVIAL(info) << "[net] Starting server";
 			start_accept();
-		}
-
-		void ConnectionManager::poll()
-		{
-			io_service.poll();
+			io_service.run();
 		}
 
 		void ConnectionManager::message_handler(Connection::ptr connection, message::MessageWrapper& message)

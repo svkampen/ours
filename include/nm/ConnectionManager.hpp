@@ -73,7 +73,6 @@ namespace server
 			ConnectionManager(boost::asio::ip::tcp::endpoint endpoint);
 			void send_all(message::MessageWrapper&);
 			void send_all_other(Connection::ptr&, message::MessageWrapper&);
-			void poll();
 			void start();
 	};
 }

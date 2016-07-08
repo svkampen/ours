@@ -51,16 +51,12 @@ int main(int argc, char *argv[])
 	{
 		nm::server::Server server;
 		server.start();
-
-		while(true) {
-			server.poll();
-		}
 	} else
 	{
 		boost::asio::io_service io_service;
 		nm::Client client(io_service, "localhost", "4096");
 		nm::NetworkGame game(client);
-		nm::Gui gui;
+		nm::Gui gui(io_service, game);
 
 		gui.ev_square_open.connect(boost::bind(&nm::NetworkGame::open_square_handler, &game, _1, _2));
 		gui.ev_square_flag.connect(boost::bind(&nm::NetworkGame::flag_square_handler, &game, _1, _2));
@@ -68,8 +64,7 @@ int main(int argc, char *argv[])
 		client.ev_update_chunk.connect(boost::bind(&nm::NetworkGame::chunk_update_handler, &game, _1, _2));
 
 		while (true) {
-			client.poll();
-			gui.poll(game);
+			io_service.run();
 		}
 	}
 	/*

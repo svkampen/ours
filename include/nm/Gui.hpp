@@ -8,11 +8,16 @@
 #include <nm/SquareSource.hpp>
 #include <nm/Flag.hpp>
 
+#include <boost/asio.hpp>
+
 namespace nm
 {
 	class Gui : public boost::enable_shared_from_this<Gui>
 	{
 		private:
+			SquareSource &squareSource;
+			boost::asio::posix::stream_descriptor in;
+
 			WINDOW* main_window;
 			int width;
 			int height;
@@ -27,12 +32,13 @@ namespace nm
 			square_event ev_cursor_move;
 			boost::signals2::signal<void ()> ev_exit;
 
-			Gui();
+			Gui(boost::asio::io_service& io_service, SquareSource& squareSource);
+
 			void handle_input();
 			void draw_open_square(Square& square);
-			void draw_board(SquareSource& squareSource);
+			void draw_board();
 			static void handle_resize();
-			void poll(SquareSource& squareSource);
+			void draw();
 	};
 }
 

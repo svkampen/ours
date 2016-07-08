@@ -128,10 +128,5 @@ namespace nm
 		{
 			connectionManager.start();
 		}
-
-		void Server::poll()
-		{
-			connectionManager.poll();
-		}
 	}
 }

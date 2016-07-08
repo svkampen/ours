@@ -7,7 +7,8 @@
 
 namespace nm
 {
-	Gui::Gui()
+	Gui::Gui(boost::asio::io_service& io_service, SquareSource& squareSource) : squareSource(squareSource),
+		in(io_service, ::dup(STDIN_FILENO))
 	{
 		width = height = board_offset_x = board_offset_y = 0;
 
@@ -42,6 +43,11 @@ namespace nm
 
 		this->cursor_x = (COLS / 2)/3;
 		this->cursor_y = LINES / 2;
+
+		Gui::draw();
+		in.async_read_some(boost::asio::null_buffers(), boost::bind(&Gui::draw, this));
+	}
+
 	}
 
 	void Gui::handle_resize()
@@ -61,10 +67,11 @@ namespace nm
 		refresh();
 	}
 
-	void Gui::poll(SquareSource &squareSource)
+	void Gui::draw()
 	{
 		handle_input();
-		draw_board(squareSource);
+		draw_board();
+		in.async_read_some(boost::asio::null_buffers(), boost::bind(&Gui::draw, this));
 	}
 
 	void Gui::handle_input()
@@ -123,7 +130,7 @@ namespace nm
 		}
 	}
 
-	void Gui::draw_board(SquareSource &squareSource)
+	void Gui::draw_board()
 	{
 		this->width = COLS;
 		this->height = LINES;
