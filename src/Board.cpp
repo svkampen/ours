@@ -58,7 +58,7 @@ namespace nm
 		BOOST_LOG_TRIVIAL(info) << "Clearing around (X: " << local_coords.x() << " Y: " << local_coords.y() << "), "
 			<< "Chunk " << chunk_coordinates.x() << ", " << chunk_coordinates.y() << ".";
 
-		Chunk& chunk = chunks[chunk_coordinates];
+		Chunk& chunk = this->get_chunk(chunk_coordinates);
 		static int around_offsets[3] = {-1, 0, 1};
 
 		for (auto&& xoff : around_offsets)
