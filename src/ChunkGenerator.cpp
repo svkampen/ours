@@ -12,7 +12,7 @@ namespace nm
 	{
 	};
 
-	Chunk ChunkGenerator::generate()
+	Chunk ChunkGenerator::generate() const
 	{
 		Chunk chunk;
 

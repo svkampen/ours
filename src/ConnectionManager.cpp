@@ -21,7 +21,7 @@ namespace nm
 			start_read();
 		}
 
-		void Connection::sendMessage(message::MessageWrapper& wrapper)
+		void Connection::sendMessage(const message::MessageWrapper& wrapper)
 		{
 			size_t message_size = wrapper.ByteSize();
 
@@ -47,6 +47,7 @@ namespace nm
 
 		void Connection::start_read()
 		{
+
 			std::shared_ptr<uint8_t> header_buf(new uint8_t[4], std::default_delete<uint8_t[]>());
 
 			boost::asio::async_read(
@@ -67,7 +68,7 @@ namespace nm
 
 		void Connection::connection_closed()
 		{
-			BOOST_LOG_TRIVIAL(info) << "[net] Connection from " << socket_.remote_endpoint().address().to_string() << " closed.";
+			BOOST_LOG_TRIVIAL(info) << "[net] Connection closed.";
 			message::MessageWrapper wrapper;
 			wrapper.set_type(message::MessageWrapper_Type_PLAYER_QUIT);
 			this->ev_message_received(shared_from_this(), wrapper);
@@ -80,13 +81,11 @@ namespace nm
 				return this->connection_closed();
 			}
 
-			uint8_t* bytes = data.get();
+			const uint8_t* bytes = data.get();
 			uint32_t header;
 			memcpy(&header, bytes, 4);
 
 			uint32_t length = ntohl(header);
-
-			BOOST_LOG_TRIVIAL(info) << "[net] read header: length " << length;
 
 			std::shared_ptr<uint8_t> message_buf(new uint8_t[length], std::default_delete<uint8_t[]>());
 
@@ -149,13 +148,16 @@ namespace nm
 				case message::MessageWrapper_Type_PLAYER_QUIT:
 					this->ev_player_quit(connection, message.playerquit());
 					break;
+				case message::MessageWrapper_Type_CLEAR_AT:
+					this->ev_clear_at(connection, message.clearat());
+					break;
 				default:
 					BOOST_LOG_TRIVIAL(warning) << "[net] Unhandled message type arrived: " << static_cast<uint16_t>(message.type());
 					break;
 			}
 		}
 
-		void ConnectionManager::send_all(message::MessageWrapper& wrapper)
+		void ConnectionManager::send_all(const message::MessageWrapper& wrapper)
 		{
 			for(auto&& conn : this->connections)
 			{
@@ -163,7 +165,7 @@ namespace nm
 			}
 		}
 
-		void ConnectionManager::send_all_other(Connection::ptr& exclusion, message::MessageWrapper& wrapper)
+		void ConnectionManager::send_all_other(const Connection::ptr& exclusion, const message::MessageWrapper& wrapper)
 		{
 			for(auto&& conn : this->connections)
 			{

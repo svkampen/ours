@@ -10,26 +10,35 @@
 #include "Chunk.hpp"
 #include "ChunkGenerator.hpp"
 #include "SquareSource.hpp"
+#include "ChunkSource.hpp"
+#include <boost/optional.hpp>
 
 namespace nm
 {
-	class Board : public SquareSource
+	class Board : public SquareSource, public ChunkSource
 	{
+		friend class Loader;
+		friend class Saver;
+		friend class ImageSaver;
+
 		private:
 			static Chunk CHUNK_EMPTY;
-			std::unordered_map<Coordinates, Chunk> chunks;
+			ChunkList chunks;
 			ChunkGenerator chunkGenerator;
 
 			bool client_mode = false;
 
 		public:
 			Board();
-			Board(ChunkGenerator chunkGenerator);
-			void add_chunk(Coordinates c, Chunk chunk);
-			Chunk& get_chunk(Coordinates c);
+			Board(const ChunkGenerator& chunkGenerator);
+			void add_chunk(const Coordinates& c, const Chunk& chunk);
+			const ChunkList& get_chunks() const;
+			boost::optional<Chunk&> get_chunk(const Coordinates& c);
+			Chunk& regenerate_chunk(const Coordinates& c);
 			void set_client_mode(bool);
 			void clear_at(int x, int y);
-			Square& get(Coordinates coordinates);
+
+			Square& get(const Coordinates& coordinates);
 			Square& get(int x, int y);
 	};
 };

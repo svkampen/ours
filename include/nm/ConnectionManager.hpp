@@ -1,8 +1,9 @@
 #ifndef NM_CONNECTION_HPP
 #define NM_CONNECTION_HPP
 
+#include <memory>
+
 #include <boost/asio.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/signals2.hpp>
 
 #include <netmine.pb.h>
@@ -19,10 +20,10 @@ namespace server
 		return *reinterpret_cast<ToCast*>(fromCast);
 	}
 
-	class Connection : public boost::enable_shared_from_this<Connection>
+	class Connection : public std::enable_shared_from_this<Connection>
 	{
 		public:
-			typedef boost::shared_ptr<Connection> ptr;
+			typedef std::shared_ptr<Connection> ptr;
 
 			static ptr create(boost::asio::io_service& io_service)
 			{
@@ -35,7 +36,7 @@ namespace server
 			}
 
 			void start();
-			void sendMessage(message::MessageWrapper&);
+			void sendMessage(const message::MessageWrapper&);
 
 			events::signal<void (ptr, nm::message::MessageWrapper&)> ev_message_received;
 
@@ -44,7 +45,7 @@ namespace server
 			void connection_closed();
 			void write_callback(const boost::system::error_code& ec, const size_t nbytes);
 			void message_callback(uint32_t length, std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes);
-			void header_callback(std::shared_ptr<uint8_t>, const boost::system::error_code& ec, const size_t nbytes);
+			void header_callback(std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes);
 			boost::asio::ip::tcp::socket socket_;
 			Connection(boost::asio::io_service& io_service);
 	};
@@ -64,15 +65,16 @@ namespace server
 		public:
 			events::signal<void (Connection::ptr, const message::SquareOpen&)> ev_square_open;
 			events::signal<void (Connection::ptr, const message::SquareFlag&)> ev_square_flag;
-			events::signal<void (Connection::ptr, const message::PlayerJoin&)> ev_player_join;
-			events::signal<void (Connection::ptr, const message::PlayerQuit&)> ev_player_quit;
+			events::signal<void (Connection::ptr, const message::Player&)> ev_player_join;
+			events::signal<void (Connection::ptr, const message::Player&)> ev_player_quit;
 			events::signal<void (Connection::ptr, const message::CursorMove&)> ev_cursor_move;
 			events::signal<void (Connection::ptr, const message::ChunkRequest&)> ev_chunk_request;
+			events::signal<void (Connection::ptr, const message::ClearAt&)> ev_clear_at;
 
 			ConnectionManager(boost::asio::ip::tcp::endpoint& endpoint);
 			ConnectionManager(boost::asio::ip::tcp::endpoint endpoint);
-			void send_all(message::MessageWrapper&);
-			void send_all_other(Connection::ptr&, message::MessageWrapper&);
+			void send_all(const message::MessageWrapper&);
+			void send_all_other(const Connection::ptr&, const message::MessageWrapper&);
 			void start();
 	};
 }

@@ -5,10 +5,12 @@
 #include <cmath>
 
 #include <boost/log/trivial.hpp>
+#include <nm/Utils.hpp>
+#include <cassert>
 
 namespace nm
 {
-	int32_t modulo(int32_t n, int32_t mod)
+	const int32_t modulo(const int32_t n, const int32_t mod)
 	{
 		// Since C++'s modulo behavior with negative numbers is dependent on the
 		// implementation, this function makes sure modulo behavior is consistent
@@ -22,24 +24,31 @@ namespace nm
 
 	Chunk Board::CHUNK_EMPTY = {};
 
-	Board::Board(ChunkGenerator chunkGenerator) : chunkGenerator(chunkGenerator)
+	Board::Board(const ChunkGenerator& chunkGenerator) : chunkGenerator(chunkGenerator)
 	{
 	};
 
-	Board::Board() : Board(ChunkGenerator(0.15, 0.03))
+	Board::Board() : Board(ChunkGenerator(0.20, 0.03))
 	{
 	};
 
-	void Board::add_chunk(Coordinates c, Chunk chunk)
+	void Board::add_chunk(const Coordinates& c, const Chunk& chunk)
 	{
 		chunks[c] = chunk;
 	}
 
-	Chunk& Board::get_chunk(Coordinates c)
+	boost::optional<Chunk&> Board::get_chunk(const Coordinates& c)
 	{
-		if (chunks.find(c) == chunks.end() && !client_mode)
-			chunks[c] = chunkGenerator.generate();
-		return chunks[c];
+		auto iter = chunks.find(c);
+		if (iter == chunks.end())
+			return boost::optional<Chunk&>();
+		else
+			return boost::optional<Chunk&>(iter->second);
+	}
+
+	const ChunkList& Board::get_chunks() const
+	{
+		return this->chunks;
 	}
 
 	void Board::set_client_mode(bool b)
@@ -47,18 +56,24 @@ namespace nm
 		client_mode = b;
 	}
 
+	Chunk& Board::regenerate_chunk(const Coordinates& c)
+	{
+		return chunks[c] = chunkGenerator.generate();
+	}
+
 	void Board::clear_at(int x, int y)
 	{
 		simmo::vector<int32_t, 2> local_coords = {modulo(x, NM_CHUNK_SIZE),
 												  modulo(y, NM_CHUNK_SIZE)};
 
-		Coordinates chunk_coordinates = {static_cast<int>(std::floor(x / static_cast<double>(NM_CHUNK_SIZE))),
-										 static_cast<int>(std::floor(y / static_cast<double>(NM_CHUNK_SIZE)))};
+		Coordinates chunk_coordinates = nm::utils::to_chunk_coordinates({x, y});
 
 		BOOST_LOG_TRIVIAL(info) << "Clearing around (X: " << local_coords.x() << " Y: " << local_coords.y() << "), "
 			<< "Chunk " << chunk_coordinates.x() << ", " << chunk_coordinates.y() << ".";
 
-		Chunk& chunk = this->get_chunk(chunk_coordinates);
+		boost::optional<Chunk&> maybeChunk = this->get_chunk(chunk_coordinates);
+		Chunk& chunk = maybeChunk.is_initialized() ? maybeChunk.get() : regenerate_chunk(chunk_coordinates);
+
 		static int around_offsets[3] = {-1, 0, 1};
 
 		for (auto&& xoff : around_offsets)
@@ -71,7 +86,7 @@ namespace nm
 		}
 	}
 
-	Square& Board::get(Coordinates coordinates)
+	Square& Board::get(const Coordinates& coordinates)
 	{
 		simmo::vector<int32_t, 2> local_coords = {modulo(coordinates.x(), NM_CHUNK_SIZE),
 												  modulo(coordinates.y(), NM_CHUNK_SIZE)};

@@ -3,25 +3,29 @@
 
 #include "Square.hpp"
 #include "Typedefs.hpp"
+#include "SquareSource.hpp"
 
 #include <functional>
 
-#define NM_CHUNK_SIZE 32
+#define NM_CHUNK_SIZE 16
 
 namespace nm
 {
-	Coordinates to_chunk_coordinates(Coordinates c);
-
-	class Chunk
+	class Chunk : public SquareSource
 	{
+		using SquareFn = std::function<void(Square&)>;
 		private:
 			std::array<std::array<Square, NM_CHUNK_SIZE>, NM_CHUNK_SIZE> chunk{}; // {} necessary for 0-init
 		public:
-			Square& get(Coordinates coordinates);
+			Square& get(const Coordinates& coordinates);
 			Square& get(int x, int y);
-			Chunk transform_copy(std::function<void(Square&)> functor);
-			char *serialize();
-			void deserialize(char* data);
+
+			const Square& get(const Coordinates& coordinates) const;
+			const Square& get(const int x, const int y) const;
+			Chunk transform_copy(const SquareFn& functor) const;
+			void transform(const SquareFn& functor);
+			char *serialize() const;
+			void deserialize(const char* data);
 	};
 }
 
