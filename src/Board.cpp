@@ -37,9 +37,16 @@ namespace nm
 
 	Chunk& Board::get_chunk(Coordinates c)
 	{
-		if (chunks.find(c) == chunks.end() && !client_mode)
-			chunks[c] = chunkGenerator.generate();
-		return chunks[c];
+		auto iter = chunks.find(c);
+		if (iter == chunks.end())
+			return boost::optional<Chunk&>();
+		else
+			return boost::optional<Chunk&>(iter->second);
+	}
+
+	const ChunkList& Board::get_chunks() const
+	{
+		return this->chunks;
 	}
 
 	void Board::set_client_mode(bool b)

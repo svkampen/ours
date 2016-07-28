@@ -10,14 +10,15 @@
 #include "Chunk.hpp"
 #include "ChunkGenerator.hpp"
 #include "SquareSource.hpp"
+#include "ChunkSource.hpp"
 
 namespace nm
 {
-	class Board : public SquareSource
+	class Board : public SquareSource, public ChunkSource
 	{
 		private:
 			static Chunk CHUNK_EMPTY;
-			std::unordered_map<Coordinates, Chunk> chunks;
+			ChunkList chunks;
 			ChunkGenerator chunkGenerator;
 
 			bool client_mode = false;
@@ -27,6 +28,7 @@ namespace nm
 			Board(ChunkGenerator chunkGenerator);
 			void add_chunk(Coordinates c, Chunk chunk);
 			Chunk& get_chunk(Coordinates c);
+			const ChunkList& get_chunks() const;
 			void set_client_mode(bool);
 			void clear_at(int x, int y);
 			Square& get(Coordinates coordinates);
