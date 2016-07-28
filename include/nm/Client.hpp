@@ -29,9 +29,10 @@ namespace nm
 			void message_callback(uint32_t length, std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes);
 			void write_callback(const boost::system::error_code &ec, const size_t nbytes);
 		public:
-			Client(boost::asio::io_service& io_service, std::string ip, std::string port);
+			Client(boost::asio::io_service& io_service);
 
 			void send_message(const message::MessageWrapper& wrapper);
+			void connect(const std::string& ip, const std::string& port);
 			void poll();
 
 			events::signal<void (const message::ChunkBytes&)> ev_update_chunk;

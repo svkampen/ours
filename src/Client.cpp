@@ -6,8 +6,12 @@ using boost::asio::ip::tcp;
 
 namespace nm
 {
-	Client::Client(boost::asio::io_service& io_service, std::string ip, std::string port)
+	Client::Client(boost::asio::io_service& io_service)
 		: resolver_(io_service), socket_(io_service), io_service(io_service)
+	{
+	}
+
+	void Client::connect(const std::string& ip, const std::string& port)
 	{
 		tcp::resolver::query query(ip, port);
 		resolver_.async_resolve(query,
