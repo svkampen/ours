@@ -25,7 +25,7 @@ namespace nm
 			Board board;
 			virtual Square& get(const Coordinates& c);
 			virtual Square& get(int x, int y);
-			void chunk_update_handler(Client *client, const message::ChunkBytes& msg);
+			void chunk_update_handler(const message::ChunkBytes& msg);
 			void flag_square_handler(int x, int y);
 			void open_square_handler(int x, int y);
 	};

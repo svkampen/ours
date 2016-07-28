@@ -96,16 +96,16 @@ namespace nm
 		switch (wrapper.type())
 		{
 			case wrapper.CHUNK_BYTES:
-				this->ev_update_chunk(this, wrapper.chunkbytes());
+				this->ev_update_chunk(wrapper.chunkbytes());
 				break;
 			case wrapper.PLAYER_JOIN:
-				this->ev_player_join(this, wrapper.playerjoin());
+				this->ev_player_join(wrapper.playerjoin());
 				break;
 			case wrapper.PLAYER_QUIT:
-				this->ev_player_quit(this, wrapper.playerquit());
+				this->ev_player_quit(wrapper.playerquit());
 				break;
 			case wrapper.CURSOR_MOVE:
-				this->ev_cursor_move(this, wrapper.cursormove());
+				this->ev_cursor_move(wrapper.cursormove());
 				break;
 			default:
 				break;

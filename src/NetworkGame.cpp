@@ -12,7 +12,7 @@ namespace nm
 		is_first_open.set();
 	}
 
-	void NetworkGame::chunk_update_handler(Client *client, const message::ChunkBytes& msg)
+	void NetworkGame::chunk_update_handler(const message::ChunkBytes& msg)
 	{
 		char *data = const_cast<char*>(msg.data().c_str());
 
