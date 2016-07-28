@@ -5,7 +5,7 @@
 
 namespace nm
 {
-	typedef simmo::point<int32_t, 2> Coordinates;
+	using Coordinates  = simmo::point<int32_t, 2>;
 }
 
 #endif // TYPEDEFS_HPP
