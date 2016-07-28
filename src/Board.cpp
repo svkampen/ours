@@ -54,6 +54,11 @@ namespace nm
 		client_mode = b;
 	}
 
+	Chunk& Board::regenerate_chunk(const Coordinates& c)
+	{
+		return chunks[c] = chunkGenerator.generate();
+	}
+
 	void Board::clear_at(int x, int y)
 	{
 		simmo::vector<int32_t, 2> local_coords = {modulo(x, NM_CHUNK_SIZE),

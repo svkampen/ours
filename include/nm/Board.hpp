@@ -30,6 +30,7 @@ namespace nm
 			void add_chunk(const Coordinates& c, const Chunk& chunk);
 			const ChunkList& get_chunks() const;
 			boost::optional<Chunk&> get_chunk(const Coordinates& c);
+			Chunk& regenerate_chunk(const Coordinates& c);
 			void set_client_mode(bool);
 			void clear_at(int x, int y);
 
