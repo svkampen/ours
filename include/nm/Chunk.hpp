@@ -7,7 +7,7 @@
 
 #include <functional>
 
-#define NM_CHUNK_SIZE 32
+#define NM_CHUNK_SIZE 16
 
 namespace nm
 {
