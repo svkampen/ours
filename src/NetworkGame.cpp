@@ -91,6 +91,7 @@ namespace nm
 		chunkRequest->set_x(c.x());
 		chunkRequest->set_y(c.y());
 
+		BOOST_LOG_TRIVIAL(info) << "Requesting chunk at (" << c.x() << ", " << c.y() << ")";
 		client.send_message(wrapper);
 	}
 
@@ -104,7 +105,6 @@ namespace nm
 		Coordinates chunk_coords = utils::to_chunk_coordinates(c);
 		if (!chunk_requested(chunk_coords))
 		{
-			BOOST_LOG_TRIVIAL(info) << "Requesting chunk at (" << chunk_coords.x() << ", " << chunk_coords.y() << ")";
 			request_chunk(chunk_coords);
 		}
 
