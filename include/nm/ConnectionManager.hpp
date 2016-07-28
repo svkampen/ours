@@ -1,8 +1,9 @@
 #ifndef NM_CONNECTION_HPP
 #define NM_CONNECTION_HPP
 
+#include <memory>
+
 #include <boost/asio.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/signals2.hpp>
 
 #include <netmine.pb.h>
@@ -19,10 +20,10 @@ namespace server
 		return *reinterpret_cast<ToCast*>(fromCast);
 	}
 
-	class Connection : public boost::enable_shared_from_this<Connection>
+	class Connection : public std::enable_shared_from_this<Connection>
 	{
 		public:
-			typedef boost::shared_ptr<Connection> ptr;
+			typedef std::shared_ptr<Connection> ptr;
 
 			static ptr create(boost::asio::io_service& io_service)
 			{
