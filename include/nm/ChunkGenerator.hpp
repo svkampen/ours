@@ -9,15 +9,10 @@ namespace nm
 	{
 		private:
 			double mean_density, variation;
-			bool empty_center = false;
 		public:
 			ChunkGenerator(double mean_density, double variation);
 			Chunk generate();
 
-			void setEmptyCenter(bool empty_center)
-			{
-				this->empty_center = empty_center;
-			}
 
 			void setMeanDensity(double density)
 			{
