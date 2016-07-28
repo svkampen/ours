@@ -14,13 +14,37 @@ namespace nm
 
 	namespace server
 	{
-		Server::Server() : connectionManager(tcp::endpoint(tcp::v4(), 4096))
-		{
+		Server::Server(Game& game, int port) : connectionManager(tcp::endpoint(tcp::v4(), port)), game(game) {
 			message_event_connect(connectionManager.ev_player_join, &Server::player_join_handler, this);
+			message_event_connect(connectionManager.ev_player_quit, &Server::player_quit_handler, this);
 			message_event_connect(connectionManager.ev_cursor_move, &Server::cursor_move_handler, this);
 			message_event_connect(connectionManager.ev_square_open, &Server::square_open_handler, this);
 			message_event_connect(connectionManager.ev_square_flag, &Server::square_flag_handler, this);
 			message_event_connect(connectionManager.ev_chunk_request, &Server::chunk_request_handler, this);
+			message_event_connect(connectionManager.ev_clear_at, &Server::clear_at_handler, this);
+		}
+
+		Server::Server(Game& game) : Server(game, 4096)
+		{
+		};
+
+		void Server::player_quit_handler(Connection::ptr connection, const message::Player& _)
+		{
+			auto&& player = this->clients[connection];
+
+			message::MessageWrapper wrapper;
+			wrapper.set_type(wrapper.PLAYER_QUIT);
+			auto playerQuit = wrapper.mutable_playerquit();
+			playerQuit->CopyFrom(player);
+
+			connectionManager.send_all_other(connection, wrapper);
+
+			this->clients.erase(connection);
+		}
+
+		void Server::clear_at_handler(Connection::ptr connection, const message::ClearAt& clearAt)
+		{
+			// game.board.clear_at(clearAt.x(), clearAt.y());
 		}
 
 		void Server::send_chunk_update(int x, int y)
@@ -63,14 +87,18 @@ namespace nm
 
 		void Server::cursor_move_handler(Connection::ptr connection, const message::CursorMove& msg)
 		{
-			auto id_iter = this->clients.left.find(connection);
+			auto&& player = this->clients[connection];
 
 			message::MessageWrapper wrapper;
 			wrapper.set_type(wrapper.CURSOR_MOVE);
 
 			auto cMove = wrapper.mutable_cursormove();
 			cMove->CopyFrom(msg);
-			cMove->set_id(id_iter->second);
+			cMove->set_id(player.id());
+
+			/* update local (x, y) stats */
+			player.set_x(msg.x());
+			player.set_y(msg.y());
 
 			this->connectionManager.send_all_other(connection, wrapper);
 		}
@@ -95,7 +123,7 @@ namespace nm
 
 		void Server::square_flag_handler(Connection::ptr connection, const message::SquareFlag& msg)
 		{
-			BOOST_LOG_TRIVIAL(info) << "[Server] Received SQUARE_FLAG message: " << msg.DebugString();
+			BOOST_LOG_TRIVIAL(info) << "[Server] Received SQUARE_FLAG message: " << msg.ShortDebugString();
 			game.flag_square_handler(msg.x(), msg.y());
 
 			int x = ((int)std::floor(msg.x() / (double)NM_CHUNK_SIZE));
@@ -122,7 +150,6 @@ namespace nm
 				<< " Y: " << msg.y() << " ID: " << player.id() << ")";
 
 			/* Then, send the playerjoin (including ID) to every other client */
-			game.board.clear_at(msg.x(), msg.y());
 
 			message::MessageWrapper wrapper;
 			wrapper.set_type(wrapper.PLAYER_JOIN);
