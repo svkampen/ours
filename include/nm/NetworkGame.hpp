@@ -25,6 +25,8 @@ namespace nm
 		public:
 			NetworkGame(Client& client);
 			Board board;
+
+			boost::signals2::signal<void ()> ev_board_update;
 			boost::signals2::signal<void (message::Player&)> ev_new_player;
 
 			virtual Square& get(const Coordinates& c);

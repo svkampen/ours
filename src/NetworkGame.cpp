@@ -34,6 +34,10 @@ namespace nm
 
 		if (!chunk_requested(coordinates))
 			requested_chunks.push_back(coordinates);
+
+		this->ev_board_update();
+	}
+
 	}
 
 	void NetworkGame::flag_square_handler(int x, int y)
