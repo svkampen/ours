@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include <boost/log/trivial.hpp>
+#include <nm/Utils.hpp>
 
 namespace nm
 {
