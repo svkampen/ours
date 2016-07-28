@@ -110,6 +110,18 @@ namespace nm
 		return this->get({x, y});
 	}
 
+	void NetworkGame::send_clear_at(int x, int y)
+	{
+		message::MessageWrapper wrapper;
+		wrapper.set_type(wrapper.CLEAR_AT);
+
+		auto clearAt = wrapper.mutable_clearat();
+		clearAt->set_x(x);
+		clearAt->set_y(y);
+
+		client.send_message(wrapper);
+	}
+
 	void NetworkGame::send_player_join(int x, int y)
 	{
 		message::MessageWrapper wrapper;
@@ -125,7 +137,7 @@ namespace nm
 	{
 		if (this->is_first_open())
 		{
-			send_player_join(x, y);
+			send_clear_at(x, y);
 		}
 		message::MessageWrapper wrapper;
 		wrapper.set_type(wrapper.SQUARE_OPEN);

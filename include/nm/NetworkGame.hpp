@@ -20,6 +20,7 @@ namespace nm
 			std::vector<Coordinates> requested_chunks;
 			Flag is_first_open;
 			void send_player_join(int x, int y);
+			void send_clear_at(int x, int y);
 			void request_chunk(const Coordinates& c);
 			bool chunk_requested(const Coordinates& c);
 		public:
