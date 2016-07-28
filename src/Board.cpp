@@ -26,7 +26,7 @@ namespace nm
 	{
 	};
 
-	Board::Board() : Board(ChunkGenerator(0.15, 0.03))
+	Board::Board() : Board(ChunkGenerator(0.20, 0.03))
 	{
 	};
 
