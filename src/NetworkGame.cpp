@@ -10,6 +10,15 @@ namespace nm
 	{
 		board.set_client_mode(true);
 		is_first_open.set();
+
+		client.ev_connected.connect(boost::bind(&NetworkGame::connected_handler, this));
+		client.ev_welcome.connect(boost::bind(&NetworkGame::welcome_handler, this, _1));
+	}
+
+	void NetworkGame::connected_handler()
+	{
+		this->send_player_join(0,0);
+		this->ev_board_update();
 	}
 
 	void NetworkGame::chunk_update_handler(const message::ChunkBytes& msg)
@@ -35,6 +44,28 @@ namespace nm
 		auto squareFlag = wrapper.mutable_squareflag();
 		squareFlag->set_x(x);
 		squareFlag->set_y(y);
+
+		client.send_message(wrapper);
+	}
+
+	void NetworkGame::welcome_handler(const message::Welcome& welcome)
+	{
+		for (int i = 0; i < welcome.nplayers(); i++)
+		{
+			auto player = welcome.players(i);
+			BOOST_LOG_TRIVIAL(info) << "Adding player with ID " << player.id();
+			this->ev_new_player(player);
+		}
+	}
+
+	void NetworkGame::cursor_move_handler(int x, int y)
+	{
+		message::MessageWrapper wrapper;
+		wrapper.set_type(wrapper.CURSOR_MOVE);
+
+		auto cursorMove = wrapper.mutable_cursormove();
+		cursorMove->set_x(x);
+		cursorMove->set_y(y);
 
 		client.send_message(wrapper);
 	}

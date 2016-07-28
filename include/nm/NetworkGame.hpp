@@ -9,6 +9,8 @@
 
 #include <vector>
 
+#include <boost/signals2.hpp>
+
 namespace nm
 {
 	class NetworkGame : public SquareSource
@@ -23,9 +25,14 @@ namespace nm
 		public:
 			NetworkGame(Client& client);
 			Board board;
+			boost::signals2::signal<void (message::Player&)> ev_new_player;
+
 			virtual Square& get(const Coordinates& c);
 			virtual Square& get(int x, int y);
+			void connected_handler();
+			void welcome_handler(const message::Welcome& welcome);
 			void chunk_update_handler(const message::ChunkBytes& msg);
+			void cursor_move_handler(int x, int y);
 			void flag_square_handler(int x, int y);
 			void open_square_handler(int x, int y);
 	};
