@@ -7,9 +7,9 @@ namespace nm
 {
 	class ImageSaver
 	{
-		const ChunkSource& chunkSource;
+		ChunkSource& chunkSource;
 		public:
-			ImageSaver(const ChunkSource& chunkSource);
+			ImageSaver(ChunkSource& chunkSource);
 			void save(const std::string& filename);
 	};
 }

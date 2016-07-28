@@ -3,7 +3,7 @@
 namespace nm
 {
 
-	ImageSaver::ImageSaver(const ChunkSource& chunkSource) : chunkSource(chunkSource)
+	ImageSaver::ImageSaver(ChunkSource& chunkSource) : chunkSource(chunkSource)
 	{
 	};
 
