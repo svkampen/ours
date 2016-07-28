@@ -149,6 +149,9 @@ namespace nm
 				case message::MessageWrapper_Type_PLAYER_QUIT:
 					this->ev_player_quit(connection, message.playerquit());
 					break;
+				case message::MessageWrapper_Type_CLEAR_AT:
+					this->ev_clear_at(connection, message.clearat());
+					break;
 				default:
 					BOOST_LOG_TRIVIAL(warning) << "[net] Unhandled message type arrived: " << static_cast<uint16_t>(message.type());
 					break;
