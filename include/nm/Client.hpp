@@ -26,7 +26,8 @@ namespace nm
 			void handle_resolve(const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::iterator ep_iter);
 			void handle_connect(const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::iterator ep_iter);
 			void header_callback(std::shared_ptr<uint8_t> data, const boost::system::error_code &ec, const size_t nbytes);
-			void message_callback(uint32_t length, std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes);
+			void message_callback(uint32_t length, std::shared_ptr<uint8_t> data,
+				const boost::system::error_code& ec, const size_t nbytes);
 			void write_callback(const boost::system::error_code &ec, const size_t nbytes);
 		public:
 			Client(boost::asio::io_service& io_service);
