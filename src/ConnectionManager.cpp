@@ -47,6 +47,7 @@ namespace nm
 
 		void Connection::start_read()
 		{
+
 			std::shared_ptr<uint8_t> header_buf(new uint8_t[4], std::default_delete<uint8_t[]>());
 
 			boost::asio::async_read(
@@ -67,7 +68,7 @@ namespace nm
 
 		void Connection::connection_closed()
 		{
-			BOOST_LOG_TRIVIAL(info) << "[net] Connection from " << socket_.remote_endpoint().address().to_string() << " closed.";
+			BOOST_LOG_TRIVIAL(info) << "[net] Connection closed.";
 			message::MessageWrapper wrapper;
 			wrapper.set_type(message::MessageWrapper_Type_PLAYER_QUIT);
 			this->ev_message_received(shared_from_this(), wrapper);
@@ -85,8 +86,6 @@ namespace nm
 			memcpy(&header, bytes, 4);
 
 			uint32_t length = ntohl(header);
-
-			BOOST_LOG_TRIVIAL(info) << "[net] read header: length " << length;
 
 			std::shared_ptr<uint8_t> message_buf(new uint8_t[length], std::default_delete<uint8_t[]>());
 
