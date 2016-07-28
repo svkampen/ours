@@ -38,6 +38,12 @@ namespace nm
 		this->ev_board_update();
 	}
 
+	void NetworkGame::save_image_handler()
+	{
+		/* TODO: implement image saving
+		 * ImageSaver saver(board);
+		 * saver.save("board.png");
+		 */
 	}
 
 	void NetworkGame::flag_square_handler(int x, int y)
