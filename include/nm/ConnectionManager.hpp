@@ -64,8 +64,8 @@ namespace server
 		public:
 			events::signal<void (Connection::ptr, const message::SquareOpen&)> ev_square_open;
 			events::signal<void (Connection::ptr, const message::SquareFlag&)> ev_square_flag;
-			events::signal<void (Connection::ptr, const message::PlayerJoin&)> ev_player_join;
-			events::signal<void (Connection::ptr, const message::PlayerQuit&)> ev_player_quit;
+			events::signal<void (Connection::ptr, const message::Player&)> ev_player_join;
+			events::signal<void (Connection::ptr, const message::Player&)> ev_player_quit;
 			events::signal<void (Connection::ptr, const message::CursorMove&)> ev_cursor_move;
 			events::signal<void (Connection::ptr, const message::ChunkRequest&)> ev_chunk_request;
 

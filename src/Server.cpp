@@ -92,7 +92,7 @@ namespace nm
 			this->send_chunk_update(x, y);
 		}
 
-		void Server::player_join_handler(Connection::ptr connection, const message::PlayerJoin& msg)
+		void Server::player_join_handler(Connection::ptr connection, const message::Player& msg)
 		{
 			auto endpoint = connection->socket().remote_endpoint();
 			std::string endpoint_and_port = endpoint.address().to_string() + std::to_string(endpoint.port());
@@ -119,7 +119,7 @@ namespace nm
 			auto welcome = wrapper.mutable_welcome();
 
 			welcome->set_version(1);
-			welcome->set_nclients(this->clients.size());
+			welcome->set_nplayers(this->clients.size() - 1);
 			wrapper.set_type(wrapper.WELCOME);
 
 			connection->sendMessage(wrapper);

@@ -19,7 +19,7 @@ namespace server
 
 			/* event handlers */
 			void chunk_request_handler(Connection::ptr connection, const message::ChunkRequest& msg);
-			void player_join_handler(Connection::ptr connection, const message::PlayerJoin& msg);
+			void player_join_handler(Connection::ptr connection, const message::Player& msg);
 			void cursor_move_handler(Connection::ptr connection, const message::CursorMove& msg);
 			void square_open_handler(Connection::ptr connection, const message::SquareOpen& msg);
 			void square_flag_handler(Connection::ptr connection, const message::SquareFlag& msg);
