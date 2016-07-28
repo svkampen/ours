@@ -13,6 +13,7 @@ namespace nm {
 			};
 
 			virtual Square& get(const Coordinates& coordinates) = 0;
+			virtual Square& get(int x, int y) = 0;
 	};
 }
 
