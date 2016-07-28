@@ -36,6 +36,7 @@ namespace nm
 	{
 		if (!ec)
 		{
+			this->ev_connected();
 			start_read();
 		} else
 		{
@@ -99,6 +100,9 @@ namespace nm
 
 		switch (wrapper.type())
 		{
+			case wrapper.WELCOME:
+				this->ev_welcome(wrapper.welcome());
+				break;
 			case wrapper.CHUNK_BYTES:
 				this->ev_update_chunk(wrapper.chunkbytes());
 				break;

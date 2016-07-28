@@ -35,10 +35,12 @@ namespace nm
 			void connect(const std::string& ip, const std::string& port);
 			void poll();
 
+			events::signal<void ()> ev_connected;
 			events::signal<void (const message::ChunkBytes&)> ev_update_chunk;
 			events::signal<void (const message::Player&)> ev_player_join;
 			events::signal<void (const message::Player&)> ev_player_quit;
 			events::signal<void (const message::CursorMove&)> ev_cursor_move;
+			events::signal<void (const message::Welcome&)> ev_welcome;
 	};
 }
 
