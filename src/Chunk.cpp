@@ -8,13 +8,17 @@ namespace nm
 		return chunk[coordinates.y()][coordinates.x()];
 	}
 
+	Square& Chunk::get(int x, int y)
+	{
+		return chunk[y][x];
 	}
 
+	const Square& Chunk::get(const Coordinates& coordinates) const
 	{
 		return chunk[coordinates.y()][coordinates.x()];
 	}
 
-	Square& Chunk::get(int x, int y)
+	const Square& Chunk::get(const int x, const int y) const
 	{
 		return chunk[y][x];
 	}

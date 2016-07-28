@@ -18,6 +18,9 @@ namespace nm
 		public:
 			Square& get(const Coordinates& coordinates);
 			Square& get(int x, int y);
+
+			const Square& get(const Coordinates& coordinates) const;
+			const Square& get(const int x, const int y) const;
 			Chunk transform_copy(const SquareFn& functor) const;
 			char *serialize() const;
 			void deserialize(const char* data);
