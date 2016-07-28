@@ -3,6 +3,7 @@
 
 #include "Square.hpp"
 #include "Typedefs.hpp"
+#include "SquareSource.hpp"
 
 #include <functional>
 
@@ -10,7 +11,7 @@
 
 namespace nm
 {
-	class Chunk
+	class Chunk : public SquareSource
 	{
 		using SquareFn = std::function<void(Square&)>;
 		private:
