@@ -17,6 +17,10 @@ namespace nm
 {
 	class Board : public SquareSource, public ChunkSource
 	{
+		friend class Loader;
+		friend class Saver;
+		friend class ImageSaver;
+
 		private:
 			static Chunk CHUNK_EMPTY;
 			ChunkList chunks;
