@@ -11,8 +11,8 @@ namespace nm
 			double mean_density, variation;
 		public:
 			ChunkGenerator(double mean_density, double variation);
-			Chunk generate();
 
+			Chunk generate() const;
 
 			void setMeanDensity(double density)
 			{
