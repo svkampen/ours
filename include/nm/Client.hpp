@@ -33,7 +33,6 @@ namespace nm
 
 			void send_message(const message::MessageWrapper& wrapper);
 			void connect(const std::string& ip, const std::string& port);
-			void poll();
 
 			events::signal<void ()> ev_connected;
 			events::signal<void (const message::ChunkBytes&)> ev_update_chunk;

@@ -150,8 +150,4 @@ namespace nm
 	{
 	};
 
-	void Client::poll()
-	{
-		io_service.poll();
-	}
 }
