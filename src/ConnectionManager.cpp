@@ -21,7 +21,7 @@ namespace nm
 			start_read();
 		}
 
-		void Connection::sendMessage(message::MessageWrapper& wrapper)
+		void Connection::sendMessage(const message::MessageWrapper& wrapper)
 		{
 			size_t message_size = wrapper.ByteSize();
 
@@ -80,7 +80,7 @@ namespace nm
 				return this->connection_closed();
 			}
 
-			uint8_t* bytes = data.get();
+			const uint8_t* bytes = data.get();
 			uint32_t header;
 			memcpy(&header, bytes, 4);
 
@@ -155,7 +155,7 @@ namespace nm
 			}
 		}
 
-		void ConnectionManager::send_all(message::MessageWrapper& wrapper)
+		void ConnectionManager::send_all(const message::MessageWrapper& wrapper)
 		{
 			for(auto&& conn : this->connections)
 			{
@@ -163,7 +163,7 @@ namespace nm
 			}
 		}
 
-		void ConnectionManager::send_all_other(Connection::ptr& exclusion, message::MessageWrapper& wrapper)
+		void ConnectionManager::send_all_other(const Connection::ptr& exclusion, const message::MessageWrapper& wrapper)
 		{
 			for(auto&& conn : this->connections)
 			{

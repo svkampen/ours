@@ -26,13 +26,14 @@ namespace nm
 
 		public:
 			Board();
-			Board(ChunkGenerator chunkGenerator);
-			void add_chunk(Coordinates c, Chunk chunk);
+			Board(const ChunkGenerator& chunkGenerator);
+			void add_chunk(const Coordinates& c, const Chunk& chunk);
 			const ChunkList& get_chunks() const;
 			boost::optional<Chunk&> get_chunk(const Coordinates& c);
 			void set_client_mode(bool);
 			void clear_at(int x, int y);
-			Square& get(Coordinates coordinates);
+
+			Square& get(const Coordinates& coordinates);
 			Square& get(int x, int y);
 	};
 };

@@ -3,15 +3,17 @@
 
 namespace nm
 {
+	Square& Chunk::get(const Coordinates& coordinates)
 	Coordinates to_chunk_coordinates(Coordinates c)
 	{
+		return chunk[coordinates.y()][coordinates.x()];
+	}
 		int x = ((int)std::floor(c.x() / (double)NM_CHUNK_SIZE));
 		int y = ((int)std::floor(c.y() / (double)NM_CHUNK_SIZE));
 
 		return {x, y};
 	}
 
-	Square& Chunk::get(Coordinates coordinates)
 	{
 		return chunk[coordinates.y()][coordinates.x()];
 	}
@@ -21,7 +23,7 @@ namespace nm
 		return chunk[y][x];
 	}
 
-	char *Chunk::serialize()
+	char *Chunk::serialize() const
 	{
 		char *data = new char[NM_CHUNK_SIZE * NM_CHUNK_SIZE];
 
@@ -29,8 +31,8 @@ namespace nm
 		{
 			for (int y = 0; y < NM_CHUNK_SIZE; y++)
 			{
-				Square &square = chunk[x][y];
-				char sq_data = *reinterpret_cast<char*>(&square);
+				const Square &square = chunk[x][y];
+				char sq_data = *reinterpret_cast<const char*>(&square);
 				data[x * NM_CHUNK_SIZE + y] = sq_data;
 			}
 		}
@@ -38,7 +40,7 @@ namespace nm
 		return data;
 	}
 
-	void Chunk::deserialize(char *data) {
+	void Chunk::deserialize(const char *data) {
 		for (int x = 0; x < NM_CHUNK_SIZE; x++)
 		{
 			for (int y = 0; y < NM_CHUNK_SIZE; y++)
@@ -50,7 +52,7 @@ namespace nm
 		}
 	}
 
-	Chunk Chunk::transform_copy(std::function<void(Square&)> functor)
+	Chunk Chunk::transform_copy(const Chunk::SquareFn& functor) const
 	{
 		Chunk temp = *this;
 		std::for_each(temp.chunk.begin(), temp.chunk.end(), [&functor](std::array<Square, NM_CHUNK_SIZE>& row)

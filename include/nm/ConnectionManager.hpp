@@ -36,7 +36,7 @@ namespace server
 			}
 
 			void start();
-			void sendMessage(message::MessageWrapper&);
+			void sendMessage(const message::MessageWrapper&);
 
 			events::signal<void (ptr, nm::message::MessageWrapper&)> ev_message_received;
 
@@ -72,8 +72,8 @@ namespace server
 
 			ConnectionManager(boost::asio::ip::tcp::endpoint& endpoint);
 			ConnectionManager(boost::asio::ip::tcp::endpoint endpoint);
-			void send_all(message::MessageWrapper&);
-			void send_all_other(Connection::ptr&, message::MessageWrapper&);
+			void send_all(const message::MessageWrapper&);
+			void send_all_other(const Connection::ptr&, const message::MessageWrapper&);
 			void start();
 	};
 }

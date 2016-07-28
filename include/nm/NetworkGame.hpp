@@ -18,12 +18,12 @@ namespace nm
 			std::vector<Coordinates> requested_chunks;
 			Flag is_first_open;
 			void send_player_join(int x, int y);
-			void request_chunk(Coordinates c);
-			bool chunk_requested(Coordinates c);
+			void request_chunk(const Coordinates& c);
+			bool chunk_requested(const Coordinates& c);
 		public:
 			NetworkGame(Client& client);
 			Board board;
-			virtual Square& get(Coordinates c);
+			virtual Square& get(const Coordinates& c);
 			virtual Square& get(int x, int y);
 			void chunk_update_handler(Client *client, const message::ChunkBytes& msg);
 			void flag_square_handler(int x, int y);

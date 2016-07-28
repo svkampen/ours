@@ -14,14 +14,15 @@ namespace nm
 
 	class Chunk
 	{
+		using SquareFn = std::function<void(Square&)>;
 		private:
 			std::array<std::array<Square, NM_CHUNK_SIZE>, NM_CHUNK_SIZE> chunk{}; // {} necessary for 0-init
 		public:
-			Square& get(Coordinates coordinates);
+			Square& get(const Coordinates& coordinates);
 			Square& get(int x, int y);
-			Chunk transform_copy(std::function<void(Square&)> functor);
-			char *serialize();
-			void deserialize(char* data);
+			Chunk transform_copy(const SquareFn& functor) const;
+			char *serialize() const;
+			void deserialize(const char* data);
 	};
 }
 

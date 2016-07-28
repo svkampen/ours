@@ -31,7 +31,7 @@ namespace nm
 		public:
 			Client(boost::asio::io_service& io_service, std::string ip, std::string port);
 
-			void send_message(message::MessageWrapper& wrapper);
+			void send_message(const message::MessageWrapper& wrapper);
 			void poll();
 
 			events::signal<void (Client*, const message::ChunkBytes&)> ev_update_chunk;

@@ -39,7 +39,7 @@ namespace nm
 		client.send_message(wrapper);
 	}
 
-	void NetworkGame::request_chunk(Coordinates c)
+	void NetworkGame::request_chunk(const Coordinates& c)
 	{
 		requested_chunks.push_back(c);
 
@@ -53,12 +53,12 @@ namespace nm
 		client.send_message(wrapper);
 	}
 
-	bool NetworkGame::chunk_requested(Coordinates c)
+	bool NetworkGame::chunk_requested(const Coordinates& c)
 	{
 		return std::find(requested_chunks.begin(), requested_chunks.end(), c) != requested_chunks.end();
 	}
 
-	Square& NetworkGame::get(Coordinates c)
+	Square& NetworkGame::get(const Coordinates& c)
 	{
 		Coordinates chunk_coords = to_chunk_coordinates(c);
 		if (!chunk_requested(chunk_coords))

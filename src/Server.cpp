@@ -32,7 +32,7 @@ namespace nm
 			send_chunk_update(x, y, maybeChunk.get());
 		}
 
-		void Server::send_chunk_update(int x, int y, Chunk &chunk)
+		void Server::send_chunk_update(int x, int y, const Chunk& chunk)
 		{
 			Chunk transformed_chunk = chunk.transform_copy([](Square& square){
 				if (square.state == SquareState::CLOSED)

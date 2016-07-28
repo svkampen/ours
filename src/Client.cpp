@@ -66,7 +66,7 @@ namespace nm
 			exit(1);
 		}
 
-		uint8_t* bytes = data.get();
+		const uint8_t* bytes = data.get();
 		uint32_t header;
 		memcpy(&header, bytes, 4);
 
@@ -114,7 +114,7 @@ namespace nm
 		start_read();
 	}
 
-	void Client::send_message(message::MessageWrapper& wrapper)
+	void Client::send_message(const message::MessageWrapper& wrapper)
 	{
 		BOOST_LOG_TRIVIAL(info) << "Sending message: " << wrapper.DebugString();
 		size_t message_size = wrapper.ByteSize();

@@ -30,7 +30,7 @@ namespace server
 			client_bimap clients;
 			Game game;
 
-			void send_chunk_update(int x, int y, Chunk &chunk);
+			void send_chunk_update(int x, int y, const Chunk& chunk);
 			void send_chunk_update(int x, int y);
 	};
 }

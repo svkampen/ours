@@ -8,7 +8,7 @@
 
 namespace nm
 {
-	int32_t modulo(int32_t n, int32_t mod)
+	const int32_t modulo(const int32_t n, const int32_t mod)
 	{
 		// Since C++'s modulo behavior with negative numbers is dependent on the
 		// implementation, this function makes sure modulo behavior is consistent
@@ -22,7 +22,7 @@ namespace nm
 
 	Chunk Board::CHUNK_EMPTY = {};
 
-	Board::Board(ChunkGenerator chunkGenerator) : chunkGenerator(chunkGenerator)
+	Board::Board(const ChunkGenerator& chunkGenerator) : chunkGenerator(chunkGenerator)
 	{
 	};
 
@@ -30,7 +30,7 @@ namespace nm
 	{
 	};
 
-	void Board::add_chunk(Coordinates c, Chunk chunk)
+	void Board::add_chunk(const Coordinates& c, const Chunk& chunk)
 	{
 		chunks[c] = chunk;
 	}
@@ -80,7 +80,7 @@ namespace nm
 		}
 	}
 
-	Square& Board::get(Coordinates coordinates)
+	Square& Board::get(const Coordinates& coordinates)
 	{
 		simmo::vector<int32_t, 2> local_coords = {modulo(coordinates.x(), NM_CHUNK_SIZE),
 												  modulo(coordinates.y(), NM_CHUNK_SIZE)};
