@@ -106,15 +106,22 @@ namespace nm
 
 		void Server::player_join_handler(Connection::ptr connection, const message::Player& msg)
 		{
+			/* Generate an ID and add an entry in the client dict. */
 			auto endpoint = connection->socket().remote_endpoint();
 			std::string endpoint_and_port = endpoint.address().to_string() + std::to_string(endpoint.port());
 
 			int32_t hash = hash::Hash(endpoint_and_port.c_str());
 
-			this->clients.insert(client_pair(connection, hash));
-			BOOST_LOG_TRIVIAL(info) << "[Server] received PLAYER_JOIN message (X: " << msg.x()
-				<< " Y: " << msg.y() << " ID: " << hash << ")";
+			message::Player player;
+			player.set_x(msg.x());
+			player.set_y(msg.y());
+			player.set_id(hash);
 
+			this->clients[connection] = player;
+			BOOST_LOG_TRIVIAL(info) << "[Server] received PLAYER_JOIN message (X: " << msg.x()
+				<< " Y: " << msg.y() << " ID: " << player.id() << ")";
+
+			/* Then, send the playerjoin (including ID) to every other client */
 			game.board.clear_at(msg.x(), msg.y());
 
 			message::MessageWrapper wrapper;
@@ -128,11 +135,23 @@ namespace nm
 
 			wrapper.Clear();
 
+			/* And send a welcome message to the newly joined client */
+
 			auto welcome = wrapper.mutable_welcome();
 
 			welcome->set_version(1);
 			welcome->set_nplayers(this->clients.size() - 1);
 			wrapper.set_type(wrapper.WELCOME);
+
+			int i = 0;
+			for (auto iterator = this->clients.begin(); iterator != this->clients.end(); iterator++, i++)
+			{
+				if (iterator->first != connection)
+				{
+					auto playerdata = welcome->add_players();
+					playerdata->CopyFrom(iterator->second);
+				}
+			}
 
 			connection->sendMessage(wrapper);
 		}
