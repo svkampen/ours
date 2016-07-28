@@ -25,8 +25,12 @@ namespace nm
 
 		void Server::send_chunk_update(int x, int y)
 		{
-			send_chunk_update(x, y, this->game.board.get_chunk({x, y}));
-		}	
+			boost::optional<Chunk&> maybeChunk = game.board.get_chunk({x, y});
+			if (!maybeChunk)
+				return;
+
+			send_chunk_update(x, y, maybeChunk.get());
+		}
 
 		void Server::send_chunk_update(int x, int y, Chunk &chunk)
 		{
@@ -73,12 +77,20 @@ namespace nm
 
 		void Server::square_open_handler(Connection::ptr connection, const message::SquareOpen& msg)
 		{
-			BOOST_LOG_TRIVIAL(info) << "[Server] Received SQUARE_OPEN message: " << msg.DebugString();
-			game.open_square_handler(msg.x(), msg.y(),
-					[this](int x, int y, Chunk &chunk) {
-						this->send_chunk_update(x, y, chunk);
-					}
-			);
+			BOOST_LOG_TRIVIAL(info) << "[Server] Received SQUARE_OPEN message: " << msg.ShortDebugString();
+			game.open_square_handler(msg.x(), msg.y());
+
+			for (const auto& coordinates : game.updated_chunks)
+			{
+				boost::optional<Chunk&> maybeChunk = game.board.get_chunk(coordinates);
+
+				if (!maybeChunk)
+					continue;
+
+				this->send_chunk_update(coordinates.x(), coordinates.y(), maybeChunk.get());
+			}
+
+			game.updated_chunks.clear();
 		}
 
 		void Server::square_flag_handler(Connection::ptr connection, const message::SquareFlag& msg)

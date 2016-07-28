@@ -35,7 +35,7 @@ namespace nm
 		chunks[c] = chunk;
 	}
 
-	Chunk& Board::get_chunk(Coordinates c)
+	boost::optional<Chunk&> Board::get_chunk(const Coordinates& c)
 	{
 		auto iter = chunks.find(c);
 		if (iter == chunks.end())
@@ -65,7 +65,9 @@ namespace nm
 		BOOST_LOG_TRIVIAL(info) << "Clearing around (X: " << local_coords.x() << " Y: " << local_coords.y() << "), "
 			<< "Chunk " << chunk_coordinates.x() << ", " << chunk_coordinates.y() << ".";
 
-		Chunk& chunk = this->get_chunk(chunk_coordinates);
+		boost::optional<Chunk&> maybeChunk = this->get_chunk(chunk_coordinates);
+		Chunk& chunk = maybeChunk.is_initialized() ? maybeChunk.get() : regenerate_chunk(chunk_coordinates);
+
 		static int around_offsets[3] = {-1, 0, 1};
 
 		for (auto&& xoff : around_offsets)

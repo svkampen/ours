@@ -11,6 +11,7 @@
 #include "ChunkGenerator.hpp"
 #include "SquareSource.hpp"
 #include "ChunkSource.hpp"
+#include <boost/optional.hpp>
 
 namespace nm
 {
@@ -27,8 +28,8 @@ namespace nm
 			Board();
 			Board(ChunkGenerator chunkGenerator);
 			void add_chunk(Coordinates c, Chunk chunk);
-			Chunk& get_chunk(Coordinates c);
 			const ChunkList& get_chunks() const;
+			boost::optional<Chunk&> get_chunk(const Coordinates& c);
 			void set_client_mode(bool);
 			void clear_at(int x, int y);
 			Square& get(Coordinates coordinates);
