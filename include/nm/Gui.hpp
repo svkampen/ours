@@ -7,38 +7,100 @@
 #include <nm/Game.hpp>
 #include <nm/SquareSource.hpp>
 #include <nm/Flag.hpp>
+#include <nm/Client.hpp>
+#include <nm/Window.hpp>
+
+#include <netmine.pb.h>
+#include <unordered_map>
 
 #include <boost/asio.hpp>
 
+namespace std
+{
+	template<>
+	struct hash<nm::message::CursorMove>
+	{
+		typedef nm::message::CursorMove argument_type;
+		std::size_t operator()(argument_type const& c) const
+		{
+			std::size_t const h1(std::hash<int32_t>()(c.x()));
+			std::size_t const h2(std::hash<int32_t>()(c.y()));
+			std::size_t const h3(std::hash<int32_t>()(c.id()));
+
+			return (h1 ^ h2) ^ h3;
+		}
+	};
+
+	template<>
+	struct equal_to<nm::message::CursorMove>
+	{
+		typedef nm::message::CursorMove T;
+		bool operator()(const T& lhs, const T& rhs) const
+		{
+			return (lhs.x() == rhs.x() && lhs.y() == rhs.y() && lhs.id() == rhs.id());
+		}
+	};
+}
+
+struct CursorColor
+{
+	int32_t x;
+	int32_t y;
+	int32_t color;
+};
+
 namespace nm
 {
+
+	void init_curses();
+
 	class Gui : public boost::enable_shared_from_this<Gui>
 	{
 		private:
+			nm::Window main, sidebar;
+
 			SquareSource &squareSource;
 			boost::asio::posix::stream_descriptor in;
 
-			WINDOW* main_window;
+			std::unordered_map<int32_t, CursorColor> cursors;
+
 			int width;
 			int height;
 			int board_offset_x, board_offset_y, cursor_x, cursor_y;
 
-			Flag resized;
+			bool border_enabled = false;
 
+			void center_cursor();
+			void center_cursor(int global_x, int global_y);
+
+			inline int global_x();
+			inline int global_y();
+			inline int chunk_x();
+			inline int chunk_y();
+			void draw_open_square(int x, int y, Square& square);
+			void draw_closed_square(int x, int y);
+			void draw_flag_square(int x, int y, Square& square);
+			void save_png();
 		public:
 			typedef boost::signals2::signal<void (int, int)> square_event;
 			square_event ev_square_open;
 			square_event ev_square_flag;
 			square_event ev_cursor_move;
+			boost::signals2::signal<void ()> ev_save_image;
 			boost::signals2::signal<void ()> ev_exit;
 
 			Gui(boost::asio::io_service& io_service, SquareSource& squareSource);
 
-			void handle_input();
-			void draw_open_square(Square& square);
+			bool handle_input();
+			void cursor_move_handler(const message::CursorMove& msg);
+			void player_quit_handler(const message::Player& player);
+			void new_player_handler(const message::Player& player);
+			void draw_cursors();
+			void draw_sidebar();
 			void draw_board();
-			static void handle_resize();
+			void handle_resize();
 			void draw();
+			Square& get(int x, int y) const;
 	};
 }
 
