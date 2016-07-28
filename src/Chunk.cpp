@@ -52,6 +52,15 @@ namespace nm
 		}
 	}
 
+
+	void Chunk::transform(const Chunk::SquareFn& functor)
+	{
+		std::for_each(chunk.begin(), chunk.end(), [&functor](std::array<Square, NM_CHUNK_SIZE>& row)
+		{
+			std::for_each(row.begin(), row.end(), functor);
+		});
+	}
+
 	Chunk Chunk::transform_copy(const Chunk::SquareFn& functor) const
 	{
 		Chunk temp = *this;

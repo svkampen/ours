@@ -22,6 +22,7 @@ namespace nm
 			const Square& get(const Coordinates& coordinates) const;
 			const Square& get(const int x, const int y) const;
 			Chunk transform_copy(const SquareFn& functor) const;
+			void transform(const SquareFn& functor);
 			char *serialize() const;
 			void deserialize(const char* data);
 	};
