@@ -60,7 +60,7 @@ namespace nm
 
 	Square& NetworkGame::get(const Coordinates& c)
 	{
-		Coordinates chunk_coords = to_chunk_coordinates(c);
+		Coordinates chunk_coords = utils::to_chunk_coordinates(c);
 		if (!chunk_requested(chunk_coords))
 		{
 			BOOST_LOG_TRIVIAL(info) << "Requesting chunk at (" << chunk_coords.x() << ", " << chunk_coords.y() << ")";

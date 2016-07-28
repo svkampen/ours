@@ -5,6 +5,8 @@
 #include <cmath>
 
 #include <boost/log/trivial.hpp>
+#include <nm/Utils.hpp>
+#include <cassert>
 
 namespace nm
 {
@@ -64,8 +66,7 @@ namespace nm
 		simmo::vector<int32_t, 2> local_coords = {modulo(x, NM_CHUNK_SIZE),
 												  modulo(y, NM_CHUNK_SIZE)};
 
-		Coordinates chunk_coordinates = {static_cast<int>(std::floor(x / static_cast<double>(NM_CHUNK_SIZE))),
-										 static_cast<int>(std::floor(y / static_cast<double>(NM_CHUNK_SIZE)))};
+		Coordinates chunk_coordinates = nm::utils::to_chunk_coordinates({x, y});
 
 		BOOST_LOG_TRIVIAL(info) << "Clearing around (X: " << local_coords.x() << " Y: " << local_coords.y() << "), "
 			<< "Chunk " << chunk_coordinates.x() << ", " << chunk_coordinates.y() << ".";

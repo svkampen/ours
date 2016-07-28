@@ -10,8 +10,6 @@
 
 namespace nm
 {
-	Coordinates to_chunk_coordinates(Coordinates c);
-
 	class Chunk
 	{
 		using SquareFn = std::function<void(Square&)>;
