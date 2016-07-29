@@ -10,9 +10,6 @@ namespace nm
 
 	void ImageSaver::save(const std::string& filename)
 	{
-		// Turn client mode on, since that means we don't need to think about
-		// pesky chunk generation!
-		chunkSource.set_client_mode(true);
 		auto& chunks = chunkSource.get_chunks();
 
 		auto XFn = [](auto &a, auto &b) { return a.first.x() < b.first.x(); };
@@ -30,7 +27,5 @@ namespace nm
 		this->write_chunks({begin_x, begin_y}, {end_x, end_y}, chunks);
 
 		this->image.write(filename);
-
-		chunkSource.set_client_mode(false);
 	}
 }
