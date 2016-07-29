@@ -3,6 +3,8 @@
 
 namespace nm
 {
+	static Chunk::CHUNK_EMPTY = {};
+
 	Square& Chunk::get(const Coordinates& coordinates)
 	{
 		return chunk[coordinates.y()][coordinates.x()];

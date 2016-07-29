@@ -17,6 +17,7 @@ namespace nm
 		private:
 			std::array<std::array<Square, NM_CHUNK_SIZE>, NM_CHUNK_SIZE> chunk{}; // {} necessary for 0-init
 		public:
+			static Chunk CHUNK_EMPTY;
 			Square& get(const Coordinates& coordinates);
 			Square& get(int x, int y);
 

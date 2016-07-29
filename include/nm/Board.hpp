@@ -22,7 +22,6 @@ namespace nm
 		friend class ImageSaver;
 
 		private:
-			static Chunk CHUNK_EMPTY;
 			ChunkList chunks;
 			ChunkGenerator chunkGenerator;
 

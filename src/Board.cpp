@@ -22,8 +22,6 @@ namespace nm
 			return temp;
 	}
 
-	Chunk Board::CHUNK_EMPTY = {};
-
 	Board::Board(const ChunkGenerator& chunkGenerator) : chunkGenerator(chunkGenerator)
 	{
 	};
@@ -98,7 +96,7 @@ namespace nm
 		if (chunk_iterator == chunks.end())
 		{
 			if (client_mode)
-				return CHUNK_EMPTY.get(local_coords);
+				return Chunk::CHUNK_EMPTY.get(local_coords);
 			// The chunk does not exist, so we generate it.
 			BOOST_LOG_TRIVIAL(info) << "[board] generating chunk at (" << chunk_coordinates.x()
 					  << ", " << chunk_coordinates.y() << ")";
