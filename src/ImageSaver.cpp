@@ -7,6 +7,61 @@ namespace nm
 	{
 	};
 
+	void ImageSaver::write_chunk(int x, int y, const Chunk& chunk = Chunk::CHUNK_EMPTY)
+	{
+		Coordinates begin({x * NM_CHUNK_SIZE, y * NM_CHUNK_SIZE});
+		Coordinates end({(x + 1) * NM_CHUNK_SIZE, (y + 1)*NM_CHUNK_SIZE});
+
+		for (int x = begin.x(); x < end.x(); x++)
+		{
+			for (int y = begin.y(); y < end.y(); ++y)
+			{
+				png::rgb_pixel color;
+				const Square& s = chunk.get({x - begin.x(), y - begin.y()});
+				if (s.state == SquareState::CLOSED)
+				{
+					color = {255, 255, 255};
+				} else if (s.state == SquareState::FLAGGED)
+				{
+					color = {0, 0, 0};
+				} else {
+					switch (s.number)
+					{
+						case 0:
+							color = {128, 128, 128}; break;
+						case 1:
+							color = {116, 164, 187}; break;
+						case 2:
+							color = {88, 117, 175}; break;
+						case 3:
+							color = {94, 171, 122}; break;
+						case 4:
+							color = {143, 123, 192}; break;
+						default:
+							color = {255, 95, 103}; break;
+					}
+				}
+
+				this->image.set_pixel(x, y, color);
+			}
+		}
+	}
+
+	void ImageSaver::write_chunks(Coordinates begin, Coordinates end, const ChunkList& chunks)
+	{
+		for (int x = begin.x(); x < end.x(); x++)
+		{
+			for (int y = begin.y(); y < end.y(); y++)
+			{
+				// Subtract the starting point to normalize the range to [0, n)
+				auto iter = chunks.find({x, y});
+				if (iter == chunks.end())
+					this->write_chunk(x - begin.x(), y - begin.y());
+				else
+					this->write_chunk(x - begin.x(), y - begin.y(), chunks.at({x, y}));
+			}
+		}
+	}
 
 	void ImageSaver::save(const std::string& filename)
 	{
