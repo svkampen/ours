@@ -132,6 +132,7 @@ namespace nm
 
 			// Don't renumber the original chunk, since it is completely closed off anyway.
 			this->renumber_chunk(result.affected_chunk, false);
+			return;
 		}
 
 		// If the square has no mines around it and it was not originally open,
