@@ -73,8 +73,8 @@ namespace nm
 		auto begin_x = std::min_element(chunks.cbegin(), chunks.cend(), XFn)->first.x();
 		auto begin_y = std::min_element(chunks.cbegin(), chunks.cend(), YFn)->first.y();
 
-		auto end_x = std::max_element(chunks.cbegin(), chunks.cend(), XFn)->first.x();
-		auto end_y = std::max_element(chunks.cbegin(), chunks.cend(), YFn)->first.y();
+		auto end_x = std::max_element(chunks.cbegin(), chunks.cend(), XFn)->first.x() + 1;
+		auto end_y = std::max_element(chunks.cbegin(), chunks.cend(), YFn)->first.y() + 1;
 
 		this->image = png::image<png::rgb_pixel>((end_x - begin_x) * NM_CHUNK_SIZE,
 				(end_y - begin_y) * NM_CHUNK_SIZE);
