@@ -1,6 +1,7 @@
 #include <nm/NetworkGame.hpp>
 #include <netmine.pb.h>
 #include <algorithm>
+#include <nm/ImageSaver.hpp>
 
 #include <boost/log/trivial.hpp>
 #include <nm/Utils.hpp>
@@ -41,10 +42,8 @@ namespace nm
 
 	void NetworkGame::save_image_handler()
 	{
-		/* TODO: implement image saving
-		 * ImageSaver saver(board);
-		 * saver.save("board.png");
-		 */
+		ImageSaver saver(board);
+		saver.save("board.png");
 	}
 
 	void NetworkGame::flag_square_handler(int x, int y)
