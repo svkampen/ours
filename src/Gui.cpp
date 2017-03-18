@@ -72,7 +72,7 @@ namespace nm
 	{
 		cursors.erase(player.id());
 		draw_board();
-		draw_sidebar();
+		this->current_view.draw_sidebar(this->sidebar, this->squareSource, this->cursors);
 	}
 
 	void Gui::new_player_handler(const message::Player& player)
@@ -80,7 +80,7 @@ namespace nm
 		BOOST_LOG_TRIVIAL(info) << "Adding cursor for new player with ID " << player.id();
 		cursors[player.id()] = {player.x(), player.y(), rand() % 6 + 2};
 		draw_board();
-		draw_sidebar();
+		this->current_view.draw_sidebar(this->sidebar, this->squareSource, this->cursors);
 	}
 
 	void Gui::cursor_move_handler(const message::CursorMove& msg)
@@ -90,7 +90,7 @@ namespace nm
 		data.x = msg.x();
 		data.y = msg.y();
 		draw_board();
-		draw_sidebar();
+		this->current_view.draw_sidebar(this->sidebar, this->squareSource, this->cursors);
 	}
 
 	void Gui::handle_resize()
@@ -115,92 +115,17 @@ namespace nm
 
 		refresh();
 
-		draw_sidebar();
+		this->current_view.draw_sidebar(this->sidebar, this->squareSource, this->cursors);
 	}
 
 	void Gui::draw()
 	{
 		handle_input();
 		draw_board();
-		draw_sidebar();
+		this->current_view.draw_sidebar(this->sidebar, this->squareSource, this->cursors);
 		in.async_read_some(boost::asio::null_buffers(), boost::bind(&Gui::draw, this));
 	}
 
-	inline int Gui::global_x()
-	{
-		return this->self_cursor.x + this->self_cursor.offset_x;
-	}
-
-	inline int Gui::global_y()
-	{
-		return this->self_cursor.y + this->self_cursor.offset_y;
-	}
-
-	inline int Gui::chunk_x()
-	{
-		return std::floor(global_x() / (double)NM_CHUNK_SIZE);
-	}
-
-	inline int Gui::chunk_y()
-	{
-		return std::floor(global_y() / (double)NM_CHUNK_SIZE);
-	}
-
-	void Gui::draw_sidebar()
-	{
-		this->sidebar << nm::Erase
-			<< L"   NETAMPHETAMINE   "
-			<< L"        HELP        "
-			<< L"┌──────────────────┐"
-			<< L"│     F - Flag     │"
-			<< L"│     Q - Quit     │"
-			<< L"│     C - Center   │"
-			<< L"│  B - Show border │"
-			<< L"│ 0 - Go to (0, 0) │"
-			<< L"│ Space - Open SQR │"
-			<< L"└──────────────────┘\n";
-
-		this->sidebar
-			<< L"┌──────────────────┐"
-			<< L"│      CLIENTS     │"
-			<< L"│                  │";
-
-		for (auto&& pair : this->cursors)
-		{
-			this->sidebar << L"│ "
-				<< nm::AttrOn(COLOR_PAIR(pair.second.color)) << L"\u26AB " << nm::AttrOff(COLOR_PAIR(pair.second.color))
-				<< utils::int_to_hex(pair.first) << L"       │";
-
-			this->sidebar << L"│   (" << pair.second.x << L", " << pair.second.y << ")";
-			int line = this->sidebar.gety();
-
-			this->sidebar << nm::Move({19, line}) << L"│" << nm::Move({0, line + 1});
-		}
-
-		this->sidebar
-			<< L"└──────────────────┘\n";
-
-		this->sidebar
-			<< L"┌──────────────────┐"
-			<< L"│     INFOSTATS    │"
-			<< L"│                  │"
-			<< L"│ Chn: " << this->chunk_x() << ", " << this->chunk_y();
-
-		int line = this->sidebar.gety();
-		this->sidebar << nm::Move({19, line}) << L"│" << nm::Move({0, line + 1});
-
-		this->sidebar
-			<< L"│ Pos: " << this->global_x() << ", " << this->global_y();
-
-		line = this->sidebar.gety();
-		this->sidebar << nm::Move({19, line}) << L"│" << nm::Move({0, line + 1});
-
-		this->sidebar
-			<< L"└──────────────────┘\n";
-
-
-		this->sidebar << nm::Refresh;
-	}
 
 	void Gui::center_cursor()
 	{

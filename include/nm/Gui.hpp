@@ -59,9 +59,8 @@ namespace nm
 
 			std::unordered_map<int32_t, CursorData> cursors;
 
-			nm::View& current_view;
-
 			nm::BoardView boardview;
+			nm::View& current_view;
 
 			int width;
 			int height;
@@ -72,10 +71,6 @@ namespace nm
 			void center_cursor();
 			void center_cursor(int global_x, int global_y);
 
-			inline int global_x();
-			inline int global_y();
-			inline int chunk_x();
-			inline int chunk_y();
 			void draw_open_square(int x, int y, Square& square);
 			void draw_closed_square(int x, int y);
 			void draw_flag_square(int x, int y, Square& square);
@@ -93,8 +88,6 @@ namespace nm
 			void cursor_move_handler(const message::CursorMove& msg);
 			void player_quit_handler(const message::Player& player);
 			void new_player_handler(const message::Player& player);
-			void draw_cursors();
-			void draw_sidebar();
 			void draw_board();
 			void handle_resize();
 			void draw();

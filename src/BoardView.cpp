@@ -2,6 +2,7 @@
 #include <nm/Typedefs.hpp>
 #include <ncurses.h>
 #include <boost/log/trivial.hpp>
+#include <nm/Utils.hpp>
 
 namespace nm
 {
@@ -143,6 +144,67 @@ namespace nm
 
 		return HandlerResult::STOP;
 	}
+
+	void BoardView::draw_sidebar(Window& sidebar, SquareSource& squareSource, std::unordered_map<int32_t, CursorData>& cursors)
+	{
+		sidebar << nm::Erase
+			<< L"   Netamphetamine   "
+			<< L"        Help        "
+			<< L"┌──────────────────┐"
+			<< L"│ V to open chunk  │"
+			<< L"│      view.       │"
+			<< L"│                  │"
+			<< L"│ F to flag.       │"
+			<< L"│ Q to quit.       │"
+			<< L"│ C to center.     │"
+			<< L"│ B to show chunks.│"
+			<< L"│ 0 to goto origin.│"
+			<< L"│ SPC to open sqre.│"
+			<< L"└──────────────────┘\n";
+
+		sidebar
+			<< L"       Clients      "
+			<< L"┌──────────────────┐"
+			<< L"│                  │";
+
+		for (auto&& pair : cursors)
+		{
+			sidebar << L"│ "
+				<< nm::AttrOn(COLOR_PAIR(pair.second.color)) << L"\u26AB " << nm::AttrOff(COLOR_PAIR(pair.second.color))
+				<< utils::int_to_hex(pair.first) << L"       │";
+
+			sidebar << L"│   (" << pair.second.x << L", " << pair.second.y << ")";
+
+			int line = sidebar.gety();
+
+			sidebar << nm::Move({19, line}) << L"│" << nm::Move({0, line + 1});
+		}
+
+		sidebar
+			<< L"└──────────────────┘\n";
+
+		sidebar
+			<< L"┌──────────────────┐"
+			<< L"│     INFOSTATS    │"
+			<< L"│                  │"
+			<< L"│ Chn: " << this->chunk_x() << ", " << this->chunk_y();
+
+		int line = sidebar.gety();
+		sidebar << nm::Move({19, line}) << L"│" << nm::Move({0, line + 1});
+
+		sidebar
+			<< L"│ Pos: " << this->global_x() << ", " << this->global_y();
+
+		line = sidebar.gety();
+		sidebar << nm::Move({19, line}) << L"│" << nm::Move({0, line + 1});
+
+		sidebar
+			<< L"└──────────────────┘\n";
+
+
+		sidebar << nm::Refresh;
+	}
+
 	void BoardView::draw_flag_square(Window& main, int x, int y, Square& square)
 	{
 		int global_x = x + cursor.offset_x;

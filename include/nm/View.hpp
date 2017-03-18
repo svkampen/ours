@@ -28,8 +28,27 @@ namespace nm
 			virtual void draw_sidebar(Window& sidebar, SquareSource& squareSource,
 					std::unordered_map<int32_t, CursorData>& cursors) {};
 			virtual HandlerResult handle_input(int input_character) { return HandlerResult::CONTINUE; };
+
+			inline int global_x()
 			virtual ~View()
 			{
+				return cursor.x + cursor.offset_x;
+			}
+
+			inline int global_y()
+			{
+				return cursor.y + cursor.offset_y;
+			}
+
+			inline int chunk_x()
+			{
+				return std::floor(global_x() / (double)NM_CHUNK_SIZE);
+			}
+
+			inline int chunk_y()
+			{
+				return std::floor(global_y() / (double)NM_CHUNK_SIZE);
+			}
 			};
 
 
