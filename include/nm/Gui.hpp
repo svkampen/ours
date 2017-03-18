@@ -7,6 +7,8 @@
 #include <nm/Game.hpp>
 #include <nm/SquareSource.hpp>
 #include <nm/Flag.hpp>
+#include <nm/View.hpp>
+#include <nm/BoardView.hpp>
 #include <nm/Client.hpp>
 #include <nm/Window.hpp>
 #include <nm/CursorData.hpp>
@@ -56,6 +58,10 @@ namespace nm
 			boost::asio::posix::stream_descriptor in;
 
 			std::unordered_map<int32_t, CursorData> cursors;
+
+			nm::View& current_view;
+
+			nm::BoardView boardview;
 
 			int width;
 			int height;

@@ -57,7 +57,8 @@ namespace nm
 
 	Gui::Gui(boost::asio::io_service& io_service, SquareSource& squareSource)
 		: main(0, 0, COLS - 21, LINES), sidebar(COLS - 20, 0, 20, LINES),
-			squareSource(squareSource),	in(io_service, ::dup(STDIN_FILENO))
+			squareSource(squareSource),	in(io_service, ::dup(STDIN_FILENO)),
+			current_view(boardview)
 	{
 		width = height = 0;
 		handle_resize();
@@ -330,153 +331,11 @@ namespace nm
 
 	void Gui::draw_board()
 	{
-		int XViewable = this->width/3;
-		int YViewable = this->height;
-
-		this->main << nm::Erase;
-
-		for (int y = 0; y < YViewable; y++)
-		{
-			for (int x = 0; x < XViewable; x++)
-			{;
-				this->main << nm::Move({3 * x + 1, y});
-				auto& square = squareSource.get({x + this->board_offset_x, y + board_offset_y});
-				if (square.is_mine && square.state == SquareState::OPENED)
-				{
-					this->main << L"*";
-				} else if (square.state == SquareState::OPENED)
-				{
-					this->draw_open_square(x, y, square);
-				} else if (square.state == SquareState::FLAGGED)
-				{
-					this->draw_flag_square(x, y, square);
-				} else
-				{
-					this->draw_closed_square(x, y);
-				}
-			}
-		}
-
-		draw_cursors();
-
-		this->main << nm::Move({3 * cursor_x, cursor_y}) << "["
-			<< nm::Move({3 * cursor_x + 2, cursor_y}) << "]";
-
-		this->main << nm::Refresh;
-	}
-
-	void Gui::draw_cursors()
-	{
-		for (auto iterator = cursors.cbegin(); iterator != cursors.cend(); iterator++)
-		{
-			int x = iterator->second.x - this->board_offset_x;
-			int y = iterator->second.y - this->board_offset_y;
-
-			if (x < 0 || y < 0)
-				continue;
-
-			if (x >= this->width || y >= this->height)
-				continue;
-
-			wattron(this->main, COLOR_PAIR(iterator->second.color));
-			if (wmove(this->main, y, 3*x) != ERR)
-				waddwstr(this->main, L"[");
-			if (wmove(this->main, y, 3*x+2) != ERR)
-				waddwstr(this->main, L"]");
-			wattroff(this->main, COLOR_PAIR(iterator->second.color));
-		}
+		this->current_view.draw_main(this->main, this->squareSource, this->cursors, this->self_cursor);
 	}
 
 	Square& Gui::get(int x, int y) const
 	{
 		return squareSource.get({x + self_cursor.offset_x, y + self_cursor.offset_y});
-
-	void Gui::draw_flag_square(int x, int y, Square& square)
-	{
-		int global_x = x + this->board_offset_x;
-		int global_y = y + this->board_offset_y;
-
-		bool chunk_border = (global_x % NM_CHUNK_SIZE == 0 || global_y % NM_CHUNK_SIZE == 0) && this->border_enabled;
-
-		if (chunk_border)
-			this->main << nm::AttrOn(COLOR_PAIR(13));
-
-		this->main << nm::Move({3 * x, y}) << " # ";
-
-		if (chunk_border)
-			this->main << nm::AttrOff(COLOR_PAIR(13));
-	}
-
-	void Gui::draw_closed_square(int x, int y)
-	{
-		/*
-		if (get(x, y - 1).state != SquareState::CLOSED ||
-			get(x, y + 1).state != SquareState::CLOSED ||
-			get(x - 1, y - 1).state != SquareState::CLOSED ||
-			get(x - 1, y).state != SquareState::CLOSED ||
-			get(x - 1, y + 1).state != SquareState::CLOSED ||
-			get(x + 1, y - 1).state != SquareState::CLOSED ||
-			get(x + 1, y).state != SquareState::CLOSED ||
-			get(x + 1, y + 1).state != SquareState::CLOSED)
-		{
-			wmove(this->main_window, y, 3*x);ncurses intensity
-			attron(COLOR_PAIR(7));
-			waddwstr(this->main_window, L"   ");
-			attroff(COLOR_PAIR(7));
-		} else {
-			waddwstr(this->main_window, L" ");
-		} */
-
-		this->main << nm::Move({3 * x, y}) << nm::AttrOn(COLOR_PAIR(7)) << "   " << nm::AttrOff(COLOR_PAIR(7));
-	}
-
-	void Gui::draw_open_square(int x, int y, Square& square)
-	{
-		int color = 0;
-		switch(square.number)
-		{
-			case 0:
-				color = -1;
-				break;
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 5:
-				color = square.number + 1;
-				break;
-			case 6:
-			case 7:
-				color = 6;
-				break;
-			case 8:
-				color = 5;
-				break;
-		}
-
-		int global_x = x + this->board_offset_x;
-		int global_y = y + this->board_offset_y;
-
-		bool chunk_border = (global_x % NM_CHUNK_SIZE == 0 || global_y % NM_CHUNK_SIZE == 0) && this->border_enabled;
-
-		if (color == -1)
-		{
-
-			if (chunk_border)
-				this->main << nm::AttrOn(COLOR_PAIR(13));
-
-			this->main << nm::Move({3 * x, y}) << L"   ";
-
-			if (chunk_border)
-				this->main << nm::AttrOff(COLOR_PAIR(13));
-
-			return;
-		}
-
-		if (chunk_border)
-			color = 13;
-
-		this->main << nm::AttrOn(COLOR_PAIR(color)) << nm::Move({3 * x, y})
-			<< ' ' << static_cast<char>(square.number + 48) << ' ' << nm::AttrOff(COLOR_PAIR(color));
 	}
 }

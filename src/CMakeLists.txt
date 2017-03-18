@@ -2,7 +2,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${netmine_SOURCE_DIR}/bin)
 set(SAVED_LIB_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++ -Wl,--dynamic-linker /lib64/ld-linux-x86-64.so.2")
-set(netmine_SRC_FILES main.cpp Board.cpp Chunk.cpp ChunkGenerator.cpp Server.cpp Gui.cpp Game.cpp
+set(netmine_SRC_FILES main.cpp Board.cpp BoardView.cpp Chunk.cpp ChunkGenerator.cpp Server.cpp Gui.cpp Game.cpp
 	ConnectionManager.cpp netmine.pb.cc NetworkGame.cpp Client.cpp Argparse.cpp Loader.cpp Saver.cpp
 	CursesStream.cpp CursesStreamBuf.cpp Window.cpp Utils.cpp ImageSaver.cpp)
 
