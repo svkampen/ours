@@ -234,78 +234,12 @@ namespace nm
 		{
 			switch(ch)
 			{
-				case 'f':
-					this->ev_square_flag(self_cursor.offset_x + self_cursor.x, self_cursor.offset_y + self_cursor.y);
-					break;
-
 				case 'q':
 					this->ev_exit();
 					break;
 
-				case ' ':
-					this->ev_square_open(self_cursor.offset_x + self_cursor.x, self_cursor.offset_y + self_cursor.y);
-					break;
-
-				case '0':
-					this->center_cursor(0, 0);
-					break;
-
-				case 'b':
-					this->border_enabled = !this->border_enabled;
-					break;
-
-				case 'c':
-					this->center_cursor();
-					break;
-
 				case 'p':
 					this->save_png();
-					break;
-
-
-				/* ARROW KEYS */
-				case KEY_LEFT:
-					if (self_cursor.x > 0)
-					{
-						self_cursor.x--;
-					}
-					else
-					{
-						self_cursor.offset_x -= 2;
-					}
-					break;
-
-				case KEY_RIGHT:
-					if (self_cursor.x < (this->width / 3) - 1)
-					{
-						self_cursor.x++;
-					}
-					else
-					{
-						self_cursor.offset_x += 2;
-					}
-					break;
-
-				case KEY_UP:
-					if (self_cursor.y > 0)
-					{
-						self_cursor.y--;
-					}
-					else
-					{
-						self_cursor.offset_y -= 2;
-					}
-					break;
-
-				case KEY_DOWN:
-					if (self_cursor.y < this->height - 1)
-					{
-						self_cursor.y++;
-					}
-					else
-					{
-						self_cursor.offset_y += 2;
-					}
 					break;
 
 				case KEY_RESIZE:
@@ -313,17 +247,7 @@ namespace nm
 					break;
 			}
 
-			switch (ch)
-			{
-				case KEY_LEFT:
-				case KEY_RIGHT:
-				case KEY_UP:
-				case KEY_DOWN:
-					this->ev_cursor_move(self_cursor.x + self_cursor.offset_x, self_cursor.y + self_cursor.offset_y);
-					break;
-				default:
-					break;
-			}
+			this->current_view.handle_input(ch);
 		}
 
 		return false;

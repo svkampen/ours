@@ -35,6 +35,10 @@ namespace nm
 				std::unordered_map<int32_t, CursorData>& others);
 
 		HandlerResult handle_input(int input_character);
+
+		private:
+		void center_cursor();
+		void center_cursor(int global_x, int global_y);
 	};
 }
 

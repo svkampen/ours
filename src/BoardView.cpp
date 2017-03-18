@@ -46,7 +46,103 @@ namespace nm
 		main << Refresh;
 	}
 
+	void BoardView::center_cursor()
 	{
+
+		center_cursor(cursor.x + cursor.offset_x, cursor.y + cursor.offset_y);
+	}
+
+	void BoardView::center_cursor(int global_x, int global_y)
+	{
+		cursor.offset_x = global_x - main.cols / 6;
+		cursor.x = main.cols / 6;
+
+		cursor.offset_y = global_y - main.lines / 2;
+		cursor.y = main.lines / 2;
+
+		this->ev_cursor_move(global_x, global_y);
+	}
+
+
+	HandlerResult BoardView::handle_input(int input_character)
+	{
+		switch(input_character)
+		{
+			case ' ':
+				this->ev_square_open(cursor.offset_x + cursor.x, cursor.offset_y + cursor.y);
+				break;
+			case 'c':
+				this->center_cursor();
+				break;
+			case '0':
+				this->center_cursor(0, 0);
+				break;
+			case 'b':
+				this->border_enabled = !this->border_enabled;
+				break;
+			case 'f':
+				this->ev_square_flag(cursor.offset_x + cursor.x, cursor.offset_y + cursor.y);
+				break;
+
+			/* ARROW KEYS */
+			case KEY_LEFT:
+				if (cursor.x > 0)
+				{
+					cursor.x--;
+				}
+				else
+				{
+					cursor.offset_x -= 2;
+				}
+				break;
+			case KEY_RIGHT:
+				if (cursor.x < (main.cols / 3) - 1)
+				{
+					cursor.x++;
+				}
+				else
+				{
+					cursor.offset_x += 2;
+				}
+				break;
+			case KEY_UP:
+				if (cursor.y > 0)
+				{
+					cursor.y--;
+				}
+				else
+				{
+					cursor.offset_y -= 2;
+				}
+				break;
+			case KEY_DOWN:
+				if (cursor.y < main.lines - 1)
+				{
+					cursor.y++;
+				}
+				else
+				{
+					cursor.offset_y += 2;
+				}
+				break;
+			default:
+				break;
+		}
+
+		switch (input_character)
+		{
+			case KEY_LEFT:
+			case KEY_RIGHT:
+			case KEY_UP:
+			case KEY_DOWN:
+				this->ev_cursor_move(cursor.x + cursor.offset_x, cursor.y + cursor.offset_y);
+				break;
+			default:
+				break;
+		}
+
+		return HandlerResult::STOP;
+	}
 	void BoardView::draw_flag_square(Window& main, int x, int y, Square& square)
 	{
 		int global_x = x + cursor.offset_x;
