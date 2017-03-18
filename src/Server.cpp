@@ -126,10 +126,18 @@ namespace nm
 			BOOST_LOG_TRIVIAL(info) << "[Server] Received SQUARE_FLAG message: " << msg.ShortDebugString();
 			game.flag_square_handler(msg.x(), msg.y());
 
-			int x = ((int)std::floor(msg.x() / (double)NM_CHUNK_SIZE));
-			int y = ((int)std::floor(msg.y() / (double)NM_CHUNK_SIZE));
+			for (const auto& coordinates : game.updated_chunks)
+			{
+				boost::optional<Chunk&> maybeChunk = game.board.get_chunk(coordinates);
 
-			this->send_chunk_update(x, y);
+				if (!maybeChunk)
+					continue;
+
+				this->send_chunk_update(coordinates.x(), coordinates.y(), maybeChunk.get());
+			}
+
+			game.updated_chunks.clear();
+
 		}
 
 		void Server::player_join_handler(Connection::ptr connection, const message::Player& msg)

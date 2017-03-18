@@ -78,6 +78,8 @@ namespace nm
 		{
 			square.state = SquareState::FLAGGED;
 		}
+
+		updated_chunks.insert(nm::utils::to_chunk_coordinates({x, y}));
 	}
 
 	bool Game::completely_flagged(int x, int y)
