@@ -9,6 +9,7 @@
 #include <nm/Flag.hpp>
 #include <nm/Client.hpp>
 #include <nm/Window.hpp>
+#include <nm/CursorData.hpp>
 
 #include <netmine.pb.h>
 #include <unordered_map>
@@ -42,16 +43,8 @@ namespace std
 	};
 }
 
-struct CursorColor
-{
-	int32_t x;
-	int32_t y;
-	int32_t color;
-};
-
 namespace nm
 {
-
 	void init_curses();
 
 	class Gui : public boost::enable_shared_from_this<Gui>
@@ -62,7 +55,7 @@ namespace nm
 			SquareSource &squareSource;
 			boost::asio::posix::stream_descriptor in;
 
-			std::unordered_map<int32_t, CursorColor> cursors;
+			std::unordered_map<int32_t, CursorData> cursors;
 
 			int width;
 			int height;
