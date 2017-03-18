@@ -228,7 +228,7 @@ namespace nm
 	{
 		int ch;
 
-		// U;se this in the redraw later; if just the movement has been
+		// Use this in the redraw later; if just the movement has been
 		// handled, don't redraw the whole board - just the cursors
 		while ((ch = getch()) != ERR)
 		{
