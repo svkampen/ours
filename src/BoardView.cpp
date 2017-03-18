@@ -5,7 +5,12 @@
 
 namespace nm
 {
-	void BoardView::draw_main(Window& main, SquareSource& squareSource, std::unordered_map<int32_t, CursorData> others, CursorData& cursor) {
+	BoardView::BoardView(CursorData& cursorData, Window& main, const SquareEvent& open, const SquareEvent& flag, const SquareEvent& move)
+		: ev_square_open(open), ev_square_flag(flag), ev_cursor_move(move), main(main), View(cursorData)
+	{};
+
+
+	void BoardView::draw_main(SquareSource& squareSource, std::unordered_map<int32_t, CursorData>& others) {
 		int XViewable = main.cols / 3;
 		int YViewable = main.lines;
 
@@ -22,18 +27,18 @@ namespace nm
 					main << L"*";
 				} else if (square.state == SquareState::OPENED)
 				{
-					this->draw_open_square(main, x, y, square, cursor);
+					this->draw_open_square(main, x, y, square);
 				} else if (square.state == SquareState::FLAGGED)
 				{
-					this->draw_flag_square(main, x, y, square, cursor);
+					this->draw_flag_square(main, x, y, square);
 				} else
 				{
-					this->draw_closed_square(main, x, y, square, cursor);
+					this->draw_closed_square(main, x, y, square);
 				}
 			}
 		}
 
-		this->draw_cursors(main, others, cursor);
+		this->draw_cursors(main, others);
 
 		main << Move({3 * cursor.x, cursor.y}) << "["
 			<< Move({3 * cursor.x + 2, cursor.y}) << "]";
@@ -41,10 +46,11 @@ namespace nm
 		main << Refresh;
 	}
 
-	void BoardView::draw_flag_square(Window& main, int x, int y, Square& square, CursorData& cdata)
 	{
-		int global_x = x + cdata.offset_x;
-		int global_y = y + cdata.offset_y;
+	void BoardView::draw_flag_square(Window& main, int x, int y, Square& square)
+	{
+		int global_x = x + cursor.offset_x;
+		int global_y = y + cursor.offset_y;
 
 		bool chunk_border = (global_x % NM_CHUNK_SIZE == 0 || global_y % NM_CHUNK_SIZE == 0) && this->border_enabled;
 
@@ -57,20 +63,20 @@ namespace nm
 			main << AttrOff(COLOR_PAIR(BORDER_COLOR));
 	}
 
-	void BoardView::draw_closed_square(Window& main, int x, int y, Square& square, CursorData& cdata)
+	void BoardView::draw_closed_square(Window& main, int x, int y, Square& square)
 	{
 		main << Move({3 * x, y}) << AttrOn(COLOR_PAIR(7)) << "   " << AttrOff(COLOR_PAIR(7));
 	}
 
-	void BoardView::draw_cursors(Window& main, std::unordered_map<int32_t, CursorData>& cursors, CursorData& self)
+	void BoardView::draw_cursors(Window& main, std::unordered_map<int32_t, CursorData>& cursors)
 	{
 		int width, height;
 		getyx((WINDOW*)main, height, width);
 
 		for (auto iterator = cursors.cbegin(); iterator != cursors.cend(); iterator++)
 		{
-			int x = iterator->second.x - self.offset_x;
-			int y = iterator->second.y - self.offset_y;
+			int x = iterator->second.x - cursor.offset_x;
+			int y = iterator->second.y - cursor.offset_y;
 
 			if (x < 0 || y < 0)
 				continue;
@@ -89,7 +95,7 @@ namespace nm
 		}
 	}
 
-	void BoardView::draw_open_square(Window& main, int x, int y, Square& square, CursorData& self)
+	void BoardView::draw_open_square(Window& main, int x, int y, Square& square)
 	{
 		int color = 0;
 		switch(square.number)
@@ -113,8 +119,8 @@ namespace nm
 				break;
 		}
 
-		int global_x = x + self.offset_x;
-		int global_y = y + self.offset_y;
+		int global_x = x + cursor.offset_x;
+		int global_y = y + cursor.offset_y;
 
 		bool chunk_border = (global_x % NM_CHUNK_SIZE == 0 || global_y % NM_CHUNK_SIZE == 0) && this->border_enabled;
 

@@ -81,10 +81,9 @@ namespace nm
 			void draw_flag_square(int x, int y, Square& square);
 			void save_png();
 		public:
-			typedef boost::signals2::signal<void (int, int)> square_event;
-			square_event ev_square_open;
-			square_event ev_square_flag;
-			square_event ev_cursor_move;
+			SquareEvent ev_square_open;
+			SquareEvent ev_square_flag;
+			SquareEvent ev_cursor_move;
 			boost::signals2::signal<void ()> ev_save_image;
 			boost::signals2::signal<void ()> ev_exit;
 

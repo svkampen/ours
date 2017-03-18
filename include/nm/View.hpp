@@ -11,17 +11,27 @@
 
 namespace nm
 {
+	enum HandlerResult
+	{
+		STOP,
+		CONTINUE
+	};
+
 	class View
 	{
 		public:
+			View(CursorData& cursorData) : cursor(cursorData) {};
+			CursorData& cursor;
+
+			virtual void draw_main(SquareSource& squareSource,
+					std::unordered_map<int32_t, CursorData>& others) = 0;
+			virtual void draw_sidebar(Window& sidebar, SquareSource& squareSource,
+					std::unordered_map<int32_t, CursorData>& cursors) {};
+			virtual HandlerResult handle_input(int input_character) { return HandlerResult::CONTINUE; };
 			virtual ~View()
 			{
 			};
 
-			virtual void draw_main(Window& main, SquareSource& squareSource,
-					std::unordered_map<int32_t, CursorData> others, CursorData& self) = 0;
-			virtual void draw_sidebar(Window& sidebar, SquareSource& squareSource) {};
-			virtual void handle_input() {};
 
 			virtual void player_quit_handler(const message::Player& player)
 			{

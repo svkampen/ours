@@ -58,7 +58,7 @@ namespace nm
 	Gui::Gui(boost::asio::io_service& io_service, SquareSource& squareSource)
 		: main(0, 0, COLS - 21, LINES), sidebar(COLS - 20, 0, 20, LINES),
 			squareSource(squareSource),	in(io_service, ::dup(STDIN_FILENO)),
-			current_view(boardview)
+			boardview(self_cursor, main, ev_square_open, ev_square_flag, ev_cursor_move), current_view(boardview)
 	{
 		width = height = 0;
 		handle_resize();
@@ -331,7 +331,7 @@ namespace nm
 
 	void Gui::draw_board()
 	{
-		this->current_view.draw_main(this->main, this->squareSource, this->cursors, this->self_cursor);
+		this->current_view.draw_main(this->squareSource, this->cursors);
 	}
 
 	Square& Gui::get(int x, int y) const
