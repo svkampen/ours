@@ -15,6 +15,14 @@
 
 namespace nm
 {
+	/**
+	 * The representation of a minesweeper board.
+	 * 
+	 * This is simply a data structure with some functions
+	 * for accessing specific coordinates in the board,
+	 * and generating its own data using a specified chunk generator.
+	 *
+	 */
 	class Board : public SquareSource, public ChunkSource
 	{
 		friend class Loader;
@@ -28,16 +36,85 @@ namespace nm
 			bool client_mode = false;
 
 		public:
+			/**
+			 * The default constructor, uses standard chunk generator settings.
+			 */
 			Board();
+
+			/**
+			 * The constructor that allows different chunk generation settings.
+			 */
 			Board(const ChunkGenerator& chunkGenerator);
+
+			/**
+			 * Add a chunk to the chunk list.
+			 *
+			 * @param c The coordinates of the new chunk, in chunk coordinate format.
+			 * @param chunk The chunk to insert.
+			 */
 			void add_chunk(const Coordinates& c, const Chunk& chunk);
+
+			/**
+			 * Get the list of chunks.
+			 *
+			 * @return A reference to the private chunk list.
+			 */
 			const ChunkList& get_chunks() const;
+
+			/**
+			 * Get a specific chunk from the chunk list.
+			 *
+			 * @param c The coordinates of the chunk, in chunk coordinate format.
+			 * @return An optional<Chunk&>, since a chunk with the specified coordinates may not exist.
+			 *  
+			 */
 			boost::optional<Chunk&> get_chunk(const Coordinates& c);
+
+			/**
+			 * Regenerate a chunk, keeping its coordinates.
+			 *
+			 * @param c The coordinates of the chunk, in chunk coordinate format. 
+			 * @return A reference to the regenerated chunk.
+			 */
 			Chunk& regenerate_chunk(const Coordinates& c);
-			void set_client_mode(bool);
+
+			/**
+			 * Set the 'client mode' of the current board.
+			 *
+			 * If client mode is set, the board will not generate its own chunks when they
+			 * are missing, but rather return an empty optional<Chunk&>, whereafter the
+			 * chunk can be requested from the server.
+			 *
+			 * @param b The client mode flag.
+			 */
+
+			void set_client_mode(bool b);
+
+			/**
+			 * Clear a 3x3 square around the x, y coordinates.\ Used on first square open.
+			 *
+			 * @param x The x-coordinate, in global coordinate format.
+			 * @param y The y-coordinate, in global coordinate format.
+			 *
+			 */
 			void clear_at(int x, int y);
 
+			/**
+			 * Get a board square.
+			 *
+			 * @param coordinates The square coordinates, in global coordinate format.
+			 * @return A reference to the requested square.
+			 */
 			Square& get(const Coordinates& coordinates);
+
+			/**
+			 * Get a board square.
+			 *
+			 * @todo Re-evaluate why we have the x,y functions and the Coordinates functions.
+			 * @param x The x-coordinate, in global coordinate format.
+			 * @param y The y-coordinate, in global coordinate format.
+			 * @return A reference to the requested square.
+			 */
 			Square& get(int x, int y);
 	};
 };
