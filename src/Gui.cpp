@@ -59,7 +59,7 @@ namespace nm
 		: main(0, 0, COLS - 21, LINES), sidebar(COLS - 20, 0, 20, LINES),
 			squareSource(squareSource),	in(io_service, ::dup(STDIN_FILENO))
 	{
-		width = height = board_offset_x = board_offset_y = 0;
+		width = height = 0;
 		handle_resize();
 
 		center_cursor(0, 0);
@@ -127,12 +127,12 @@ namespace nm
 
 	inline int Gui::global_x()
 	{
-		return this->cursor_x + this->board_offset_x;
+		return this->self_cursor.x + this->self_cursor.offset_x;
 	}
 
 	inline int Gui::global_y()
 	{
-		return this->cursor_y + this->board_offset_y;
+		return this->self_cursor.y + this->self_cursor.offset_y;
 	}
 
 	inline int Gui::chunk_x()
@@ -203,16 +203,17 @@ namespace nm
 
 	void Gui::center_cursor()
 	{
-		center_cursor(this->cursor_x + this->board_offset_x, this->cursor_y + this->board_offset_y);
+
+		center_cursor(this->self_cursor.x + this->self_cursor.offset_x, this->self_cursor.y + this->self_cursor.offset_y);
 	}
 
 	void Gui::center_cursor(int global_x, int global_y)
 	{
-		this->board_offset_x = global_x - this->width / 6;
-		this->cursor_x = this->width / 6;
+		this->self_cursor.offset_x = global_x - this->width / 6;
+		this->self_cursor.x = this->width / 6;
 
-		this->board_offset_y = global_y - this->height / 2;
-		this->cursor_y = this->height / 2;
+		this->self_cursor.offset_y = global_y - this->height / 2;
+		this->self_cursor.y = this->height / 2;
 
 		this->ev_cursor_move(global_x, global_y);
 	}
@@ -233,7 +234,7 @@ namespace nm
 			switch(ch)
 			{
 				case 'f':
-					this->ev_square_flag(this->board_offset_x + this->cursor_x, this->board_offset_y + this->cursor_y);
+					this->ev_square_flag(self_cursor.offset_x + self_cursor.x, self_cursor.offset_y + self_cursor.y);
 					break;
 
 				case 'q':
@@ -241,7 +242,7 @@ namespace nm
 					break;
 
 				case ' ':
-					this->ev_square_open(this->board_offset_x + this->cursor_x, this->board_offset_y + this->cursor_y);
+					this->ev_square_open(self_cursor.offset_x + self_cursor.x, self_cursor.offset_y + self_cursor.y);
 					break;
 
 				case '0':
@@ -263,47 +264,46 @@ namespace nm
 
 				/* ARROW KEYS */
 				case KEY_LEFT:
-					if (cursor_x > 0)
+					if (self_cursor.x > 0)
 					{
-						cursor_x--;
+						self_cursor.x--;
 					}
 					else
 					{
-						board_offset_x -= 10;
+						self_cursor.offset_x -= 2;
 					}
 					break;
 
 				case KEY_RIGHT:
-					BOOST_LOG_TRIVIAL(info) << (this->width / 3) - 1 << ", " << cursor_x;
-					if (cursor_x < (this->width / 3) - 1)
+					if (self_cursor.x < (this->width / 3) - 1)
 					{
-						cursor_x++;
+						self_cursor.x++;
 					}
 					else
 					{
-						board_offset_x += 10;
+						self_cursor.offset_x += 2;
 					}
 					break;
 
 				case KEY_UP:
-					if (cursor_y > 0)
+					if (self_cursor.y > 0)
 					{
-						cursor_y--;
+						self_cursor.y--;
 					}
 					else
 					{
-						board_offset_y -= 10;
+						self_cursor.offset_y -= 2;
 					}
 					break;
 
 				case KEY_DOWN:
-					if (cursor_y < this->height - 1)
+					if (self_cursor.y < this->height - 1)
 					{
-						cursor_y++;
+						self_cursor.y++;
 					}
 					else
 					{
-						board_offset_y += 10;
+						self_cursor.offset_y += 2;
 					}
 					break;
 
@@ -318,7 +318,7 @@ namespace nm
 				case KEY_RIGHT:
 				case KEY_UP:
 				case KEY_DOWN:
-					this->ev_cursor_move(cursor_x + board_offset_x, cursor_y + board_offset_y);
+					this->ev_cursor_move(self_cursor.x + self_cursor.offset_x, self_cursor.y + self_cursor.offset_y);
 					break;
 				default:
 					break;
@@ -389,8 +389,7 @@ namespace nm
 
 	Square& Gui::get(int x, int y) const
 	{
-		return squareSource.get({x + board_offset_x, y + board_offset_y});
-	}
+		return squareSource.get({x + self_cursor.offset_x, y + self_cursor.offset_y});
 
 	void Gui::draw_flag_square(int x, int y, Square& square)
 	{

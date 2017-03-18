@@ -59,8 +59,8 @@ namespace nm
 
 			int width;
 			int height;
-			int board_offset_x, board_offset_y, cursor_x, cursor_y;
 
+			CursorData self_cursor {};
 			bool border_enabled = false;
 
 			void center_cursor();
