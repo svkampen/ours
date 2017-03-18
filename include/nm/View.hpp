@@ -30,7 +30,6 @@ namespace nm
 			virtual HandlerResult handle_input(int input_character) { return HandlerResult::CONTINUE; };
 
 			inline int global_x()
-			virtual ~View()
 			{
 				return cursor.x + cursor.offset_x;
 			}
@@ -49,7 +48,6 @@ namespace nm
 			{
 				return std::floor(global_y() / (double)NM_CHUNK_SIZE);
 			}
-			};
 
 
 			virtual void player_quit_handler(const message::Player& player)
