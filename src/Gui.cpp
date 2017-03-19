@@ -79,7 +79,7 @@ namespace nm
 	void Gui::new_player_handler(const message::Player& player)
 	{
 		BOOST_LOG_TRIVIAL(info) << "Adding cursor for new player with ID " << player.id();
-		cursors[player.id()] = {player.x(), player.y(), rand() % 6 + 2};
+		cursors[player.id()] = {.x = player.x(), .y = player.y(), .color = rand() % 4 + 2};
 		draw_board();
 		this->current_view->draw_sidebar(this->squareSource, this->cursors);
 	}
