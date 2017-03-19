@@ -58,7 +58,8 @@ namespace nm
 	Gui::Gui(boost::asio::io_service& io_service, SquareSource& squareSource)
 		: main(0, 0, COLS - 21, LINES), sidebar(COLS - 20, 0, 20, LINES),
 			squareSource(squareSource),	in(io_service, ::dup(STDIN_FILENO)),
-			boardview(self_cursor, main, ev_square_open, ev_square_flag, ev_cursor_move), current_view(boardview)
+			boardview(self_cursor, main, sidebar, ev_square_open, ev_square_flag, ev_cursor_move), chunkview(self_cursor, main, sidebar),
+			current_view(&boardview)
 	{
 		width = height = 0;
 		handle_resize();
@@ -72,7 +73,7 @@ namespace nm
 	{
 		cursors.erase(player.id());
 		draw_board();
-		this->current_view.draw_sidebar(this->sidebar, this->squareSource, this->cursors);
+		this->current_view->draw_sidebar(this->squareSource, this->cursors);
 	}
 
 	void Gui::new_player_handler(const message::Player& player)
@@ -80,7 +81,7 @@ namespace nm
 		BOOST_LOG_TRIVIAL(info) << "Adding cursor for new player with ID " << player.id();
 		cursors[player.id()] = {player.x(), player.y(), rand() % 6 + 2};
 		draw_board();
-		this->current_view.draw_sidebar(this->sidebar, this->squareSource, this->cursors);
+		this->current_view->draw_sidebar(this->squareSource, this->cursors);
 	}
 
 	void Gui::cursor_move_handler(const message::CursorMove& msg)
@@ -90,7 +91,7 @@ namespace nm
 		data.x = msg.x();
 		data.y = msg.y();
 		draw_board();
-		this->current_view.draw_sidebar(this->sidebar, this->squareSource, this->cursors);
+		this->current_view->draw_sidebar(this->squareSource, this->cursors);
 	}
 
 	void Gui::handle_resize()
@@ -115,14 +116,14 @@ namespace nm
 
 		refresh();
 
-		this->current_view.draw_sidebar(this->sidebar, this->squareSource, this->cursors);
+		this->current_view->draw_sidebar(this->squareSource, this->cursors);
 	}
 
 	void Gui::draw()
 	{
 		handle_input();
 		draw_board();
-		this->current_view.draw_sidebar(this->sidebar, this->squareSource, this->cursors);
+		this->current_view->draw_sidebar(this->squareSource, this->cursors);
 		in.async_read_some(boost::asio::null_buffers(), boost::bind(&Gui::draw, this));
 	}
 
@@ -149,6 +150,19 @@ namespace nm
 		this->ev_save_image();
 	}
 
+	void Gui::switch_views()
+	{
+		if (this->chunk_view_enabled)
+		{
+			this->current_view = &this->boardview;
+		} else
+		{
+			this->current_view = &this->chunkview;
+		}
+
+		this->chunk_view_enabled = !this->chunk_view_enabled;
+	}
+
 	bool Gui::handle_input()
 	{
 		int ch;
@@ -159,6 +173,10 @@ namespace nm
 		{
 			switch(ch)
 			{
+				case 'v':
+					this->switch_views();
+					break;
+
 				case 'q':
 					this->ev_exit();
 					break;
@@ -172,7 +190,7 @@ namespace nm
 					break;
 			}
 
-			this->current_view.handle_input(ch);
+			this->current_view->handle_input(ch);
 		}
 
 		return false;
@@ -180,7 +198,7 @@ namespace nm
 
 	void Gui::draw_board()
 	{
-		this->current_view.draw_main(this->squareSource, this->cursors);
+		this->current_view->draw_main(this->squareSource, this->cursors);
 	}
 
 	Square& Gui::get(int x, int y) const

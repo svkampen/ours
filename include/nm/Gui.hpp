@@ -9,6 +9,7 @@
 #include <nm/Flag.hpp>
 #include <nm/View.hpp>
 #include <nm/BoardView.hpp>
+#include <nm/ChunkView.hpp>
 #include <nm/Client.hpp>
 #include <nm/Window.hpp>
 #include <nm/CursorData.hpp>
@@ -68,8 +69,10 @@ namespace nm
 
 			std::unordered_map<int32_t, CursorData> cursors;
 
+			bool chunk_view_enabled = false;
 			nm::BoardView boardview;
-			nm::View& current_view;
+			nm::ChunkView chunkview;
+			nm::View *current_view;
 
 			int width;
 			int height;
@@ -79,6 +82,8 @@ namespace nm
 
 			void center_cursor();
 			void center_cursor(int global_x, int global_y);
+
+			void switch_views();
 
 			void draw_open_square(int x, int y, Square& square);
 			void draw_closed_square(int x, int y);

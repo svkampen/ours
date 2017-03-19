@@ -6,8 +6,8 @@
 
 namespace nm
 {
-	BoardView::BoardView(CursorData& cursorData, Window& main, const SquareEvent& open, const SquareEvent& flag, const SquareEvent& move)
-		: ev_square_open(open), ev_square_flag(flag), ev_cursor_move(move), main(main), View(cursorData)
+	BoardView::BoardView(CursorData& cursorData, Window& main, Window& sidebar, const SquareEvent& open, const SquareEvent& flag, const SquareEvent& move)
+		: ev_square_open(open), ev_square_flag(flag), ev_cursor_move(move), View(cursorData, main, sidebar)
 	{};
 
 
@@ -28,18 +28,18 @@ namespace nm
 					main << L"*";
 				} else if (square.state == SquareState::OPENED)
 				{
-					this->draw_open_square(main, x, y, square);
+					this->draw_open_square(x, y, square);
 				} else if (square.state == SquareState::FLAGGED)
 				{
-					this->draw_flag_square(main, x, y, square);
+					this->draw_flag_square(x, y, square);
 				} else
 				{
-					this->draw_closed_square(main, x, y, square);
+					this->draw_closed_square(x, y, square);
 				}
 			}
 		}
 
-		this->draw_cursors(main, others);
+		this->draw_cursors(others);
 
 		main << Move({3 * cursor.x, cursor.y}) << "["
 			<< Move({3 * cursor.x + 2, cursor.y}) << "]";
@@ -145,7 +145,7 @@ namespace nm
 		return HandlerResult::STOP;
 	}
 
-	void BoardView::draw_sidebar(Window& sidebar, SquareSource& squareSource, std::unordered_map<int32_t, CursorData>& cursors)
+	void BoardView::draw_sidebar(SquareSource& squareSource, std::unordered_map<int32_t, CursorData>& cursors)
 	{
 		sidebar << nm::Erase
 			<< L"   Netamphetamine   "
@@ -205,7 +205,7 @@ namespace nm
 		sidebar << nm::Refresh;
 	}
 
-	void BoardView::draw_flag_square(Window& main, int x, int y, Square& square)
+	void BoardView::draw_flag_square(int x, int y, Square& square)
 	{
 		int global_x = x + cursor.offset_x;
 		int global_y = y + cursor.offset_y;
@@ -221,12 +221,12 @@ namespace nm
 			main << AttrOff(COLOR_PAIR(BORDER_COLOR));
 	}
 
-	void BoardView::draw_closed_square(Window& main, int x, int y, Square& square)
+	void BoardView::draw_closed_square(int x, int y, Square& square)
 	{
 		main << Move({3 * x, y}) << AttrOn(COLOR_PAIR(7)) << "   " << AttrOff(COLOR_PAIR(7));
 	}
 
-	void BoardView::draw_cursors(Window& main, std::unordered_map<int32_t, CursorData>& cursors)
+	void BoardView::draw_cursors(std::unordered_map<int32_t, CursorData>& cursors)
 	{
 		int width, height;
 		getyx((WINDOW*)main, height, width);
@@ -253,7 +253,7 @@ namespace nm
 		}
 	}
 
-	void BoardView::draw_open_square(Window& main, int x, int y, Square& square)
+	void BoardView::draw_open_square(int x, int y, Square& square)
 	{
 		int color = 0;
 		switch(square.number)

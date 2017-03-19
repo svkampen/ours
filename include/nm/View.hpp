@@ -20,13 +20,14 @@ namespace nm
 	class View
 	{
 		public:
-			View(CursorData& cursorData) : cursor(cursorData) {};
+			View(CursorData& cursorData, Window& main, Window& sidebar)
+				: cursor(cursorData), sidebar(sidebar), main(main) {};
 			CursorData& cursor;
+			Window& sidebar;
+			Window& main;
 
-			virtual void draw_main(SquareSource& squareSource,
-					std::unordered_map<int32_t, CursorData>& others) = 0;
-			virtual void draw_sidebar(Window& sidebar, SquareSource& squareSource,
-					std::unordered_map<int32_t, CursorData>& cursors) {};
+			virtual void draw_main(SquareSource& squareSource, CursorMap& others) = 0;
+			virtual void draw_sidebar(SquareSource& squareSource, CursorMap& cursors) {};
 			virtual HandlerResult handle_input(int input_character) { return HandlerResult::CONTINUE; };
 
 			inline int global_x()
