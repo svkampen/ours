@@ -169,7 +169,7 @@ namespace nm
 		for (auto&& pair : cursors)
 		{
 			sidebar << L"│ "
-				<< nm::AttrOn(COLOR_PAIR(pair.second.color)) << L"\u26AB " << nm::AttrOff(COLOR_PAIR(pair.second.color))
+				<< nm::AttrOn(COLOR_PAIR(pair.second.color)) << L"o " << nm::AttrOff(COLOR_PAIR(pair.second.color))
 				<< utils::int_to_hex(pair.first) << L"       │";
 
 			sidebar << L"│   (" << pair.second.x << L", " << pair.second.y << ")";
