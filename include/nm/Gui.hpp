@@ -49,6 +49,15 @@ namespace nm
 {
 	void init_curses();
 
+	/**
+	 * The class that manages the terminal screen.
+	 *
+	 * This class sets up the terminal screen, manages data such as the cursors that need to be drawn
+	 * and manages its own cursor. Drawing the board/sidebar/etc is delegated to view classes, which
+	 * can be swapped out.
+	 *
+	 * If you're looking for a specific view, see the View virtual class.
+	 */
 	class Gui : public boost::enable_shared_from_this<Gui>
 	{
 		private:
