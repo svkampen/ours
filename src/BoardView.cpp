@@ -164,8 +164,7 @@ namespace nm
 
 		sidebar
 			<< L"       Clients      "
-			<< L"┌──────────────────┐"
-			<< L"│                  │";
+			<< L"┌──────────────────┐";
 
 		for (auto&& pair : cursors)
 		{
@@ -184,9 +183,8 @@ namespace nm
 			<< L"└──────────────────┘\n";
 
 		sidebar
+			<< L"      Infostats     "
 			<< L"┌──────────────────┐"
-			<< L"│     INFOSTATS    │"
-			<< L"│                  │"
 			<< L"│ Chn: " << this->chunk_x() << ", " << this->chunk_y();
 
 		int line = sidebar.gety();
