@@ -69,6 +69,7 @@ namespace nm
 			 *  
 			 */
 			boost::optional<Chunk&> get_chunk(const Coordinates& c);
+			boost::optional<Chunk&> get_chunk(int x, int y);
 
 			/**
 			 * Regenerate a chunk, keeping its coordinates.

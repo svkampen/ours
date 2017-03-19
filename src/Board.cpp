@@ -44,6 +44,11 @@ namespace nm
 			return boost::optional<Chunk&>(iter->second);
 	}
 
+	boost::optional<Chunk&> Board::get_chunk(int x, int y)
+	{
+		return get_chunk({x, y});
+	}
+
 	const ChunkList& Board::get_chunks() const
 	{
 		return this->chunks;
