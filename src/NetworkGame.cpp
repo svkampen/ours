@@ -19,6 +19,7 @@ namespace nm
 
 	void NetworkGame::connected_handler()
 	{
+		connected = true;
 		this->send_player_join(0,0);
 		this->ev_board_update();
 	}
@@ -103,7 +104,7 @@ namespace nm
 	Square& NetworkGame::get(const Coordinates& c)
 	{
 		Coordinates chunk_coords = utils::to_chunk_coordinates(c);
-		if (!chunk_requested(chunk_coords))
+		if (!chunk_requested(chunk_coords) && connected)
 		{
 			request_chunk(chunk_coords);
 		}

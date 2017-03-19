@@ -23,6 +23,8 @@ namespace nm
 			void send_clear_at(int x, int y);
 			void request_chunk(const Coordinates& c);
 			bool chunk_requested(const Coordinates& c);
+
+			bool connected = false;
 		public:
 			NetworkGame(Client& client);
 			Board board;
