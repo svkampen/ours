@@ -36,6 +36,48 @@ namespace nm
 	{
 		if (!ec)
 		{
+			auto nsock = socket_.native_handle();
+
+			/* Set TCP keepalive packets. */
+			int yes = 1;
+			int idle = 1;
+			int count = 5;
+			int interval = 30;
+			int err = 0;
+			socklen_t optlen = sizeof(idle);
+			if (setsockopt(nsock, SOL_SOCKET, SO_KEEPALIVE, &yes, optlen) < 0)
+			{
+				err = 1;
+				goto fail;
+			}
+
+			if (setsockopt(nsock, SOL_TCP, TCP_KEEPIDLE, &idle, optlen) < 0)
+			{
+				err = 2;
+				goto fail;
+			}
+
+			if (setsockopt(nsock, SOL_TCP, TCP_KEEPINTVL, &interval, optlen) < 0)
+			{
+				err = 3;
+				goto fail;
+			}
+
+			if (setsockopt(nsock, SOL_TCP, TCP_KEEPCNT, &count, optlen) < 0)
+			{
+				err = 4;
+				goto fail;
+			}
+
+
+			this->ev_connected();
+			start_read();
+
+			return;
+
+fail:
+			BOOST_LOG_TRIVIAL(info) << "Failed to turn on keepalive (" << err << ")";
+
 			this->ev_connected();
 			start_read();
 		} else
