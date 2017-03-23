@@ -189,6 +189,14 @@ namespace nm
 			}
 
 			connection->sendMessage(wrapper);
+
+			/* Also send all known current chunks. */
+			const auto& chunkList = this->game.board.get_chunks();
+
+			for (const auto& chunkPair : chunkList)
+			{
+				this->send_chunk_update(chunkPair.first.x(), chunkPair.first.y(), chunkPair.second);
+			}
 		}
 
 		void Server::start()
