@@ -44,6 +44,8 @@ namespace nm
 			init_pair(16,COLOR_GREEN,	COLOR_RED);
 			init_pair(17,COLOR_MAGENTA,	COLOR_RED);
 			init_pair(18,COLOR_WHITE,	COLOR_RED);
+
+			init_pair(19, COLOR_BLACK, COLOR_GREEN);
 		}
 
 		noecho();
