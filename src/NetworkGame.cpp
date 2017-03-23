@@ -117,6 +117,16 @@ namespace nm
 		return this->get({x, y});
 	}
 
+	const ChunkList& NetworkGame::get_chunks() const
+	{
+		return board.get_chunks();
+	}
+
+	boost::optional<Chunk&> NetworkGame::get_chunk(const Coordinates& coordinates)
+	{
+		return board.get_chunk(coordinates);
+	}
+
 	void NetworkGame::send_clear_at(int x, int y)
 	{
 		message::MessageWrapper wrapper;

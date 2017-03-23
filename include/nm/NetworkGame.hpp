@@ -5,6 +5,7 @@
 #include <nm/Board.hpp>
 #include <nm/ChunkGenerator.hpp>
 #include <nm/Flag.hpp>
+#include <nm/ChunkSquareSource.hpp>
 #include <netmine.pb.h>
 
 #include <vector>
@@ -13,7 +14,7 @@
 
 namespace nm
 {
-	class NetworkGame : public SquareSource
+	class NetworkGame : public ChunkSquareSource
 	{
 		private:
 			Client& client;
@@ -34,6 +35,8 @@ namespace nm
 
 			virtual Square& get(const Coordinates& c);
 			virtual Square& get(int x, int y);
+			virtual const ChunkList& get_chunks() const;
+			virtual boost::optional<Chunk&> get_chunk(const Coordinates& coordinates);
 			void connected_handler();
 			void save_image_handler();
 			void welcome_handler(const message::Welcome& welcome);
