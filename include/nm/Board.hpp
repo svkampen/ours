@@ -9,7 +9,7 @@
 #include "Square.hpp"
 #include "Chunk.hpp"
 #include "ChunkGenerator.hpp"
-#include "SquareSource.hpp"
+#include "ChunkSquareSource.hpp"
 #include "ChunkSource.hpp"
 #include <boost/optional.hpp>
 
@@ -23,7 +23,7 @@ namespace nm
 	 * and generating its own data using a specified chunk generator.
 	 *
 	 */
-	class Board : public SquareSource, public ChunkSource
+	class Board : public ChunkSquareSource 
 	{
 		friend class Loader;
 		friend class Saver;
