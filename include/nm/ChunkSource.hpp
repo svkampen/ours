@@ -15,7 +15,7 @@ namespace nm
 			{
 			};
 			virtual const ChunkList& get_chunks() const = 0;
-			virtual void set_client_mode(bool) = 0;
+			virtual boost::optional<Chunk&> get_chunk(const Coordinates& coordinates) = 0;
 	};
 }
 
