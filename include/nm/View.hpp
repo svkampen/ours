@@ -3,7 +3,7 @@
 
 #include <ncurses.h>
 #include <netmine.pb.h>
-#include <nm/SquareSource.hpp>
+#include <nm/ChunkSquareSource.hpp>
 #include <nm/Chunk.hpp>
 #include <nm/Window.hpp>
 #include <nm/CursorData.hpp>
@@ -26,8 +26,8 @@ namespace nm
 			Window& sidebar;
 			Window& main;
 
-			virtual void draw_main(SquareSource& squareSource, CursorMap& others) = 0;
-			virtual void draw_sidebar(SquareSource& squareSource, CursorMap& cursors) {};
+			virtual void draw_main(ChunkSquareSource& squareSource, CursorMap& others) = 0;
+			virtual void draw_sidebar(ChunkSquareSource& squareSource, CursorMap& cursors) {};
 			virtual HandlerResult handle_input(int input_character) { return HandlerResult::CONTINUE; };
 
 			inline int global_x()

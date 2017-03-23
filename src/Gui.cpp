@@ -55,7 +55,7 @@ namespace nm
 
 
 
-	Gui::Gui(boost::asio::io_service& io_service, SquareSource& squareSource)
+	Gui::Gui(boost::asio::io_service& io_service, ChunkSquareSource& squareSource)
 		: main(0, 0, COLS - 21, LINES), sidebar(COLS - 20, 0, 20, LINES),
 			squareSource(squareSource),	in(io_service, ::dup(STDIN_FILENO)),
 			boardview(self_cursor, main, sidebar, ev_square_open, ev_square_flag, ev_cursor_move), chunkview(self_cursor, main, sidebar),

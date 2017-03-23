@@ -11,7 +11,7 @@ namespace nm
 	{};
 
 
-	void BoardView::draw_main(SquareSource& squareSource, std::unordered_map<int32_t, CursorData>& others) {
+	void BoardView::draw_main(ChunkSquareSource& squareSource, std::unordered_map<int32_t, CursorData>& others) {
 		int XViewable = main.cols / 3;
 		int YViewable = main.lines;
 
@@ -145,7 +145,7 @@ namespace nm
 		return HandlerResult::STOP;
 	}
 
-	void BoardView::draw_sidebar(SquareSource& squareSource, std::unordered_map<int32_t, CursorData>& cursors)
+	void BoardView::draw_sidebar(ChunkSquareSource& squareSource, std::unordered_map<int32_t, CursorData>& cursors)
 	{
 		sidebar << nm::Erase
 			<< L"   Netamphetamine   "

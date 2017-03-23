@@ -5,7 +5,7 @@
 #include <boost/signals2.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <nm/Game.hpp>
-#include <nm/SquareSource.hpp>
+#include <nm/ChunkSquareSource.hpp>
 #include <nm/Flag.hpp>
 #include <nm/View.hpp>
 #include <nm/BoardView.hpp>
@@ -64,7 +64,7 @@ namespace nm
 		private:
 			nm::Window main, sidebar;
 
-			SquareSource &squareSource;
+			ChunkSquareSource &squareSource;
 			boost::asio::posix::stream_descriptor in;
 
 			std::unordered_map<int32_t, CursorData> cursors;
@@ -96,7 +96,7 @@ namespace nm
 			boost::signals2::signal<void ()> ev_save_image;
 			boost::signals2::signal<void ()> ev_exit;
 
-			Gui(boost::asio::io_service& io_service, SquareSource& squareSource);
+			Gui(boost::asio::io_service& io_service, ChunkSquareSource& squareSource);
 
 			bool handle_input();
 			void cursor_move_handler(const message::CursorMove& msg);

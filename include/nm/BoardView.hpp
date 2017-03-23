@@ -80,12 +80,12 @@ namespace nm
 		 * @param squareSource 
 		 * @param cursors The other players' cursors.
 		 */
-		void draw_sidebar(SquareSource& squareSource, CursorMap& cursors);
+		void draw_sidebar(ChunkSquareSource& squareSource, CursorMap& cursors);
 
 		/**
 		 * Draw the main window.
 		 */
-		void draw_main(SquareSource& squareSource, CursorMap& others);
+		void draw_main(ChunkSquareSource& squareSource, CursorMap& others);
 
 		/**
 		 * Handle this view's input.
