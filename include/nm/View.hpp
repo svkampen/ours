@@ -32,6 +32,10 @@ namespace nm
 
 			virtual void center_cursor() {}
 			virtual void center_cursor(int x, int y) {}
+
+			virtual void switched_in_handler() {}
+			virtual void switched_out_handler() {}
+
 			inline int global_x()
 			{
 				return cursor.x + cursor.offset_x;

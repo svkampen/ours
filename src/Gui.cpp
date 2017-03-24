@@ -136,6 +136,7 @@ namespace nm
 
 	void Gui::switch_views()
 	{
+		this->current_view->switched_out_handler();
 		if (this->chunk_view_enabled)
 		{
 			this->current_view = &this->boardview;
@@ -144,6 +145,7 @@ namespace nm
 			this->current_view = &this->chunkview;
 		}
 
+		this->current_view->switched_in_handler();
 		this->chunk_view_enabled = !this->chunk_view_enabled;
 	}
 
