@@ -202,9 +202,4 @@ namespace nm
 	{
 		this->current_view->draw_main(this->squareSource, this->cursors);
 	}
-
-	Square& Gui::get(int x, int y) const
-	{
-		return squareSource.get({x + self_cursor.offset_x, y + self_cursor.offset_y});
-	}
 }

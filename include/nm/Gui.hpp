@@ -105,7 +105,6 @@ namespace nm
 			void draw_board();
 			void handle_resize();
 			void draw();
-			Square& get(int x, int y) const;
 	};
 }
 
