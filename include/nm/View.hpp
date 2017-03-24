@@ -30,6 +30,8 @@ namespace nm
 			virtual void draw_sidebar(ChunkSquareSource& squareSource, CursorMap& cursors) {};
 			virtual HandlerResult handle_input(int input_character) { return HandlerResult::CONTINUE; };
 
+			virtual void center_cursor() {}
+			virtual void center_cursor(int x, int y) {}
 			inline int global_x()
 			{
 				return cursor.x + cursor.offset_x;

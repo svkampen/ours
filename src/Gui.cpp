@@ -66,7 +66,7 @@ namespace nm
 		width = height = 0;
 		handle_resize();
 
-		center_cursor(0, 0);
+		this->current_view->center_cursor(0, 0);
 
 		in.async_read_some(boost::asio::null_buffers(), boost::bind(&Gui::draw, this));
 	}
@@ -114,7 +114,7 @@ namespace nm
 		this->main.resize(0, 0, this->width, this->height);
 		this->sidebar.resize(COLS - 20, 0, 20, LINES);
 
-		this->center_cursor();
+		this->current_view->center_cursor();
 
 		refresh();
 
@@ -127,24 +127,6 @@ namespace nm
 		draw_board();
 		this->current_view->draw_sidebar(this->squareSource, this->cursors);
 		in.async_read_some(boost::asio::null_buffers(), boost::bind(&Gui::draw, this));
-	}
-
-
-	void Gui::center_cursor()
-	{
-
-		center_cursor(this->self_cursor.x + this->self_cursor.offset_x, this->self_cursor.y + this->self_cursor.offset_y);
-	}
-
-	void Gui::center_cursor(int global_x, int global_y)
-	{
-		this->self_cursor.offset_x = global_x - this->width / 6;
-		this->self_cursor.x = this->width / 6;
-
-		this->self_cursor.offset_y = global_y - this->height / 2;
-		this->self_cursor.y = this->height / 2;
-
-		this->ev_cursor_move(global_x, global_y);
 	}
 
 	void Gui::save_png()

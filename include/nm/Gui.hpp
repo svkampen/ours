@@ -80,9 +80,6 @@ namespace nm
 			CursorData self_cursor {};
 			bool border_enabled = false;
 
-			void center_cursor();
-			void center_cursor(int global_x, int global_y);
-
 			void switch_views();
 
 			void draw_open_square(int x, int y, Square& square);
