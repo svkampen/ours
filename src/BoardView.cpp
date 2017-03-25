@@ -142,7 +142,7 @@ namespace nm
 				break;
 		}
 
-		return HandlerResult::STOP;
+			return HandlerResult::DRAW_ALL;
 	}
 
 	void BoardView::draw_sidebar(ChunkSquareSource& squareSource, std::unordered_map<int32_t, CursorData>& cursors)

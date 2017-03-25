@@ -10,6 +10,10 @@ namespace nm
 			bool is_current_chunk(int x, int y, const Chunk& chunk) const;
 			int offset_x;
 			int offset_y;
+
+			CursorData chunk_cursor {};
+
+			bool moved = false;
 		public:
 			ChunkView(CursorData& cursorData, Window& main, Window& sidebar);
 
@@ -18,6 +22,10 @@ namespace nm
 
 			void draw_chunk(int x, int y, Chunk& chunk);
 			void draw_empty_chunk(int x, int y);
+			HandlerResult handle_input(int input_character);
+
+			void switched_in_handler();
+			void switched_out_handler();
 	};
 }
 

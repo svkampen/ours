@@ -13,8 +13,8 @@ namespace nm
 {
 	enum HandlerResult
 	{
-		STOP,
-		CONTINUE
+		DRAW_ALL,
+		DRAW_CURSORS
 	};
 
 	class View
@@ -28,7 +28,8 @@ namespace nm
 
 			virtual void draw_main(ChunkSquareSource& squareSource, CursorMap& others) = 0;
 			virtual void draw_sidebar(ChunkSquareSource& squareSource, CursorMap& cursors) {};
-			virtual HandlerResult handle_input(int input_character) { return HandlerResult::CONTINUE; };
+			virtual void draw_cursor(ChunkSquareSource& squareSource, CursorMap& others) {};
+			virtual HandlerResult handle_input(int input_character) { return HandlerResult::DRAW_ALL; };
 
 			virtual void center_cursor() {}
 			virtual void center_cursor(int x, int y) {}
