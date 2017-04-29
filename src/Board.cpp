@@ -66,8 +66,7 @@ namespace nm
 
 	void Board::clear_at(int x, int y)
 	{
-		simmo::vector<int32_t, 2> local_coords = {modulo(x, NM_CHUNK_SIZE),
-												  modulo(y, NM_CHUNK_SIZE)};
+		simmo::point<int32_t, 2> local_coords = {modulo(x, NM_CHUNK_SIZE), modulo(y, NM_CHUNK_SIZE)};
 
 		Coordinates chunk_coordinates = nm::utils::to_chunk_coordinates({x, y});
 
@@ -91,8 +90,7 @@ namespace nm
 
 	Square& Board::get(const Coordinates& coordinates)
 	{
-		simmo::vector<int32_t, 2> local_coords = {modulo(coordinates.x(), NM_CHUNK_SIZE),
-												  modulo(coordinates.y(), NM_CHUNK_SIZE)};
+		simmo::point<int32_t, 2> local_coords = {modulo(coordinates.x(), NM_CHUNK_SIZE), modulo(coordinates.y(), NM_CHUNK_SIZE)};
 
 		Coordinates chunk_coordinates = {static_cast<int>(std::floor(coordinates.x() / (double)NM_CHUNK_SIZE)),
 										 static_cast<int>(std::floor(coordinates.y() / (double)NM_CHUNK_SIZE))};
