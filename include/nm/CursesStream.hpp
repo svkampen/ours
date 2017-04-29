@@ -12,7 +12,7 @@
 #endif
 
 namespace nm {
-	class CursesStream : /*virtual*/ private CursesStreamBuf, public std::wostream
+	class CursesStream : /*virtual*/ public CursesStreamBuf, public std::wostream
 	{
 		public:
 			CursesStream(WINDOW *win);

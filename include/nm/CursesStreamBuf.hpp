@@ -14,6 +14,7 @@ namespace nm {
 		int_type overflow(int_type ch);
 	public:
 		WINDOW *win;
+		bool nowrap = false;
 	};
 }
 
