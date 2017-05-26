@@ -39,8 +39,15 @@ namespace nm
 			}
 		}
 
-		this->draw_cursors(others);
 
+		this->draw_cursors(others);
+		this->draw_cursor(squareSource, others);
+
+		main << Refresh;
+	}
+
+	void BoardView::draw_cursor(ChunkSquareSource& css, CursorMap& cm)
+	{
 		main << Move({3 * cursor.x, cursor.y}) << "["
 			<< Move({3 * cursor.x + 2, cursor.y}) << "]";
 
@@ -67,22 +74,28 @@ namespace nm
 
 	HandlerResult BoardView::handle_input(int input_character)
 	{
+		bool full_redraw = false;
 		switch(input_character)
 		{
 			case ' ':
 				this->ev_square_open(cursor.offset_x + cursor.x, cursor.offset_y + cursor.y);
+				full_redraw = true;
 				break;
 			case 'c':
 				this->center_cursor();
+				full_redraw = true;
 				break;
 			case '0':
 				this->center_cursor(0, 0);
+				full_redraw = true;
 				break;
 			case 'b':
 				this->border_enabled = !this->border_enabled;
+				full_redraw = true;
 				break;
 			case 'f':
 				this->ev_square_flag(cursor.offset_x + cursor.x, cursor.offset_y + cursor.y);
+				full_redraw = true;
 				break;
 
 			/* ARROW KEYS */
@@ -93,7 +106,8 @@ namespace nm
 				}
 				else
 				{
-					cursor.offset_x -= 2;
+					cursor.offset_x -= 1;
+					full_redraw = true;
 				}
 				break;
 			case KEY_RIGHT:
@@ -103,7 +117,8 @@ namespace nm
 				}
 				else
 				{
-					cursor.offset_x += 2;
+					cursor.offset_x += 1;
+					full_redraw = true;
 				}
 				break;
 			case KEY_UP:
@@ -113,7 +128,8 @@ namespace nm
 				}
 				else
 				{
-					cursor.offset_y -= 2;
+					cursor.offset_y -= 1;
+					full_redraw = true;
 				}
 				break;
 			case KEY_DOWN:
@@ -123,7 +139,8 @@ namespace nm
 				}
 				else
 				{
-					cursor.offset_y += 2;
+					cursor.offset_y += 1;
+					full_redraw = true;
 				}
 				break;
 			default:
@@ -142,7 +159,10 @@ namespace nm
 				break;
 		}
 
+		if (full_redraw)
 			return HandlerResult::DRAW_ALL;
+
+		return HandlerResult::DRAW_CURSORS;
 	}
 
 	void BoardView::draw_sidebar(ChunkSquareSource& squareSource, std::unordered_map<int32_t, CursorData>& cursors)

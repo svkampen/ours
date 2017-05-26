@@ -1,5 +1,6 @@
 #include <nm/Game.hpp>
-#include <boost/optional.hpp>
+#include <nm/SaveLoad.hpp>
+#include <nm/Config.hpp>
 #include <boost/log/trivial.hpp>
 #include <nm/Utils.hpp>
 
@@ -9,9 +10,47 @@ namespace nm
 	{
 	}
 
-	Game::Game(Board board) : board(board)
+	Game::~Game()
+	{
+		if (!save) return;
+		try
+		{
+			BOOST_LOG_TRIVIAL(info) << "Destructing game, so saving to default save path.";
+			nm::Saver::saveGame(*this, nm::config["default_save_path"].get<std::string>());
+		} catch (...)
+		{
+			try { throw; }
+			catch (std::exception& e)
+			{
+				// If this is a std::exception, log some information about it.
+				std::cerr << "Received exception while saving game: " << e.what() << std::endl;
+			}
+		}
+	}
+
+	Game::Game(Board&& board) : board(std::move(board))
 	{
 	};
+
+	Game::Game(const Game& other) : board(other.board)
+	{
+	};
+
+	Game::Game(Game&& other) : board(std::move(other.board))
+	{
+	};
+
+	Game& Game::operator=(const Game& other)
+	{
+		board = other.board;
+		return *this;
+	}
+
+	Game& Game::operator=(Game&& other)
+	{
+		board = std::move(other.board);
+		return *this;
+	}
 
 	void Game::number_square(const Coordinates& c)
 	{
@@ -29,15 +68,17 @@ namespace nm
 		});
 	}
 
-	struct open_results Game::open_square(int x, int y)
+	std::optional<open_results> Game::open_square(int x, int y)
 	{
 		Square &square = board.get({x, y});
+		if (square.state == SquareState::OPENED)
+			return std::optional<open_results>();
 		square.state = SquareState::OPENED;
 		Coordinates chunk_coordinates = nm::utils::to_chunk_coordinates({x, y});
 
 		this->number_square({x, y});
 
-		return { chunk_coordinates, square.is_mine };
+		return open_results{ chunk_coordinates, square.is_mine };
 	}
 
 	void Game::renumber_chunk(const Coordinates& c, const bool renumber_original = true)
@@ -101,7 +142,7 @@ namespace nm
 
 	void Game::open_square_handler(const int x, const int y, const bool check_flags)
 	{
-		std::unordered_set<Coordinates> affected_chunks;
+		std::unordered_set<Coordinates, int_pair_hash<Coordinates>> affected_chunks;
 
 		Square &square = board.get(x, y);
 		SquareState orig_state = square.state;
@@ -124,16 +165,19 @@ namespace nm
 			return;
 		}
 
-		struct open_results result = open_square(x, y);
-		updated_chunks.insert(result.affected_chunk);
+		auto result = open_square(x, y);
+		if (!result)
+			return;
 
-		if (result.mine_opened)
+		updated_chunks.insert(result->affected_chunk);
+
+		if (result->mine_opened)
 		{
 			// If a mine has been opened, regenerate the chunk.
-			board.regenerate_chunk(result.affected_chunk);
+			board.regenerate_chunk(result->affected_chunk);
 
 			// Don't renumber the original chunk, since it is completely closed off anyway.
-			this->renumber_chunk(result.affected_chunk, false);
+			this->renumber_chunk(result->affected_chunk, false);
 			return;
 		}
 

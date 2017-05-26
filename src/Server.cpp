@@ -49,11 +49,11 @@ namespace nm
 
 		void Server::send_chunk_update(int x, int y)
 		{
-			boost::optional<Chunk&> maybeChunk = game.board.get_chunk({x, y});
+			std::optional<Chunk* const> maybeChunk = game.board.get_chunk({x, y});
 			if (!maybeChunk)
 				return;
 
-			send_chunk_update(x, y, maybeChunk.get());
+			send_chunk_update(x, y, **maybeChunk);
 		}
 
 		void Server::send_chunk_update(int x, int y, const Chunk& chunk)
@@ -110,12 +110,12 @@ namespace nm
 
 			for (const auto& coordinates : game.updated_chunks)
 			{
-				boost::optional<Chunk&> maybeChunk = game.board.get_chunk(coordinates);
+				std::optional<Chunk* const> maybeChunk = game.board.get_chunk(coordinates);
 
 				if (!maybeChunk)
 					continue;
 
-				this->send_chunk_update(coordinates.x(), coordinates.y(), maybeChunk.get());
+				this->send_chunk_update(coordinates.x(), coordinates.y(), **maybeChunk);
 			}
 
 			game.updated_chunks.clear();
@@ -128,12 +128,12 @@ namespace nm
 
 			for (const auto& coordinates : game.updated_chunks)
 			{
-				boost::optional<Chunk&> maybeChunk = game.board.get_chunk(coordinates);
+				std::optional<Chunk* const> maybeChunk = game.board.get_chunk(coordinates);
 
 				if (!maybeChunk)
 					continue;
 
-				this->send_chunk_update(coordinates.x(), coordinates.y(), maybeChunk.get());
+				this->send_chunk_update(coordinates.x(), coordinates.y(), **maybeChunk);
 			}
 
 			game.updated_chunks.clear();

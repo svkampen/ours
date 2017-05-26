@@ -11,7 +11,7 @@
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
-#include <boost/utility/empty_deleter.hpp>
+#include <boost/core/null_deleter.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -30,7 +30,7 @@ void logging_init(std::string fname, bool log_to_stderr = false) {
 		boost::make_shared<boost::log::sinks::text_ostream_backend>();
 	backend->add_stream(boost::shared_ptr<std::ostream>(new std::ofstream(fname, std::ios::ate)));
 	if (log_to_stderr)
-		backend->add_stream(boost::shared_ptr<std::ostream>(&std::cerr, boost::empty_deleter()));
+		backend->add_stream(boost::shared_ptr<std::ostream>(&std::cerr, boost::null_deleter()));
 
 	backend->auto_flush(true);
 

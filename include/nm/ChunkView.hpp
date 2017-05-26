@@ -20,7 +20,7 @@ namespace nm
 			void draw_main(ChunkSquareSource& squareSource, CursorMap& cursors);
 			void draw_sidebar(ChunkSquareSource& squareSource, CursorMap& cursors);
 
-			void draw_chunk(int x, int y, Chunk& chunk);
+			void draw_chunk(int x, int y, Chunk* const chunk);
 			void draw_empty_chunk(int x, int y);
 			HandlerResult handle_input(int input_character);
 

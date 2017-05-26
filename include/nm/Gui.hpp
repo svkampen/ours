@@ -12,7 +12,7 @@
 #include <nm/ChunkView.hpp>
 #include <nm/Client.hpp>
 #include <nm/Window.hpp>
-#include <nm/CursorData.hpp>
+#include <nm/GuileInterpreter.hpp>
 
 #include <netmine.pb.h>
 #include <unordered_map>
@@ -61,10 +61,13 @@ namespace nm
 	 */
 	class Gui : public boost::enable_shared_from_this<Gui>
 	{
+		friend class GuileInterpreter;
+
 		private:
 			nm::Window main, sidebar;
 
 			ChunkSquareSource &squareSource;
+			GuileInterpreter interpreter;
 			boost::asio::posix::stream_descriptor in;
 
 			std::unordered_map<int32_t, CursorData> cursors;
@@ -79,23 +82,31 @@ namespace nm
 
 			CursorData self_cursor {};
 			bool border_enabled = false;
+			bool command_mode = false;
+
+			std::stringstream command_buffer;
+
 
 			void switch_views();
+			void start_command_mode(std::string pre_input = "");
 
 			void draw_open_square(int x, int y, Square& square);
 			void draw_closed_square(int x, int y);
 			void draw_flag_square(int x, int y, Square& square);
-			void save_png();
+			static void save_png(Gui*, std::string);
+
 		public:
+			nm::Window command;
 			SquareEvent ev_square_open;
 			SquareEvent ev_square_flag;
 			SquareEvent ev_cursor_move;
-			boost::signals2::signal<void ()> ev_save_image;
+			boost::signals2::signal<void (std::string)> ev_save_image;
 			boost::signals2::signal<void ()> ev_exit;
 
 			Gui(boost::asio::io_service& io_service, ChunkSquareSource& squareSource);
 
 			bool handle_input();
+			void handle_command_input(std::string cmd);
 			void cursor_move_handler(const message::CursorMove& msg);
 			void player_quit_handler(const message::Player& player);
 			void new_player_handler(const message::Player& player);

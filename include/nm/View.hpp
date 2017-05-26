@@ -6,8 +6,8 @@
 #include <nm/ChunkSquareSource.hpp>
 #include <nm/Chunk.hpp>
 #include <nm/Window.hpp>
-#include <nm/CursorData.hpp>
 #include <unordered_map>
+#include <cmath>
 
 namespace nm
 {

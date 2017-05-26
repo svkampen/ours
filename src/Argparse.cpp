@@ -9,9 +9,11 @@ namespace nm
 
 		std::unordered_map<std::string, std::string> options =
 		{
-			{"config_file", getenv("HOME") + std::string("/.nmrc")},
+			{"config_file", ""},
 			{"log_file", "netmine.log"},
-			{"game", ""}
+			{"default_save_path", "./save.nm"},
+			{"game", ""},
+			{"port", "4096"}
 		};
 
 		while (true)

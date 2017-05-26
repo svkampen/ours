@@ -41,12 +41,6 @@ namespace nm
 		this->ev_board_update();
 	}
 
-	void NetworkGame::save_image_handler()
-	{
-		ImageSaver saver(board);
-		saver.save("board.png");
-	}
-
 	void NetworkGame::flag_square_handler(int x, int y)
 	{
 		message::MessageWrapper wrapper;
@@ -122,7 +116,7 @@ namespace nm
 		return board.get_chunks();
 	}
 
-	boost::optional<Chunk&> NetworkGame::get_chunk(const Coordinates& coordinates)
+	std::optional<Chunk* const> NetworkGame::get_chunk(const Coordinates& coordinates)
 	{
 		return board.get_chunk(coordinates);
 	}

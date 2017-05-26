@@ -10,7 +10,7 @@
 
 namespace nm
 {
-	const int32_t modulo(const int32_t n, const int32_t mod)
+	constexpr int32_t modulo(const int32_t n, const int32_t mod)
 	{
 		// Since C++'s modulo behavior with negative numbers is dependent on the
 		// implementation, this function makes sure modulo behavior is consistent
@@ -18,8 +18,7 @@ namespace nm
 		int32_t temp = n % mod;
 		if (temp < 0)
 			return mod + temp;
-		else
-			return temp;
+		return temp;
 	}
 
 	Board::Board(const ChunkGenerator& chunkGenerator) : chunkGenerator(chunkGenerator)
@@ -35,16 +34,16 @@ namespace nm
 		chunks[c] = chunk;
 	}
 
-	boost::optional<Chunk&> Board::get_chunk(const Coordinates& c)
+	std::optional<Chunk* const> Board::get_chunk(const Coordinates& c)
 	{
 		auto iter = chunks.find(c);
 		if (iter == chunks.end())
-			return boost::optional<Chunk&>();
+			return std::optional<Chunk* const>();
 		else
-			return boost::optional<Chunk&>(iter->second);
+			return std::optional<Chunk* const>(&iter->second);
 	}
 
-	boost::optional<Chunk&> Board::get_chunk(int x, int y)
+	std::optional<Chunk* const> Board::get_chunk(int x, int y)
 	{
 		return get_chunk({x, y});
 	}
@@ -66,15 +65,15 @@ namespace nm
 
 	void Board::clear_at(int x, int y)
 	{
-		simmo::point<int32_t, 2> local_coords = {modulo(x, NM_CHUNK_SIZE), modulo(y, NM_CHUNK_SIZE)};
+		Coordinates local_coords = {modulo(x, NM_CHUNK_SIZE), modulo(y, NM_CHUNK_SIZE)};
 
 		Coordinates chunk_coordinates = nm::utils::to_chunk_coordinates({x, y});
 
 		BOOST_LOG_TRIVIAL(info) << "Clearing around (X: " << local_coords.x() << " Y: " << local_coords.y() << "), "
 			<< "Chunk " << chunk_coordinates.x() << ", " << chunk_coordinates.y() << ".";
 
-		boost::optional<Chunk&> maybeChunk = this->get_chunk(chunk_coordinates);
-		Chunk& chunk = maybeChunk.is_initialized() ? maybeChunk.get() : regenerate_chunk(chunk_coordinates);
+		std::optional<Chunk* const> maybeChunk = this->get_chunk(chunk_coordinates);
+		Chunk* const chunk = maybeChunk ? *maybeChunk : &regenerate_chunk(chunk_coordinates);
 
 		static int around_offsets[3] = {-1, 0, 1};
 
@@ -82,7 +81,7 @@ namespace nm
 		{
 			for (auto&& yoff : around_offsets)
 			{
-				Square &around = chunk.get(local_coords.x() + xoff, local_coords.y() + yoff);
+				Square &around = chunk->get(local_coords.x() + xoff, local_coords.y() + yoff);
 				around.is_mine = false;
 			}
 		}
@@ -90,7 +89,7 @@ namespace nm
 
 	Square& Board::get(const Coordinates& coordinates)
 	{
-		simmo::point<int32_t, 2> local_coords = {modulo(coordinates.x(), NM_CHUNK_SIZE), modulo(coordinates.y(), NM_CHUNK_SIZE)};
+		Coordinates local_coords = {modulo(coordinates.x(), NM_CHUNK_SIZE), modulo(coordinates.y(), NM_CHUNK_SIZE)};
 
 		Coordinates chunk_coordinates = {static_cast<int>(std::floor(coordinates.x() / (double)NM_CHUNK_SIZE)),
 										 static_cast<int>(std::floor(coordinates.y() / (double)NM_CHUNK_SIZE))};

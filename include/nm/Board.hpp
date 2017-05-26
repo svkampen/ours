@@ -4,14 +4,16 @@
 #include <array>
 #include <cstdint>
 #include <unordered_map>
+#include <optional>
 
 #include "Typedefs.hpp"
+#include <iostream>
 #include "Square.hpp"
 #include "Chunk.hpp"
 #include "ChunkGenerator.hpp"
 #include "ChunkSquareSource.hpp"
 #include "ChunkSource.hpp"
-#include <boost/optional.hpp>
+#include "Utils.hpp"
 
 namespace nm
 {
@@ -46,6 +48,28 @@ namespace nm
 			 */
 			Board(const ChunkGenerator& chunkGenerator);
 
+			Board(Board&& other) : chunks(std::move(other.chunks)), chunkGenerator(std::move(other.chunkGenerator))
+			{
+			};
+
+			Board& operator=(Board&& other)
+			{
+				chunks = std::move(other.chunks);
+				chunkGenerator = std::move(other.chunkGenerator);
+				return *this;
+			}
+
+			Board(const Board& other) : chunks(other.chunks), chunkGenerator(other.chunkGenerator)
+			{
+			}
+
+			Board& operator=(const Board& other)
+			{
+				chunks = other.chunks;
+				chunkGenerator = other.chunkGenerator;
+				return *this;
+			}
+
 			/**
 			 * Add a chunk to the chunk list.
 			 *
@@ -65,11 +89,11 @@ namespace nm
 			 * Get a specific chunk from the chunk list.
 			 *
 			 * @param c The coordinates of the chunk, in chunk coordinate format.
-			 * @return An optional<Chunk&>, since a chunk with the specified coordinates may not exist.
+			 * @return An optional<Chunk* const>, since a chunk with the specified coordinates may not exist.
 			 *  
 			 */
-			boost::optional<Chunk&> get_chunk(const Coordinates& c);
-			boost::optional<Chunk&> get_chunk(int x, int y);
+			std::optional<Chunk* const> get_chunk(const Coordinates& c);
+			std::optional<Chunk* const> get_chunk(int x, int y);
 
 			/**
 			 * Regenerate a chunk, keeping its coordinates.

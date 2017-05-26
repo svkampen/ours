@@ -28,7 +28,7 @@ namespace nm
 		return chunkList;
 	}
 
-	boost::optional<Game> Loader::loadGame(const std::string& filename)
+	std::optional<Game> Loader::loadGame(const std::string& filename)
 	{
 		std::ifstream stream;
 		stream.open(filename.c_str(), stream.in);
@@ -36,7 +36,7 @@ namespace nm
 		if (!stream.is_open())
 		{
 			BOOST_LOG_TRIVIAL(error) << "[Loader] Unable to open savegame, does '" << filename << "' exist?";
-			return boost::optional<Game>();
+			return std::optional<Game>();
 		}
 
 		json saveGame(stream);
@@ -45,7 +45,7 @@ namespace nm
 		{
 			BOOST_LOG_TRIVIAL(error) << "[Loader] Save game uses NM_FORMAT_VERSION " << saveGame["version"].get<int>()
 			   << ", instead of required " << NM_FORMAT_VERSION;
-			return boost::optional<Game>();
+			return std::optional<Game>();
 		}
 
 		ChunkList chunks = json_to_chunks(saveGame["chunks"]);
@@ -55,6 +55,6 @@ namespace nm
 
 		BOOST_LOG_TRIVIAL(info) << "[Loader] Successfully loaded savegame '" << filename << "'!";
 
-		return boost::optional<Game>(Game(board));
+		return std::optional<Game>(std::in_place, std::move(board));
 	}
 }

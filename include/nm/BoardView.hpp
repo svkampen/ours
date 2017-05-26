@@ -95,7 +95,14 @@ namespace nm
 		 */
 		HandlerResult handle_input(int input_character);
 
-		private:
+
+		/**
+		 * Draw the cursor.
+		 *
+		 * @param squareSource The squaresource.
+		 * @param others The cursor map.
+		 */
+		void draw_cursor(ChunkSquareSource& squareSource, CursorMap& others);
 		void center_cursor();
 		void center_cursor(int global_x, int global_y);
 	};

@@ -1,4 +1,5 @@
 #include <nm/Utils.hpp>
+#include <cmath>
 
 namespace nm
 {
@@ -19,7 +20,7 @@ namespace nm
 
 		void for_around(int x, int y, const std::function<void (int, int)>& functor)
 		{
-			static int around_offsets[3] = {-1, 0, 1};
+			const int around_offsets[3] = {-1, 0, 1};
 
 			for (auto&& xoff : around_offsets)
 			{
@@ -28,6 +29,11 @@ namespace nm
 					functor(x + xoff, y + yoff);
 				}
 			}
+		}
+		
+		std::string ctsgdb(const char *s)
+		{
+			return std::string(s);
 		}
 	}
 }

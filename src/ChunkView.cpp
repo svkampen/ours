@@ -18,9 +18,9 @@ namespace nm
 			{
 				main << Move({3*x+1, y});
 				auto opt_chunk = squareSource.get_chunk({x + chunk_cursor.offset_x, y + chunk_cursor.offset_y});
-				if (opt_chunk.is_initialized())
+				if (opt_chunk)
 				{
-					this->draw_chunk(x, y, opt_chunk.get());
+					this->draw_chunk(x, y, *opt_chunk);
 				} else
 				{
 					this->draw_empty_chunk(x, y);
@@ -100,18 +100,18 @@ namespace nm
 		return (global_chunk_x == c.x() && global_chunk_y == c.y());
 	}
 
-	void ChunkView::draw_chunk(int x, int y, Chunk& chunk)
+	void ChunkView::draw_chunk(int x, int y, Chunk* const chunk)
 	{
 		main << Move({3 * x, y});
 
 		std::wstring to_write = (x == chunk_cursor.x && y == chunk_cursor.y) ? L"[ ]" : L"   ";
 
-		if (chunk.all_squares([](const auto& square) {
+		if (chunk->all_squares([](const auto& square) {
 				return square.state == SquareState::OPENED || square.state == SquareState::FLAGGED;
 			}))
 		{
 			main << AttrOn(COLOR_PAIR(19)) << to_write << AttrOff(COLOR_PAIR(19));
-		} else if (chunk.all_squares([](const auto& square) {
+		} else if (chunk->all_squares([](const auto& square) {
 				return square.state == SquareState::CLOSED;
 			}))
 		{

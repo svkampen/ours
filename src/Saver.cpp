@@ -35,7 +35,7 @@ namespace nm
 
 		stream << output;
 
-		BOOST_LOG_TRIVIAL(info) << "[Saver] Game saved.";
+		BOOST_LOG_TRIVIAL(info) << "[Saver] Game saved to " << filename;
 
 		return true;
 	}

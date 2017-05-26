@@ -8,6 +8,13 @@
 
 #include <boost/log/trivial.hpp>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
+extern void hook_redisplay();
+extern int hook_input_avail();
+extern void rl_callback_handler(char* line);
+
 namespace nm
 {
 	void init_curses()
@@ -58,16 +65,17 @@ namespace nm
 
 
 	Gui::Gui(boost::asio::io_service& io_service, ChunkSquareSource& squareSource)
-		: main(0, 0, COLS - 21, LINES), sidebar(COLS - 20, 0, 20, LINES),
-			squareSource(squareSource),	in(io_service, ::dup(STDIN_FILENO)),
-			boardview(self_cursor, main, sidebar, ev_square_open, ev_square_flag, ev_cursor_move), chunkview(self_cursor, main, sidebar),
-			current_view(&boardview)
+		: main(0, 0, COLS - 21, LINES - 1), sidebar(COLS - 20, 0, 20, LINES - 1), squareSource(squareSource),
+			in(io_service, ::dup(STDIN_FILENO)), boardview(self_cursor, main, sidebar, ev_square_open, ev_square_flag, ev_cursor_move),
+			chunkview(self_cursor, main, sidebar), current_view(&boardview), command(0, LINES - 1, COLS, 1)
 	{
+		main.nowrap = true;
 		width = height = 0;
 		handle_resize();
 
 		this->current_view->center_cursor(0, 0);
 
+		this->draw_board();
 		in.async_read_some(boost::asio::null_buffers(), boost::bind(&Gui::draw, this));
 	}
 
@@ -81,7 +89,13 @@ namespace nm
 	void Gui::new_player_handler(const message::Player& player)
 	{
 		BOOST_LOG_TRIVIAL(info) << "Adding cursor for new player with ID " << player.id();
-		cursors[player.id()] = {.x = player.x(), .y = player.y(), .color = rand() % 4 + 2};
+		cursors[player.id()] = {
+			.x =  player.x(),
+			.y = player.y(),
+			.offset_x = 0,
+			.offset_y = 0,
+			.color = rand() % 4 + 2
+		};
 		draw_board();
 		this->current_view->draw_sidebar(this->squareSource, this->cursors);
 	}
@@ -109,10 +123,11 @@ namespace nm
 		resize_term(LINES, COLS);
 
 		this->width = COLS - 21;
-		this->height = LINES;
+		this->height = LINES - 1;
 
 		this->main.resize(0, 0, this->width, this->height);
-		this->sidebar.resize(COLS - 20, 0, 20, LINES);
+		this->sidebar.resize(COLS - 20, 0, 20, this->height);
+		this->command.resize(0, LINES - 1, COLS, 1);
 
 		this->current_view->center_cursor();
 
@@ -123,15 +138,31 @@ namespace nm
 
 	void Gui::draw()
 	{
-		handle_input();
-		draw_board();
+		if (handle_input() == HandlerResult::DRAW_ALL)
+		{
+			draw_board();
+		} else 
+		{
+			this->current_view->draw_cursor(this->squareSource, this->cursors);
+		}
 		this->current_view->draw_sidebar(this->squareSource, this->cursors);
-		in.async_read_some(boost::asio::null_buffers(), boost::bind(&Gui::draw, this));
+		if (!command_mode)
+		{
+			// readline weirdness
+			in.async_read_some(boost::asio::null_buffers(), boost::bind(&Gui::draw, this));
+		}
 	}
 
-	void Gui::save_png()
+	void Gui::save_png(Gui* gui, std::string args)
 	{
-		this->ev_save_image();
+		if (args.empty())
+		{
+			gui->command << Erase << "Error: you must enter a filename!" << Refresh;
+			return;
+		}
+
+		gui->ev_save_image(args + ".png");
+		gui->command << Erase << "Board image written to '" << args.c_str() << ".png'." << Refresh;
 	}
 
 	void Gui::switch_views()
@@ -155,12 +186,14 @@ namespace nm
 
 		// Use this in the redraw later; if just the movement has been
 		// handled, don't redraw the whole board - just the cursors
+		bool draw_all = false;
 		while ((ch = getch()) != ERR)
 		{
 			switch(ch)
 			{
 				case 'v':
 					this->switch_views();
+					draw_all = true;
 					break;
 
 				case 'q':
@@ -168,18 +201,59 @@ namespace nm
 					break;
 
 				case 'p':
-					this->save_png();
+					this->start_command_mode("save-png ");
+					break;
+
+				case ':':
+					this->start_command_mode();
 					break;
 
 				case KEY_RESIZE:
 					handle_resize();
+					draw_all = true;
 					break;
 			}
 
 			this->current_view->handle_input(ch);
 		}
 
-		return false;
+		return HandlerResult::DRAW_ALL;
+	}
+
+	void Gui::start_command_mode(std::string pre_input)
+	{
+		this->command_mode = true;
+
+		curs_set(1);
+		echo();
+		rl_callback_handler_install("", rl_callback_handler);
+		rl_input_available_hook = hook_input_avail;
+		rl_redisplay_function = hook_redisplay;
+
+		rl_replace_line(pre_input.c_str(), 1);
+		rl_point = rl_end;
+
+		hook_redisplay();
+
+		while (this->command_mode)
+			if (hook_input_avail())
+				rl_callback_read_char();
+
+		curs_set(0);
+		noecho();
+	}
+
+	void Gui::handle_command_input(std::string cmd)
+	{
+		this->interpreter.run_command(cmd);
+		this->command_mode = false;
+
+		rl_callback_handler_remove();
+
+		redrawwin((WINDOW*)main);
+		redrawwin((WINDOW*)sidebar);
+
+		this->draw();
 	}
 
 	void Gui::draw_board()

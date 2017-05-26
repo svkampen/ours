@@ -7,7 +7,7 @@
 
 namespace nm
 {
-	typedef std::unordered_map<Coordinates, Chunk> ChunkList;
+	typedef std::unordered_map<Coordinates, Chunk, nm::int_pair_hash<Coordinates>> ChunkList;
 	class ChunkSource
 	{
 		public:
@@ -15,7 +15,7 @@ namespace nm
 			{
 			};
 			virtual const ChunkList& get_chunks() const = 0;
-			virtual boost::optional<Chunk&> get_chunk(const Coordinates& coordinates) = 0;
+			virtual std::optional<Chunk* const> get_chunk(const Coordinates& coordinates) = 0;
 	};
 }
 
