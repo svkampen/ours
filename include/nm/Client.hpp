@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
 #include <netmine.pb.h>
+#include <nm/EventMap.hpp>
 
 #include <string>
 
@@ -35,12 +36,8 @@ namespace nm
 			void send_message(const message::MessageWrapper& wrapper);
 			void connect(const std::string& ip, const std::string& port);
 
+			nm::EventMap<message::MessageWrapper_Type, const message::MessageWrapper&> event_map;
 			events::signal<void ()> ev_connected;
-			events::signal<void (const message::ChunkBytes&)> ev_update_chunk;
-			events::signal<void (const message::Player&)> ev_player_join;
-			events::signal<void (const message::Player&)> ev_player_quit;
-			events::signal<void (const message::CursorMove&)> ev_cursor_move;
-			events::signal<void (const message::Welcome&)> ev_welcome;
 	};
 }
 

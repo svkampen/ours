@@ -1,6 +1,6 @@
 #include <nm/Utils.hpp>
 #include <nm/Config.hpp>
-#include <nm/Gui.hpp>
+#include <nm/CursesGui.hpp>
 #include <nm/Client.hpp>
 #include <nm/NetworkGame.hpp>
 #include <nm/Square.hpp>
@@ -33,6 +33,8 @@
 #include <json.hpp>
 #include <cxxabi.h>
 
+
+extern std::string __latest_backtrace;
 extern const char* const VERSION = "v0.1";
 nm::Game *GLOBAL_GAME = nullptr;
 nm::Gui *GLOBAL_GUI = nullptr;
@@ -44,10 +46,8 @@ using namespace std::literals;
 void rl_callback_handler(char *line)
 {
 	add_history(line);
-	std::string command = std::string(line);
+	GLOBAL_GUI->handle_command_input(line);
 	free(line);
-
-	GLOBAL_GUI->handle_command_input(command);
 }
 
 int hook_input_avail()
@@ -62,14 +62,7 @@ int hook_input_avail()
 
 void hook_redisplay()
 {
-	GLOBAL_GUI->command << nm::Erase << ":";
-
-	int input_prompt_len = 1;
-
-	int cur_point = input_prompt_len + rl_point;
-
-	GLOBAL_GUI->command << rl_line_buffer << nm::ClrToBot;
-	GLOBAL_GUI->command << nm::Move({cur_point % COLS, 0}) << nm::Refresh;
+    GLOBAL_GUI->display_command(rl_line_buffer, 1 + rl_point);
 }
 
 void startClient()
@@ -79,7 +72,7 @@ void startClient()
 	boost::asio::io_service io_service;
 	nm::Client client(io_service);
 	nm::NetworkGame game(client);
-	nm::Gui gui(io_service, game);
+	nm::curses::CursesGui gui(io_service, game);
 	GLOBAL_GUI = &gui;
 
 	gui.ev_square_open.connect(boost::bind(&nm::NetworkGame::open_square_handler, &game, _1, _2));
@@ -88,23 +81,33 @@ void startClient()
 
 	gui.ev_exit.connect([&io_service](){ io_service.stop(); });
 
-	client.ev_update_chunk.connect(boost::bind(&nm::NetworkGame::chunk_update_handler, &game, _1));
-	client.ev_cursor_move.connect(boost::bind(&nm::Gui::cursor_move_handler, &gui, _1));
-	client.ev_player_join.connect(boost::bind(&nm::Gui::new_player_handler, &gui, _1));
-	client.ev_player_quit.connect(boost::bind(&nm::Gui::player_quit_handler, &gui, _1));
+    void (nm::Gui::*nph_player) (const nm::message::Player&) = &nm::Gui::new_player_handler;
+    void (nm::Gui::*nph_mwrper) (const nm::message::MessageWrapper&) = &nm::Gui::new_player_handler;
+
+	client.event_map.connect(MessageType(CHUNK_BYTES),
+		boost::bind(&nm::NetworkGame::chunk_update_handler, &game, _1));
+
+	client.event_map.connect(MessageType(CURSOR_MOVE),
+		boost::bind(&nm::Gui::cursor_move_handler, &gui, _1));
+
+	client.event_map.connect(MessageType(PLAYER_JOIN),
+        boost::bind(nph_mwrper, &gui, _1));
+
+	client.event_map.connect(MessageType(PLAYER_QUIT),
+		boost::bind(&nm::Gui::player_quit_handler, &gui, _1));
 
 	game.ev_board_update.connect(boost::bind(&nm::Gui::draw_board, &gui));
-	game.ev_new_player.connect(boost::bind(&nm::Gui::new_player_handler, &gui, _1));
+    game.ev_new_player.connect(boost::bind(nph_player, &gui, _1));
 
 	client.connect(nm::config["host"], nm::config["port"]);
 
-	io_service.run();
+    gui.start();
 }
 
 void startServer()
 {
 	std::optional<nm::Game> maybeGame = nm::Loader::loadGame(nm::config["game"]);
-	nm::Game game = maybeGame.has_value() ? std::move(*maybeGame) : std::move(nm::Game());
+	nm::Game game = maybeGame ? std::move(*maybeGame) : std::move(nm::Game());
 
 	game.save_on_destruct();
 
@@ -130,16 +133,29 @@ int main(int argc, char *argv[])
 {
 	try
 	{
-		nm::options_map arguments = nm::parse_options(argc, argv);
-		nm::config.merge(arguments);
+		nlohmann::json default_arguments = {
+			{"port", "4096"},
+			{"save_path", "./save.nm"},
+			{"game", "save.nm"},
+			{"log_file", "nm.log"},
+			{"show_overflagged", true}
+		};
+		nm::config.merge(default_arguments);
 
-		if (!(nm::config.load(nm::config["config_file"]) || nm::config.load(".nmrc") || nm::config.load(getenv("HOME") + "/.nmrc"s) || nm::config.load("/etc/nmrc")))
+		nm::options_map arguments = nm::parse_options(argc, argv);
+
+		if (!(nm::config.load(arguments["config_file"]) || nm::config.load(".nmrc") || nm::config.load(getenv("HOME") + "/.nmrc"s) || nm::config.load("/etc/nmrc")))
 		{
-			const char* const err_message = "[nm] Unable to load config file specified, are you sure you have the correct permissions, et cetera?";
-			BOOST_LOG_TRIVIAL(error) << err_message;
-			std::cerr << err_message << std::endl;
-			return -1;
+			if (!arguments["config_file"].empty())
+			{
+				const char* const err_message = "[nm] Unable to load config file specified, are you sure you have the correct permissions, et cetera?";
+				BOOST_LOG_TRIVIAL(error) << err_message;
+				std::cerr << err_message << std::endl;
+				return -1;
+			}
 		}
+
+		nm::config.merge(arguments);
 
 		signal(SIGINT, [](int _sig){throw nm::utils::exit_unwind_stack(); });
 
@@ -157,9 +173,11 @@ int main(int argc, char *argv[])
 	} catch (nm::utils::exit_unwind_stack &e) {
 	} catch (std::exception &e)
 	{
+		std::cerr << __latest_backtrace;
 		const char* exception_name_mangled = typeid(e).name();
 		std::string exception_name = demangle(exception_name_mangled);
-		std::cerr << "Received error: " << exception_name << "(what: " << e.what() << ")." << std::endl;
+		std::cerr << "Netmine received an error! The error class (for developers) was " << exception_name << std::endl;
+		std::cerr << "The accompanying error message was '" << e.what() << "'." << std::endl;
 	}
 	return 0;
 }

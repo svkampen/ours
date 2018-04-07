@@ -25,9 +25,9 @@ namespace nm
 		return chunk[y][x];
 	}
 
-	char *Chunk::serialize() const
+	std::unique_ptr<char[]> Chunk::serialize() const
 	{
-		char *data = new char[NM_CHUNK_SIZE * NM_CHUNK_SIZE];
+		std::unique_ptr<char[]> data{new char[NM_CHUNK_SIZE * NM_CHUNK_SIZE]};
 
 		for (int x = 0; x < NM_CHUNK_SIZE; x++)
 		{

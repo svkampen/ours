@@ -14,6 +14,7 @@ namespace nm
 		{"port", required_argument, 0, 'p'},
 		{"log", required_argument, 0, 'l'},
 		{"help", no_argument, 0, 'h'},
+		{"host", required_argument, 0, 0},
 		{"game", required_argument, 0, 'g'},
 		{0, 0, 0, 0}
 	};

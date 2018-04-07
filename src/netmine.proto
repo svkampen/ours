@@ -1,7 +1,9 @@
+syntax = "proto2";
+
 package nm.message;
 
 message MessageWrapper {
-	enum Type { CURSOR_MOVE = 1; SQUARE_FLAG = 2; SQUARE_OPEN = 3; PLAYER_JOIN = 4; PLAYER_QUIT = 5; WELCOME = 6; CHUNK_BYTES = 7; CHUNK_REQUEST = 8; CLEAR_AT = 9; }
+	enum Type { CURSOR_MOVE = 1; SQUARE_FLAG = 2; SQUARE_OPEN = 3; PLAYER_JOIN = 4; PLAYER_QUIT = 5; WELCOME = 6; CHUNK_BYTES = 7; CHUNK_REQUEST = 8; CLEAR_AT = 9; PLAYER_UPDATE = 10; }
 
 	required Type type = 1;
 
@@ -14,6 +16,7 @@ message MessageWrapper {
 	optional Welcome welcome = 8;
 	optional ChunkRequest chunkRequest = 9;
 	optional ClearAt clearAt = 10;
+	optional Player player = 11;
 }
 
 message ClearAt {
@@ -54,6 +57,7 @@ message Player {
 	required int32 x = 1;
 	required int32 y = 2;
 	optional int32 id = 3;
+	optional string name = 4;
 }
 
 message Welcome {

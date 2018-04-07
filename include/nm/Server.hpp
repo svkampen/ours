@@ -64,7 +64,7 @@ namespace server
 			 * This handler simply sends a chunk update for the requested chunk back to the connection.
 			 *
 			 */
-			void chunk_request_handler(Connection::ptr connection, const message::ChunkRequest& msg);
+			void chunk_request_handler(Connection::ptr connection, const message::MessageWrapper& wrapper);
 
 			/**
 			 * The handler for player joins.
@@ -74,7 +74,7 @@ namespace server
 			 * to all other clients.
 			 *
 			 */
-			void player_join_handler(Connection::ptr connection, const message::Player& msg);
+			void player_join_handler(Connection::ptr connection, const message::MessageWrapper& wrapper);
 
 			/**
 			 * The handler for cursor moves.
@@ -84,7 +84,7 @@ namespace server
 			 * statistics for the player.
 			 *
 			 */
-			void cursor_move_handler(Connection::ptr connection, const message::CursorMove& msg);
+			void cursor_move_handler(Connection::ptr connection, const message::MessageWrapper& wrapper);
 
 			/**
 			 * The handler for square opens.
@@ -95,7 +95,7 @@ namespace server
 			 * are relayed.
 			 *
 			 */
-			void square_open_handler(Connection::ptr connection, const message::SquareOpen& msg);
+			void square_open_handler(Connection::ptr connection, const message::MessageWrapper& wrapper);
 
 			/**
 			 * The handler for square flags.
@@ -105,7 +105,7 @@ namespace server
 			 * opened) no chunk updates are relayed.
 			 *
 			 */
-			void square_flag_handler(Connection::ptr connection, const message::SquareFlag& msg);
+			void square_flag_handler(Connection::ptr connection, const message::MessageWrapper& wrapper);
 
 			/**
 			 * The handler for ClearAt messages.
@@ -115,7 +115,7 @@ namespace server
 			 * seen in other versions of minesweepers (when you first open a square, you never hit a mine).
 			 *
 			 */
-			void clear_at_handler(Connection::ptr connection, const message::ClearAt& clearAt);
+			void clear_at_handler(Connection::ptr connection, const message::MessageWrapper& wrapper);
 
 			/**
 			 * The handler for player quits.
@@ -123,7 +123,7 @@ namespace server
 			 * When a player quits, the quit message is relayed to all clients and the connection
 			 * in question is removed from the client set.
 			 */
-			void player_quit_handler(Connection::ptr connection, const message::Player& player);
+			void player_quit_handler(Connection::ptr connection, const message::MessageWrapper& wrapper);
 
 		private:
 			ConnectionManager connectionManager;

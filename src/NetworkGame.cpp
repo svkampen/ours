@@ -1,3 +1,4 @@
+#include <nm/Config.hpp>
 #include <nm/NetworkGame.hpp>
 #include <netmine.pb.h>
 #include <algorithm>
@@ -14,7 +15,9 @@ namespace nm
 		is_first_open.set();
 
 		client.ev_connected.connect(boost::bind(&NetworkGame::connected_handler, this));
-		client.ev_welcome.connect(boost::bind(&NetworkGame::welcome_handler, this, _1));
+
+		client.event_map.connect(message::MessageWrapper_Type_WELCOME,
+			boost::bind(&NetworkGame::welcome_handler, this, _1));
 	}
 
 	void NetworkGame::connected_handler()
@@ -24,8 +27,9 @@ namespace nm
 		this->ev_board_update();
 	}
 
-	void NetworkGame::chunk_update_handler(const message::ChunkBytes& msg)
+	void NetworkGame::chunk_update_handler(const message::MessageWrapper& mwpr)
 	{
+		auto msg = mwpr.chunkbytes();
 		char *data = const_cast<char*>(msg.data().c_str());
 
 		Chunk chunk;
@@ -53,8 +57,9 @@ namespace nm
 		client.send_message(wrapper);
 	}
 
-	void NetworkGame::welcome_handler(const message::Welcome& welcome)
+	void NetworkGame::welcome_handler(const message::MessageWrapper& mwpr)
 	{
+		auto welcome = mwpr.welcome();
 		for (int i = 0; i < welcome.nplayers(); i++)
 		{
 			auto player = welcome.players(i);
@@ -95,18 +100,22 @@ namespace nm
 		return std::find(requested_chunks.begin(), requested_chunks.end(), c) != requested_chunks.end();
 	}
 
-	Square& NetworkGame::get(const Coordinates& c)
+	inline Square& NetworkGame::get(const Coordinates& c)
 	{
-		Coordinates chunk_coords = utils::to_chunk_coordinates(c);
-		if (!chunk_requested(chunk_coords) && connected)
-		{
-			request_chunk(chunk_coords);
-		}
-
 		return board.get(c);
 	}
 
-	Square& NetworkGame::get(int x, int y)
+	inline Square& NetworkGame::get(int x, int y)
+	{
+		return this->get({x, y});
+	}
+
+    inline const Square& NetworkGame::get(const Coordinates& c) const
+    {
+        return board.get(c);
+    }
+
+	inline const Square& NetworkGame::get(int x, int y) const
 	{
 		return this->get({x, y});
 	}
@@ -137,7 +146,7 @@ namespace nm
 	{
 		message::MessageWrapper wrapper;
 		wrapper.set_type(wrapper.PLAYER_JOIN);
-		auto playerJoin = wrapper.mutable_playerjoin();
+		auto playerJoin = wrapper.mutable_player();
 		playerJoin->set_x(x);
 		playerJoin->set_y(y);
 

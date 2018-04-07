@@ -32,16 +32,20 @@ namespace nm
 			Board board;
 
 			boost::signals2::signal<void ()> ev_board_update;
-			boost::signals2::signal<void (message::Player&)> ev_new_player;
+			boost::signals2::signal<void (const message::Player&)> ev_new_player;
 
-			virtual Square& get(const Coordinates& c);
-			virtual Square& get(int x, int y);
-			virtual const ChunkList& get_chunks() const;
-			virtual std::optional<Chunk* const> get_chunk(const Coordinates& coordinates);
+			Square& get(const Coordinates& c);
+			Square& get(int x, int y);
+            const Square& get(const Coordinates& c) const;
+            const Square& get(int x, int y) const;
+
+			const ChunkList& get_chunks() const;
+			std::optional<Chunk* const> get_chunk(const Coordinates& coordinates);
+
 			void connected_handler();
 			void save_image_handler(std::string args);
-			void welcome_handler(const message::Welcome& welcome);
-			void chunk_update_handler(const message::ChunkBytes& msg);
+			void welcome_handler(const message::MessageWrapper& mwpr);
+			void chunk_update_handler(const message::MessageWrapper& mwpr);
 			void cursor_move_handler(int x, int y);
 			void flag_square_handler(int x, int y);
 			void open_square_handler(int x, int y);

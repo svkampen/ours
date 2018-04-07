@@ -25,8 +25,9 @@ namespace nm
 	{
 	};
 
-	Board::Board() : Board(ChunkGenerator(0.20, 0.03))
+	Board::Board() : Board(ChunkGenerator(0.15, 0.03))
 	{
+        add_chunk({0, 0}, chunkGenerator.generate());
 	};
 
 	void Board::add_chunk(const Coordinates& c, const Chunk& chunk)
@@ -86,6 +87,20 @@ namespace nm
 			}
 		}
 	}
+
+    /* Doing this properly is probably possible. */
+    const Square& Board::get(const Coordinates& coordinates) const
+    {
+        if (client_mode)
+            return const_cast<Board*>(this)->get(coordinates);
+        else
+            throw std::bad_cast();
+    }
+
+    const Square& Board::get(int x, int y) const
+    {
+        return get({x, y});
+    }
 
 	Square& Board::get(const Coordinates& coordinates)
 	{

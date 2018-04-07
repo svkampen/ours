@@ -6,6 +6,7 @@
 #include "SquareSource.hpp"
 
 #include <functional>
+#include <memory>
 
 #define NM_CHUNK_SIZE 16
 
@@ -28,7 +29,7 @@ namespace nm
 			const Square& get(const int x, const int y) const;
 			Chunk transform_copy(const SquareFn& functor) const;
 			void transform(const SquareFn& functor);
-			char *serialize() const;
+			std::unique_ptr<char[]> serialize() const;
 			void deserialize(const char* data);
 	};
 }

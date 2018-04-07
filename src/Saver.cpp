@@ -29,8 +29,8 @@ namespace nm
 			stream << chunkpair.first.x() << ":" << chunkpair.first.y();
 
 			BOOST_LOG_TRIVIAL(info) << "[Saver] Writing chunk " << stream.str() << " to save file.";
-			char *data = chunkpair.second.serialize();
-			output["chunks"][stream.str()] = std::string(data, NM_CHUNK_SIZE*NM_CHUNK_SIZE);
+			auto data = chunkpair.second.serialize();
+			output["chunks"][stream.str()] = std::string(data.get(), NM_CHUNK_SIZE*NM_CHUNK_SIZE);
 		}
 
 		stream << output;

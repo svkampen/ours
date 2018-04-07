@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <nm/PairHash.hpp>
 
-const int BORDER_COLOR = 15;
+const int BORDER_COLOR = 13;
 
 namespace nm
 {
@@ -27,12 +27,12 @@ namespace nm
 
 		int32_t color;
 
-		Coordinates to_global()
+		Coordinates to_global() const
 		{
 			return {x + offset_x, y + offset_y};
 		}
 	};	
-	
+
 	using SquareEvent  = boost::signals2::signal<void (int, int)>;
 	using CursorMap	   = std::unordered_map<int32_t, CursorData>;
 }

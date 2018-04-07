@@ -12,7 +12,8 @@ namespace nm
 
 	typedef struct __attribute__((packed))
 	{
-		SquareState state   : 3;
+		SquareState state   : 2;
+		bool		overflag: 1;
 		bool		is_mine : 1;
 		uint8_t	 	number  : 4;
 	} Square;

@@ -128,33 +128,7 @@ namespace nm
 
 		void ConnectionManager::message_handler(Connection::ptr connection, message::MessageWrapper& message)
 		{
-			switch (message.type())
-			{
-				case message::MessageWrapper_Type_CHUNK_REQUEST:
-					this->ev_chunk_request(connection, message.chunkrequest());
-					break;
-				case message::MessageWrapper_Type_SQUARE_OPEN:
-					this->ev_square_open(connection, message.squareopen());
-					break;
-				case message::MessageWrapper_Type_SQUARE_FLAG:
-					this->ev_square_flag(connection, message.squareflag());
-					break;
-				case message::MessageWrapper_Type_CURSOR_MOVE:
-					this->ev_cursor_move(connection, message.cursormove());
-					break;
-				case message::MessageWrapper_Type_PLAYER_JOIN:
-					this->ev_player_join(connection, message.playerjoin());
-					break;
-				case message::MessageWrapper_Type_PLAYER_QUIT:
-					this->ev_player_quit(connection, message.playerquit());
-					break;
-				case message::MessageWrapper_Type_CLEAR_AT:
-					this->ev_clear_at(connection, message.clearat());
-					break;
-				default:
-					BOOST_LOG_TRIVIAL(warning) << "[net] Unhandled message type arrived: " << static_cast<uint16_t>(message.type());
-					break;
-			}
+			event_map.fire(message.type(), connection, message);
 		}
 
 		void ConnectionManager::send_all(const message::MessageWrapper& wrapper)

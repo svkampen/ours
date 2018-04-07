@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include <nm/EventMap.hpp>
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
 
@@ -63,16 +64,11 @@ namespace server
 
 
 		public:
-			events::signal<void (Connection::ptr, const message::SquareOpen&)> ev_square_open;
-			events::signal<void (Connection::ptr, const message::SquareFlag&)> ev_square_flag;
-			events::signal<void (Connection::ptr, const message::Player&)> ev_player_join;
-			events::signal<void (Connection::ptr, const message::Player&)> ev_player_quit;
-			events::signal<void (Connection::ptr, const message::CursorMove&)> ev_cursor_move;
-			events::signal<void (Connection::ptr, const message::ChunkRequest&)> ev_chunk_request;
-			events::signal<void (Connection::ptr, const message::ClearAt&)> ev_clear_at;
+			nm::EventMap<message::MessageWrapper_Type, Connection::ptr, const message::MessageWrapper&> event_map;
 
 			ConnectionManager(boost::asio::ip::tcp::endpoint& endpoint);
 			ConnectionManager(boost::asio::ip::tcp::endpoint endpoint);
+
 			void send_all(const message::MessageWrapper&);
 			void send_all_other(const Connection::ptr&, const message::MessageWrapper&);
 			void start();

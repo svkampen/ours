@@ -48,27 +48,13 @@ namespace nm
 			 */
 			Board(const ChunkGenerator& chunkGenerator);
 
-			Board(Board&& other) : chunks(std::move(other.chunks)), chunkGenerator(std::move(other.chunkGenerator))
-			{
-			};
+            /* Move and copy constructor. */
+            Board(Board&& other) = default;
+            Board(const Board& other) = default;
 
-			Board& operator=(Board&& other)
-			{
-				chunks = std::move(other.chunks);
-				chunkGenerator = std::move(other.chunkGenerator);
-				return *this;
-			}
-
-			Board(const Board& other) : chunks(other.chunks), chunkGenerator(other.chunkGenerator)
-			{
-			}
-
-			Board& operator=(const Board& other)
-			{
-				chunks = other.chunks;
-				chunkGenerator = other.chunkGenerator;
-				return *this;
-			}
+            /* Move and copy assignment. */
+            Board& operator=(Board&& other) = default;
+            Board& operator=(const Board& other) = default;
 
 			/**
 			 * Add a chunk to the chunk list.
@@ -131,6 +117,7 @@ namespace nm
 			 * @return A reference to the requested square.
 			 */
 			Square& get(const Coordinates& coordinates);
+			const Square& get(const Coordinates& coordinates) const;
 
 			/**
 			 * Get a board square.
@@ -141,6 +128,7 @@ namespace nm
 			 * @return A reference to the requested square.
 			 */
 			Square& get(int x, int y);
+			const Square& get(int x, int y) const;
 	};
 };
 

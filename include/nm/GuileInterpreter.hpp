@@ -18,9 +18,12 @@ namespace nm
 
 			SCM run_code_fn;
 
-			void run_command(std::string command);
+			void run_command(std::string_view command);
+			static SCM netmine_set_name(SCM name);
+
 			static SCM netmine_config_get(SCM key);
 			static SCM netmine_config_set(SCM key, SCM value);
+
 
 			static SCM netmine_redraw();
 			static SCM netmine_flag();

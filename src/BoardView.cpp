@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <boost/log/trivial.hpp>
 #include <nm/Utils.hpp>
+#include <nm/Config.hpp>
 
 namespace nm
 {
@@ -28,7 +29,7 @@ namespace nm
 					main << L"*";
 				} else if (square.state == SquareState::OPENED)
 				{
-					this->draw_open_square(x, y, square);
+					this->draw_open_square(x, y, square, squareSource);
 				} else if (square.state == SquareState::FLAGGED)
 				{
 					this->draw_flag_square(x, y, square);
@@ -93,8 +94,16 @@ namespace nm
 				this->border_enabled = !this->border_enabled;
 				full_redraw = true;
 				break;
+			case 's':
+				sticky_flags = !sticky_flags;
+				break;
 			case 'f':
-				this->ev_square_flag(cursor.offset_x + cursor.x, cursor.offset_y + cursor.y);
+				if (sticky_flags)
+				{
+					handle_sticky_flag();
+				} else {
+					this->ev_square_flag(cursor.offset_x + cursor.x, cursor.offset_y + cursor.y);
+				}
 				full_redraw = true;
 				break;
 
@@ -223,25 +232,75 @@ namespace nm
 		sidebar << nm::Refresh;
 	}
 
-	void BoardView::draw_flag_square(int x, int y, Square& square)
+	void BoardView::handle_sticky_flag()
 	{
+		if (!have_previous_flag)
+		{
+			have_previous_flag = true;
+			previous_flag = {cursor.offset_x + cursor.x,
+							 cursor.offset_y + cursor.y};
+		} else
+		{
+			have_previous_flag = false;
+			sticky_flags = false;
+		}
+		this->ev_square_flag(cursor.offset_x + cursor.x, cursor.offset_y + cursor.y);
+	}
+
+    void BoardView::draw_border(Square &sq, int x, int y)
+    {
+        if (!border_enabled)
+            return;
+
 		int global_x = x + cursor.offset_x;
 		int global_y = y + cursor.offset_y;
 
-		bool chunk_border = (global_x % NM_CHUNK_SIZE == 0 || global_y % NM_CHUNK_SIZE == 0) && this->border_enabled;
+        bool needs_l_border = global_x % NM_CHUNK_SIZE == 0;
+        bool needs_r_border = (global_x + 1) % NM_CHUNK_SIZE == 0;
+        bool needs_t_border = false;//global_y % NM_CHUNK_SIZE == 0;
+        bool needs_b_border = (global_y + 1) % NM_CHUNK_SIZE == 0 && !needs_r_border && !needs_l_border;
 
-		if (chunk_border)
-			main << AttrOn(COLOR_PAIR(BORDER_COLOR));
+        if (needs_l_border)
+        {
+            main << Move({3 * x, y}) << AttrOn(COLOR_PAIR(BORDER_COLOR))
+                 << " " << AttrOff(COLOR_PAIR(BORDER_COLOR));
+        }
 
+        if (needs_r_border)
+        {
+            main << Move({3 * x + 2, y}) << AttrOn(COLOR_PAIR(BORDER_COLOR))
+                 << " " << AttrOff(COLOR_PAIR(BORDER_COLOR));
+        }
+
+        if (needs_t_border)
+        {
+            main << Move({3 * x + 1, y});
+            char data = winch(main) & A_CHARTEXT;
+            data = isdigit(data) ? data : ' ';
+            main << data << "\u035e";
+        }
+
+        if (needs_b_border)
+        {
+            main << Move({3 * x + 1, y});
+            char data = winch(main) & A_CHARTEXT;
+            main << Move({3 * x, y});
+            int color = (sq.state == SquareState::CLOSED) ? 12 : 6;
+            main << AttrOn(A_UNDERLINE) << AttrOn(COLOR_PAIR(color))
+                 << " " << data << " " << AttrOff(COLOR_PAIR(color)) << AttrOff(A_UNDERLINE);
+        }
+    }
+
+	void BoardView::draw_flag_square(int x, int y, Square& square)
+	{
 		main << Move({3 * x, y}) << " # ";
-
-		if (chunk_border)
-			main << AttrOff(COLOR_PAIR(BORDER_COLOR));
+        this->draw_border(square, x, y);
 	}
 
 	void BoardView::draw_closed_square(int x, int y, Square& square)
 	{
 		main << Move({3 * x, y}) << AttrOn(COLOR_PAIR(7)) << "   " << AttrOff(COLOR_PAIR(7));
+        this->draw_border(square, x, y);
 	}
 
 	void BoardView::draw_cursors(std::unordered_map<int32_t, CursorData>& cursors)
@@ -271,7 +330,7 @@ namespace nm
 		}
 	}
 
-	void BoardView::draw_open_square(int x, int y, Square& square)
+	void BoardView::draw_open_square(int x, int y, Square& square, ChunkSquareSource& squareSource)
 	{
 		int color = 0;
 		switch(square.number)
@@ -300,23 +359,19 @@ namespace nm
 
 		bool chunk_border = (global_x % NM_CHUNK_SIZE == 0 || global_y % NM_CHUNK_SIZE == 0) && this->border_enabled;
 
+		chunk_border = chunk_border || square.overflag;
+
 		if (color == -1)
 		{
-			if (chunk_border)
-				main << AttrOn(COLOR_PAIR(BORDER_COLOR));
-
 			main << Move({3 * x, y}) << L"   ";
-
-			if (chunk_border)
-				main << AttrOff(COLOR_PAIR(BORDER_COLOR));
+            this->draw_border(square, x, y);
 
 			return;
 		}
 
-		if (chunk_border)
-			color = BORDER_COLOR;
-
 		main << AttrOn(COLOR_PAIR(color)) << nm::Move({3 * x, y})
 			 << ' ' << static_cast<char>(square.number + 48) << ' ' << AttrOff(COLOR_PAIR(color));
+
+        this->draw_border(square, x, y);
 	}
 }

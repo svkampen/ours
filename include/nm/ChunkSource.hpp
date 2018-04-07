@@ -11,9 +11,6 @@ namespace nm
 	class ChunkSource
 	{
 		public:
-			virtual ~ChunkSource()
-			{
-			};
 			virtual const ChunkList& get_chunks() const = 0;
 			virtual std::optional<Chunk* const> get_chunk(const Coordinates& coordinates) = 0;
 	};

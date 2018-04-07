@@ -37,6 +37,11 @@ namespace nm
 		 */
 		bool border_enabled = false;
 
+		bool sticky_flags = false;
+		bool have_previous_flag = false;
+
+		Coordinates previous_flag;
+
 		/**
 		 * Draws flagged squares.
 		 * 
@@ -47,6 +52,10 @@ namespace nm
 		void draw_flag_square(int x, int y,
 				Square& square);
 
+		void handle_sticky_flag();
+
+        void draw_border(Square &sq, int x, int y);
+
 		/**
 		 * Draws opened squares.
 		 * 
@@ -55,7 +64,7 @@ namespace nm
 		 * @param square The square in question.
 		 */
 		void draw_open_square(int x, int y,
-				Square& square);
+				Square& square, ChunkSquareSource& squareSource);
 
 		/**
 		 * Draws closed squares.

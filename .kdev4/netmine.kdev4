@@ -1,0 +1,47 @@
+[Buildset]
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x0e\x00n\x00e\x00t\x00m\x00i\x00n\x00e)
+
+[CMake]
+Build Directory Count=1
+Current Build Directory Index=0
+
+[CMake][CMake Build Directory 0]
+Build Directory Path=/home/sam/code/netmine/build
+Build Type=
+CMake Binary=/usr/bin/cmake
+Environment Profile=
+Extra Arguments=
+Install Directory=/usr/local
+
+[CustomDefinesAndIncludes][ProjectPath0]
+Path=.
+parseAmbiguousAsCPP=true
+parserArguments=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c++14
+parserArgumentsC=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=gnu11
+
+[CustomDefinesAndIncludes][ProjectPath0][Compiler]
+Name=GCC
+
+[Launch]
+Launch Configurations=Launch Configuration 0
+
+[Launch][Launch Configuration 0]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=Netamphetamine
+Type=Native Application
+
+[Launch][Launch Configuration 0][Data]
+Arguments=
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
+Dependency Action=Nothing
+EnvironmentGroup=
+Executable=file:///home/sam/code/netmine/bin/netmine
+External Terminal=urxvt -cd %workdir -e %exe
+Project Target=netmine,src,netmine
+Use External Terminal=true
+Working Directory=
+isExecutable=true
+
+[Project]
+VersionControlSupport=kdevgit

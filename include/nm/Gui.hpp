@@ -1,119 +1,58 @@
 #ifndef _NM_GUI_
 #define _NM_GUI_
 
-#include <ncurses.h>
 #include <boost/signals2.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <nm/Game.hpp>
 #include <nm/ChunkSquareSource.hpp>
-#include <nm/Flag.hpp>
-#include <nm/View.hpp>
-#include <nm/BoardView.hpp>
-#include <nm/ChunkView.hpp>
-#include <nm/Client.hpp>
-#include <nm/Window.hpp>
-#include <nm/GuileInterpreter.hpp>
-
+#include <nm/Typedefs.hpp>
 #include <netmine.pb.h>
-#include <unordered_map>
 
-#include <boost/asio.hpp>
-
-namespace std
-{
-	template<>
-	struct hash<nm::message::CursorMove>
-	{
-		typedef nm::message::CursorMove argument_type;
-		std::size_t operator()(argument_type const& c) const
-		{
-			std::size_t const h1(std::hash<int32_t>()(c.x()));
-			std::size_t const h2(std::hash<int32_t>()(c.y()));
-			std::size_t const h3(std::hash<int32_t>()(c.id()));
-
-			return (h1 ^ h2) ^ h3;
-		}
-	};
-
-	template<>
-	struct equal_to<nm::message::CursorMove>
-	{
-		typedef nm::message::CursorMove T;
-		bool operator()(const T& lhs, const T& rhs) const
-		{
-			return (lhs.x() == rhs.x() && lhs.y() == rhs.y() && lhs.id() == rhs.id());
-		}
-	};
-}
+#include <string_view>
+#include <optional>
 
 namespace nm
 {
-	void init_curses();
+    class Gui
+    {
+        protected:
+            ChunkSquareSource &squareSource;
+            CursorData self_cursor {};
+            Gui(ChunkSquareSource &squareSource) : squareSource(squareSource) {};
 
-	/**
-	 * The class that manages the terminal screen.
-	 *
-	 * This class sets up the terminal screen, manages data such as the cursors that need to be drawn
-	 * and manages its own cursor. Drawing the board/sidebar/etc is delegated to view classes, which
-	 * can be swapped out.
-	 *
-	 * If you're looking for a specific view, see the View virtual class.
-	 */
-	class Gui : public boost::enable_shared_from_this<Gui>
-	{
-		friend class GuileInterpreter;
+        public:
+            SquareEvent ev_square_open;
+            SquareEvent ev_square_flag;
+            SquareEvent ev_cursor_move;
 
-		private:
-			nm::Window main, sidebar;
+            boost::signals2::signal<void ()> ev_exit;
 
-			ChunkSquareSource &squareSource;
-			GuileInterpreter interpreter;
-			boost::asio::posix::stream_descriptor in;
+            virtual void handle_input(int ch) = 0;
+            virtual void handle_command_input(std::string_view cmd) {};
 
-			std::unordered_map<int32_t, CursorData> cursors;
+            virtual const ChunkSquareSource& get_squaresource()
+            {
+                return squareSource;
+            }
 
-			bool chunk_view_enabled = false;
-			nm::BoardView boardview;
-			nm::ChunkView chunkview;
-			nm::View *current_view;
+            virtual const CursorData& get_cursor()
+            {
+                return self_cursor;
+            }
 
-			int width;
-			int height;
+            virtual void display_command(std::string_view cmd) {};
+            virtual void display_command(std::string_view cmd, std::optional<int> endpos) {};
 
-			CursorData self_cursor {};
-			bool border_enabled = false;
-			bool command_mode = false;
+            virtual void cursor_move_handler(const message::MessageWrapper& mwpr) = 0;
+            virtual void player_quit_handler(const message::MessageWrapper& mwpr) = 0;
+			virtual void new_player_handler(const nm::message::MessageWrapper& mwpr) { new_player_handler(mwpr.player()); };
+            virtual void new_player_handler(const nm::message::Player& player) = 0;
 
-			std::stringstream command_buffer;
+            virtual void draw_board() = 0;
+            virtual void draw() = 0;
+            virtual void handle_resize() {};
 
-
-			void switch_views();
-			void start_command_mode(std::string pre_input = "");
-
-			void draw_open_square(int x, int y, Square& square);
-			void draw_closed_square(int x, int y);
-			void draw_flag_square(int x, int y, Square& square);
-			static void save_png(Gui*, std::string);
-
-		public:
-			nm::Window command;
-			SquareEvent ev_square_open;
-			SquareEvent ev_square_flag;
-			SquareEvent ev_cursor_move;
-			boost::signals2::signal<void (std::string)> ev_save_image;
-			boost::signals2::signal<void ()> ev_exit;
-
-			Gui(boost::asio::io_service& io_service, ChunkSquareSource& squareSource);
-
-			bool handle_input();
-			void handle_command_input(std::string cmd);
-			void cursor_move_handler(const message::CursorMove& msg);
-			void player_quit_handler(const message::Player& player);
-			void new_player_handler(const message::Player& player);
-			void draw_board();
-			void handle_resize();
-			void draw();
-	};
+            virtual void start() = 0;
+    };
 }
 
-#endif //_NM_GUI_
+#endif // _NM_GUI_

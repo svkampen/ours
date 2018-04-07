@@ -1,4 +1,6 @@
+#include <nm/Utils.hpp>
 #include <nm/Client.hpp>
+#include <nm/Config.hpp>
 
 #include <boost/log/trivial.hpp>
 
@@ -28,12 +30,13 @@ namespace nm
 		} else
 		{
 			BOOST_LOG_TRIVIAL(info) << "Error: " << ec.message();
-			exit(1);
+			throw std::runtime_error(ec.message());
 		}
 	}
 
 	void Client::handle_connect(const boost::system::error_code &ec, tcp::resolver::iterator ep_iter)
 	{
+		static tcp::resolver::iterator end;
 		if (!ec)
 		{
 			auto nsock = socket_.native_handle();
@@ -84,9 +87,16 @@ fail:
 		{
 			// Let's try the next endpoint.
 			socket_.close();
-			auto endpoint = *ep_iter;
-			socket_.async_connect(endpoint,
-					boost::bind(&Client::handle_connect, this, _1, ++ep_iter));
+			if (ep_iter != end)
+			{
+				auto endpoint = *ep_iter;
+				socket_.async_connect(endpoint,
+						boost::bind(&Client::handle_connect, this, _1, ++ep_iter));
+			} else {
+				std::stringstream ss;
+				ss << "Unable to connect to specified host: " << nm::config["host"];
+				throw std::runtime_error(ss.str());
+			}
 		}
 	}
 
@@ -94,6 +104,7 @@ fail:
 	{
 		std::shared_ptr<uint8_t> header_buf(new uint8_t[4], std::default_delete<uint8_t[]>());
 
+		BOOST_LOG_TRIVIAL(info) << "Waiting for packet...";
 		boost::asio::async_read(
 				socket_,
 				boost::asio::buffer(header_buf.get(), 4),
@@ -110,8 +121,9 @@ fail:
 	{
 		if (ec != 0)
 		{
-			exit(1);
+			throw std::runtime_error("Server no longer responding");
 		}
+
 
 		const uint8_t* bytes = data.get();
 		uint32_t header;
@@ -120,6 +132,8 @@ fail:
 		uint32_t length = ntohl(header);
 
 		std::shared_ptr<uint8_t> message_buf(new uint8_t[length], std::default_delete<uint8_t[]>());
+
+		BOOST_LOG_TRIVIAL(info) << "Header read, reading rest of package.";
 
 		boost::asio::async_read(
 				socket_,
@@ -135,44 +149,24 @@ fail:
 
 	void Client::message_callback(uint32_t length, std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes)
 	{
+		BOOST_LOG_TRIVIAL(info) << "Message received.";
+
 		message::MessageWrapper wrapper;
 		wrapper.ParseFromArray(data.get(), length);
 
-		BOOST_LOG_TRIVIAL(info) << "Message received: " << wrapper.DebugString();
-
-		switch (wrapper.type())
-		{
-			case wrapper.WELCOME:
-				this->ev_welcome(wrapper.welcome());
-				break;
-			case wrapper.CHUNK_BYTES:
-				this->ev_update_chunk(wrapper.chunkbytes());
-				break;
-			case wrapper.PLAYER_JOIN:
-				this->ev_player_join(wrapper.playerjoin());
-				break;
-			case wrapper.PLAYER_QUIT:
-				this->ev_player_quit(wrapper.playerquit());
-				break;
-			case wrapper.CURSOR_MOVE:
-				this->ev_cursor_move(wrapper.cursormove());
-				break;
-			default:
-				break;
-		}
-
+		event_map.fire(wrapper.type(), wrapper);
 		start_read();
 	}
 
 	void Client::send_message(const message::MessageWrapper& wrapper)
 	{
-		BOOST_LOG_TRIVIAL(info) << "Sending message: " << wrapper.DebugString();
+		BOOST_LOG_TRIVIAL(info) << "Sending message. ";
 		size_t message_size = wrapper.ByteSize();
 
 		// Reserve 4 bytes for the header
 		size_t total_size = message_size + 4;
 
-		char* buffer = (char*)malloc(total_size);
+		uint8_t buffer[total_size];
 		wrapper.SerializeToArray(buffer + 4, message_size);
 
 		uint32_t header = htonl(message_size);
@@ -190,6 +184,7 @@ fail:
 
 	void Client::write_callback(const boost::system::error_code &ec, const size_t nbytes)
 	{
+		BOOST_LOG_TRIVIAL(info) << "Write done with error code " << ec;
 	};
 
 }

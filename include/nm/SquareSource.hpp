@@ -8,12 +8,11 @@ namespace nm {
 	class SquareSource
 	{
 		public:
-			virtual ~SquareSource()
-			{
-			};
-
 			virtual Square& get(const Coordinates& coordinates) = 0;
 			virtual Square& get(int x, int y) = 0;
+
+            virtual const Square& get(int x, int y) const = 0;
+            virtual const Square& get(const Coordinates& coordinates) const = 0;
 	};
 }
 

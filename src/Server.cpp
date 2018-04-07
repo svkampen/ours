@@ -7,42 +7,43 @@ using boost::asio::ip::tcp;
 
 namespace nm
 {
-	template<typename Event, typename Functor, typename Instance>
-	void message_event_connect(Event& event, Functor functor, Instance instance) {
-		event.connect(boost::bind(functor, instance, _1, _2));
-	}
-
 	namespace server
 	{
 		Server::Server(Game& game, int port) : connectionManager(tcp::endpoint(tcp::v4(), port)), game(game) {
-			message_event_connect(connectionManager.ev_player_join, &Server::player_join_handler, this);
-			message_event_connect(connectionManager.ev_player_quit, &Server::player_quit_handler, this);
-			message_event_connect(connectionManager.ev_cursor_move, &Server::cursor_move_handler, this);
-			message_event_connect(connectionManager.ev_square_open, &Server::square_open_handler, this);
-			message_event_connect(connectionManager.ev_square_flag, &Server::square_flag_handler, this);
-			message_event_connect(connectionManager.ev_chunk_request, &Server::chunk_request_handler, this);
-			message_event_connect(connectionManager.ev_clear_at, &Server::clear_at_handler, this);
+			connectionManager.event_map.connect(MessageType(PLAYER_JOIN),
+				boost::bind(&Server::player_join_handler, this, _1, _2));
+
+			connectionManager.event_map.connect(MessageType(PLAYER_QUIT),
+				boost::bind(&Server::player_quit_handler, this, _1, _2));
+
+			connectionManager.event_map.connect(MessageType(CURSOR_MOVE),
+				boost::bind(&Server::cursor_move_handler, this, _1, _2));
+
+			connectionManager.event_map.connect(MessageType(SQUARE_OPEN),
+				boost::bind(&Server::square_open_handler, this, _1, _2));
+
+			connectionManager.event_map.connect(MessageType(SQUARE_FLAG),
+				boost::bind(&Server::square_flag_handler, this, _1, _2));
+
+			connectionManager.event_map.connect(MessageType(CHUNK_REQUEST),
+				boost::bind(&Server::chunk_request_handler, this, _1, _2));
+
+			connectionManager.event_map.connect(MessageType(CLEAR_AT),
+				boost::bind(&Server::clear_at_handler, this, _1, _2));
 		}
 
 		Server::Server(Game& game) : Server(game, 4096)
 		{
 		};
 
-		void Server::player_quit_handler(Connection::ptr connection, const message::Player& _)
+		void Server::player_quit_handler(Connection::ptr connection, const message::MessageWrapper& wrapper)
 		{
-			auto&& player = this->clients[connection];
-
-			message::MessageWrapper wrapper;
-			wrapper.set_type(wrapper.PLAYER_QUIT);
-			auto playerQuit = wrapper.mutable_playerquit();
-			playerQuit->CopyFrom(player);
-
 			connectionManager.send_all_other(connection, wrapper);
 
 			this->clients.erase(connection);
 		}
 
-		void Server::clear_at_handler(Connection::ptr connection, const message::ClearAt& clearAt)
+		void Server::clear_at_handler(Connection::ptr connection, const message::MessageWrapper& clearAt)
 		{
 			// game.board.clear_at(clearAt.x(), clearAt.y());
 		}
@@ -63,14 +64,12 @@ namespace nm
 					square.is_mine = false;
 			});
 
-			char *data = transformed_chunk.serialize();
+			auto data = transformed_chunk.serialize();
 
 			message::MessageWrapper chunkWrapper;
 			chunkWrapper.set_type(chunkWrapper.CHUNK_BYTES);
 			auto cBytes = chunkWrapper.mutable_chunkbytes();
-			cBytes->set_data(std::string(data, NM_CHUNK_SIZE * NM_CHUNK_SIZE));
-
-			delete[] data;
+			cBytes->set_data(std::string(data.get(), NM_CHUNK_SIZE * NM_CHUNK_SIZE));
 
 			cBytes->set_x(x);
 			cBytes->set_y(y);
@@ -80,31 +79,30 @@ namespace nm
 			this->connectionManager.send_all(chunkWrapper);
 		}
 
-		void Server::chunk_request_handler(Connection::ptr connection, const message::ChunkRequest& msg)
+		void Server::chunk_request_handler(Connection::ptr connection, const message::MessageWrapper& wrapper)
 		{
+			auto& msg = wrapper.chunkrequest();
 			send_chunk_update(msg.x(), msg.y());
 		}
 
-		void Server::cursor_move_handler(Connection::ptr connection, const message::CursorMove& msg)
+		void Server::cursor_move_handler(Connection::ptr connection, const message::MessageWrapper& wrapper)
 		{
 			auto&& player = this->clients[connection];
 
-			message::MessageWrapper wrapper;
-			wrapper.set_type(wrapper.CURSOR_MOVE);
-
-			auto cMove = wrapper.mutable_cursormove();
-			cMove->CopyFrom(msg);
+			message::MessageWrapper downstream = wrapper;
+			auto cMove = downstream.mutable_cursormove();
 			cMove->set_id(player.id());
 
 			/* update local (x, y) stats */
-			player.set_x(msg.x());
-			player.set_y(msg.y());
+			player.set_x(cMove->x());
+			player.set_y(cMove->y());
 
-			this->connectionManager.send_all_other(connection, wrapper);
+			this->connectionManager.send_all_other(connection, downstream);
 		}
 
-		void Server::square_open_handler(Connection::ptr connection, const message::SquareOpen& msg)
+		void Server::square_open_handler(Connection::ptr connection, const message::MessageWrapper& wrapper)
 		{
+			auto& msg = wrapper.squareopen();
 			BOOST_LOG_TRIVIAL(info) << "[Server] Received SQUARE_OPEN message: " << msg.ShortDebugString();
 			game.open_square_handler(msg.x(), msg.y());
 
@@ -121,8 +119,9 @@ namespace nm
 			game.updated_chunks.clear();
 		}
 
-		void Server::square_flag_handler(Connection::ptr connection, const message::SquareFlag& msg)
+		void Server::square_flag_handler(Connection::ptr connection, const message::MessageWrapper& wrapper)
 		{
+			auto& msg = wrapper.squareflag();
 			BOOST_LOG_TRIVIAL(info) << "[Server] Received SQUARE_FLAG message: " << msg.ShortDebugString();
 			game.flag_square_handler(msg.x(), msg.y());
 
@@ -140,8 +139,9 @@ namespace nm
 
 		}
 
-		void Server::player_join_handler(Connection::ptr connection, const message::Player& msg)
+		void Server::player_join_handler(Connection::ptr connection, const message::MessageWrapper& wrapper)
 		{
+			auto& msg = wrapper.player();
 			/* Generate an ID and add an entry in the client dict. */
 			auto endpoint = connection->socket().remote_endpoint();
 			std::string endpoint_and_port = endpoint.address().to_string() + std::to_string(endpoint.port());
@@ -159,24 +159,24 @@ namespace nm
 
 			/* Then, send the playerjoin (including ID) to every other client */
 
-			message::MessageWrapper wrapper;
-			wrapper.set_type(wrapper.PLAYER_JOIN);
+			message::MessageWrapper downstream;
+			downstream.set_type(downstream.PLAYER_JOIN);
 
-			auto pJoin = wrapper.mutable_playerjoin();
+			auto pJoin = downstream.mutable_player();
 			pJoin->CopyFrom(msg);
 			pJoin->set_id(hash);
 
-			this->connectionManager.send_all_other(connection, wrapper);
+			this->connectionManager.send_all_other(connection, downstream);
 
-			wrapper.Clear();
+			downstream.Clear();
 
 			/* And send a welcome message to the newly joined client */
 
-			auto welcome = wrapper.mutable_welcome();
+			auto welcome = downstream.mutable_welcome();
 
 			welcome->set_version(1);
 			welcome->set_nplayers(this->clients.size() - 1);
-			wrapper.set_type(wrapper.WELCOME);
+			downstream.set_type(downstream.WELCOME);
 
 			int i = 0;
 			for (auto iterator = this->clients.begin(); iterator != this->clients.end(); iterator++, i++)
@@ -188,7 +188,7 @@ namespace nm
 				}
 			}
 
-			connection->sendMessage(wrapper);
+			connection->sendMessage(downstream);
 
 			/* Also send all known current chunks. */
 			const auto& chunkList = this->game.board.get_chunks();
