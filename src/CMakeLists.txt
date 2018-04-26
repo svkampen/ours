@@ -1,12 +1,7 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${netmine_SOURCE_DIR}/bin)
 set(SAVED_LIB_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
-if(CMAKE_BUILD_TYPE STREQUAL "static")
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-endif()
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
-if(NOT CMAKE_BUILD_TYPE STREQUAL "static")
-    ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
-endif()
 set(CMAKE_EXE_LINKER_FLAGS "-fPIC")
 set(netmine_SRC_FILES main.cpp Board.cpp BoardView.cpp Chunk.cpp ChunkGenerator.cpp ChunkView.cpp Server.cpp CursesGui.cpp Game.cpp
 	ConnectionManager.cpp netmine.pb.cc NetworkGame.cpp Client.cpp Argparse.cpp Loader.cpp Saver.cpp Config.cpp FreeType.cpp
@@ -37,6 +32,6 @@ FIND_LIBRARY(ZLIB NAMES z)
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${SAVED_LIB_SUFFIXES})
 
-ADD_DEFINITIONS(-DNCURSES_NOMACROS -std=gnu++1z -Ofast -march=native -fdiagnostics-color=always -ggdb -g3 -fno-omit-frame-pointer -fPIC -flto)
+ADD_DEFINITIONS(-DNCURSES_NOMACROS -std=gnu++17 -Ofast -ffast-math -march=native -fdiagnostics-color=always -ggdb -g3 -fno-omit-frame-pointer -fPIC)
 ADD_EXECUTABLE(netmine ${netmine_SRC_FILES})
 TARGET_LINK_LIBRARIES(netmine ${PROTOBUF} bfd unwind unwind-x86_64 ${Boost_LIBRARIES} gmp crypt ${PC_GUILE_LIBRARIES} ${PC_FT_LIBRARIES} ${GC} ${UNISTRING} ffi pthread ${NCURSES} dl readline z png)

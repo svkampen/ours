@@ -23,7 +23,14 @@ namespace nm
 			Square& get(const Coordinates& coordinates);
 			Square& get(int x, int y);
 
-			bool all_squares(const ConstSquareFn& functor) const;
+            template<typename T>
+            bool all_squares(const T& functor) const
+            {
+                return std::all_of(chunk.begin(), chunk.end(), [&functor](const std::array<Square, NM_CHUNK_SIZE>& row)
+                {
+                    return std::all_of(row.begin(), row.end(), functor);
+                });
+            }
 
 			const Square& get(const Coordinates& coordinates) const;
 			const Square& get(const int x, const int y) const;

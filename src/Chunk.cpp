@@ -54,13 +54,6 @@ namespace nm
 		}
 	}
 
-	bool Chunk::all_squares(const ConstSquareFn& functor) const
-	{
-		return std::all_of(chunk.begin(), chunk.end(), [&functor](const std::array<Square, NM_CHUNK_SIZE>& row)
-		{
-			return std::all_of(row.begin(), row.end(), functor);
-		});
-	}
 
 	void Chunk::transform(const Chunk::SquareFn& functor)
 	{
