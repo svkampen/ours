@@ -8,60 +8,8 @@
 
 #include <boost/log/trivial.hpp>
 
-#include <readline/readline.h>
-#include <readline/history.h>
-
-extern void hook_redisplay();
-extern int hook_input_avail();
-extern void rl_callback_handler(char* line);
-
 namespace nm::curses
 {
-	void init_curses()
-	{
-		setlocale(LC_ALL, "");
-		initscr();
-		srand(time(NULL));
-
-		if (has_colors())
-		{
-			start_color();
-			use_default_colors();
-			init_pair(1, COLOR_WHITE,	-1);
-			init_pair(2, COLOR_BLUE,	-1);
-			init_pair(3, COLOR_CYAN,	-1);
-			init_pair(4, COLOR_GREEN,	-1);
-			init_pair(5, COLOR_MAGENTA, -1);
-			init_pair(6, COLOR_RED,		-1);
-
-			// Inverted colors
-
-			init_pair(7, COLOR_BLACK,	COLOR_WHITE);
-			init_pair(8, COLOR_BLUE,	COLOR_WHITE);
-			init_pair(9, COLOR_CYAN,	COLOR_WHITE);
-			init_pair(10,COLOR_GREEN,	COLOR_WHITE);
-			init_pair(11,COLOR_MAGENTA,	COLOR_WHITE);
-			init_pair(12,COLOR_RED,		COLOR_WHITE);
-
-			// Red backgrounded
-
-			init_pair(13,COLOR_BLACK,	COLOR_RED);
-			init_pair(14,COLOR_BLUE,	COLOR_RED);
-			init_pair(15,COLOR_CYAN,	COLOR_RED);
-			init_pair(16,COLOR_GREEN,	COLOR_RED);
-			init_pair(17,COLOR_MAGENTA,	COLOR_RED);
-			init_pair(18,COLOR_WHITE,	COLOR_RED);
-
-			init_pair(19, COLOR_BLACK, COLOR_GREEN);
-		}
-
-		noecho();
-		cbreak();
-		keypad(stdscr, TRUE);
-		nodelay(stdscr, TRUE);
-		curs_set(0);
-	}
-
 	CursesGui::CursesGui(boost::asio::io_service& io_service, ChunkSquareSource& squareSource)
 		: Gui(squareSource), main(0, 0, COLS - 21, LINES - 1), sidebar(COLS - 20, 0, 20, LINES - 1),
 			in(io_service, ::dup(STDIN_FILENO)), io_service(io_service),
@@ -81,6 +29,7 @@ namespace nm::curses
 	void CursesGui::player_quit_handler(const message::MessageWrapper& mwpr)
 	{
 		auto player = mwpr.player();
+        BOOST_LOG_TRIVIAL(info) << "Removing player with ID " << player.id();
 		cursors.erase(player.id());
 		draw_board();
 		this->current_view->draw_sidebar(this->squareSource, this->cursors);
@@ -150,16 +99,16 @@ namespace nm::curses
 		}
 	}
 
-	void CursesGui::save_png(CursesGui* gui, std::string args)
+	void CursesGui::save_png(std::string args)
 	{
 		if (args.empty())
 		{
-			gui->command << Erase << "Error: you must enter a filename!" << Refresh;
+			command << Erase << "Error: you must enter a filename!" << Refresh;
 			return;
 		}
 
-		gui->ev_save_image(args + ".png");
-		gui->command << Erase << "Board image written to '" << args.c_str() << ".png'." << Refresh;
+		ev_save_image(args + ".png");
+		command << Erase << "Board image written to '" << args.c_str() << ".png'." << Refresh;
 	}
 
 	void CursesGui::switch_views()
@@ -190,11 +139,7 @@ namespace nm::curses
                 break;
 
             case 'p':
-                this->start_command_mode("(nm-save-png ");
-                break;
-
-            case ':':
-                this->start_command_mode();
+                this->save_png("board");
                 break;
 
             case KEY_RESIZE:
@@ -213,59 +158,6 @@ namespace nm::curses
             handle_input(ch);
 		}
 	}
-
-	void CursesGui::start_command_mode(std::string pre_input)
-	{
-		this->command_mode = true;
-
-		curs_set(1);
-		echo();
-		rl_callback_handler_install("", rl_callback_handler);
-		rl_input_available_hook = hook_input_avail;
-		rl_redisplay_function = hook_redisplay;
-
-		rl_replace_line(pre_input.c_str(), 1);
-		rl_point = rl_end;
-
-		hook_redisplay();
-
-		while (this->command_mode)
-			if (hook_input_avail())
-				rl_callback_read_char();
-
-		curs_set(0);
-		noecho();
-	}
-
-	void CursesGui::handle_command_input(std::string_view cmd)
-	{
-		this->interpreter.run_command(cmd);
-		this->command_mode = false;
-
-		rl_callback_handler_remove();
-
-		redrawwin((WINDOW*)main);
-		redrawwin((WINDOW*)sidebar);
-
-		this->draw();
-	}
-
-    void CursesGui::display_command(std::string_view cmd)
-    {
-        display_command(cmd, {});
-    }
-
-    void CursesGui::display_command(std::string_view cmd, std::optional<int> endpos)
-    {
-        command << Erase << ":" << cmd.data() << ClrToBot;
-
-        if (endpos)
-        {
-            command << Move({*endpos % COLS, 0});
-        }
-
-        command << Refresh;
-    }
 
 	void CursesGui::draw_board()
 	{

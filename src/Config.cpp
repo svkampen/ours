@@ -65,8 +65,7 @@ namespace nm
 
 		for (auto it = tmp.begin(); it != tmp.end(); ++it)
 		{
-			if (result.find(it.key()) == result.end())
-				result[it.key()] = it.value();
+            result[it.key()] = it.value();
 		}
 
 		this->config = result.unflatten();

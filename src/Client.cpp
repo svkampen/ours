@@ -1,6 +1,7 @@
 #include <nm/Utils.hpp>
 #include <nm/Client.hpp>
 #include <nm/Config.hpp>
+#include <cassert>
 
 #include <boost/log/trivial.hpp>
 
@@ -108,7 +109,7 @@ fail:
 		boost::asio::async_read(
 				socket_,
 				boost::asio::buffer(header_buf.get(), 4),
-				boost::asio::transfer_at_least(4),
+				boost::asio::transfer_exactly(4),
 				boost::bind(
 					&Client::header_callback,
 					this,
@@ -119,11 +120,11 @@ fail:
 
 	void Client::header_callback(std::shared_ptr<uint8_t> data, const boost::system::error_code &ec, const size_t nbytes)
 	{
-		if (ec != 0)
+		if (ec.value() != 0)
 		{
+            BOOST_LOG_TRIVIAL(error) << "ERROR! Got code " << ec << "when reading header.";
 			throw std::runtime_error("Server no longer responding");
 		}
-
 
 		const uint8_t* bytes = data.get();
 		uint32_t header;
@@ -133,7 +134,8 @@ fail:
 
 		std::shared_ptr<uint8_t> message_buf(new uint8_t[length], std::default_delete<uint8_t[]>());
 
-		BOOST_LOG_TRIVIAL(info) << "Header read, reading rest of package.";
+        assert(length < 512);
+		BOOST_LOG_TRIVIAL(info) << "Header read, reading rest of package (length " << length << ")";
 
 		boost::asio::async_read(
 				socket_,
@@ -149,6 +151,10 @@ fail:
 
 	void Client::message_callback(uint32_t length, std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes)
 	{
+        if (ec.value() != 0)
+        {
+            BOOST_LOG_TRIVIAL(error) << "ERROR! Got code " << ec << "when reading message.";
+        }
 		BOOST_LOG_TRIVIAL(info) << "Message received.";
 
 		message::MessageWrapper wrapper;

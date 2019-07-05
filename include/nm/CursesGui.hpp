@@ -13,7 +13,6 @@
 #include <nm/ChunkView.hpp>
 #include <nm/Client.hpp>
 #include <nm/Window.hpp>
-#include <nm/GuileInterpreter.hpp>
 
 #include <netmine.pb.h>
 #include <unordered_map>
@@ -49,8 +48,6 @@ namespace std
 
 namespace nm::curses
 {
-	void init_curses();
-
 	/**
 	 * The class that manages the terminal screen.
 	 *
@@ -62,12 +59,9 @@ namespace nm::curses
 	 */
 	class CursesGui : public Gui
 	{
-		friend class GuileInterpreter;
-
 		private:
 			nm::Window main, sidebar, command;
 
-            nm::GuileInterpreter interpreter;
 			boost::asio::posix::stream_descriptor in;
             boost::asio::io_service& io_service;
 
@@ -87,12 +81,11 @@ namespace nm::curses
 			std::stringstream command_buffer;
 
 			void switch_views();
-			void start_command_mode(std::string pre_input = "");
 
 			void draw_open_square(int x, int y, Square& square);
 			void draw_closed_square(int x, int y);
 			void draw_flag_square(int x, int y, Square& square);
-			static void save_png(CursesGui*, std::string);
+			void save_png(std::string);
 			void handle_input();
 
 		public:
@@ -105,10 +98,6 @@ namespace nm::curses
 			CursesGui(boost::asio::io_service& io_service, nm::ChunkSquareSource& squareSource);
 
             void handle_input(int ch);
-            void handle_command_input(std::string_view cmd);
-
-            void display_command(std::string_view cmd);
-            void display_command(std::string_view cmd, std::optional<int> endpos);
 
 			void cursor_move_handler(const nm::message::MessageWrapper& mwpr);
 			void player_quit_handler(const nm::message::MessageWrapper& mwpr);

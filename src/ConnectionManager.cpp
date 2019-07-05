@@ -64,6 +64,7 @@ namespace nm
 
 		void Connection::write_callback(const boost::system::error_code& ec, const size_t nbytes)
 		{
+            BOOST_LOG_TRIVIAL(info) << "Write done with error code " << ec << " (message " << ec.message() << ")";
 		};
 
 		void Connection::connection_closed()
@@ -76,11 +77,11 @@ namespace nm
 
 		void Connection::header_callback(std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes)
 		{
-			if (ec != 0)
+			if (ec != boost::system::errc::success)
 			{
 				return this->connection_closed();
 			}
-
+			
 			const uint8_t* bytes = data.get();
 			uint32_t header;
 			memcpy(&header, bytes, 4);
@@ -104,6 +105,7 @@ namespace nm
 
 		void Connection::message_callback(uint32_t length, std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes)
 		{
+            BOOST_LOG_TRIVIAL(info) << "Read done with error code " << ec;
 			message::MessageWrapper wrapper;
 			wrapper.ParseFromArray(data.get(), length);
 
@@ -153,7 +155,6 @@ namespace nm
 		void ConnectionManager::start_accept()
 		{
 			Connection::ptr new_connection = Connection::create(acceptor.get_io_service());
-			connections.push_back(new_connection);
 			new_connection->ev_message_received.connect(boost::bind(
 					&ConnectionManager::message_handler,
 					this,
@@ -166,9 +167,10 @@ namespace nm
 
 		void ConnectionManager::handle_accept(Connection::ptr new_connection, const boost::system::error_code& error)
 		{
-			if (!error)
+			if (error == boost::system::errc::success )
 			{
 				std::string ip_addr = new_connection->socket().remote_endpoint().address().to_string();
+				connections.push_back(new_connection);
 				BOOST_LOG_TRIVIAL(info) << "[net] Accepted new connection from " << ip_addr;
 				new_connection->start();
 			}

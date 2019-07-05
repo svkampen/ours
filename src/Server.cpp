@@ -38,7 +38,17 @@ namespace nm
 
 		void Server::player_quit_handler(Connection::ptr connection, const message::MessageWrapper& wrapper)
 		{
-			connectionManager.send_all_other(connection, wrapper);
+            auto& client = this->clients[connection];
+            message::MessageWrapper wp;
+
+            wp.set_type(message::MessageWrapper_Type_PLAYER_QUIT);
+            auto p = wp.mutable_playerquit();
+
+            p->set_id(client.id());
+			p->set_x(0);
+			p->set_y(0);
+			BOOST_LOG_TRIVIAL(info) << "Sending player quits.";
+			connectionManager.send_all_other(connection, wp);
 
 			this->clients.erase(connection);
 		}

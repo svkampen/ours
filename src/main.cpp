@@ -22,9 +22,6 @@
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
 
-#include <readline/readline.h>
-#include <readline/history.h>
-
 #include <ctime>
 #include <typeinfo>
 #include <sys/ioctl.h>
@@ -33,37 +30,11 @@
 #include <json.hpp>
 #include <cxxabi.h>
 
-
-extern std::string __latest_backtrace;
 extern const char* const VERSION = "v0.1";
-nm::Game *GLOBAL_GAME = nullptr;
-nm::Gui *GLOBAL_GUI = nullptr;
 
 using boost::asio::ip::tcp;
 using nlohmann::json;
 using namespace std::literals;
-
-void rl_callback_handler(char *line)
-{
-	add_history(line);
-	GLOBAL_GUI->handle_command_input(line);
-	free(line);
-}
-
-int hook_input_avail()
-{
-	struct timeval tv = {0L, 0L};
-	fd_set fds;
-	FD_ZERO(&fds);
-	FD_SET(0, &fds);
-
-	return select(1, &fds, NULL, NULL, &tv);
-}
-
-void hook_redisplay()
-{
-    GLOBAL_GUI->display_command(rl_line_buffer, 1 + rl_point);
-}
 
 void startClient()
 {
@@ -73,7 +44,6 @@ void startClient()
 	nm::Client client(io_service);
 	nm::NetworkGame game(client);
 	nm::curses::CursesGui gui(io_service, game);
-	GLOBAL_GUI = &gui;
 
 	gui.ev_square_open.connect(boost::bind(&nm::NetworkGame::open_square_handler, &game, _1, _2));
 	gui.ev_square_flag.connect(boost::bind(&nm::NetworkGame::flag_square_handler, &game, _1, _2));
@@ -111,7 +81,6 @@ void startServer()
 
 	game.save_on_destruct();
 
-	GLOBAL_GAME = &game;
 	nm::server::Server server(game, std::stoi(nm::config["port"].get<std::string>()));
 	server.start();
 }
@@ -171,13 +140,6 @@ int main(int argc, char *argv[])
 		}
 
 	} catch (nm::utils::exit_unwind_stack &e) {
-	} catch (std::exception &e)
-	{
-		std::cerr << __latest_backtrace;
-		const char* exception_name_mangled = typeid(e).name();
-		std::string exception_name = demangle(exception_name_mangled);
-		std::cerr << "Netmine received an error! The error class (for developers) was " << exception_name << std::endl;
-		std::cerr << "The accompanying error message was '" << e.what() << "'." << std::endl;
 	}
 	return 0;
 }
