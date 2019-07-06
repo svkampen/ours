@@ -17,6 +17,11 @@ namespace nm
 		}
 	}
 
+	bool Config::contains(std::string key) const
+	{
+		return this->config.find(key) != this->config.end();
+	}
+
 	bool Config::save() const
 	{
 		return this->save(this->filename);

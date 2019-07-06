@@ -38,6 +38,13 @@ using namespace std::literals;
 
 void startClient()
 {
+	if (!nm::config.contains("host"))
+	{
+		std::cerr << "Client requested, but no host passed. Add --host <host> "
+					 "to your command line?"
+				  << std::endl;
+		return;
+	}
 	nm::CursesSetupTeardown cst;
 
 	boost::asio::io_service io_service;

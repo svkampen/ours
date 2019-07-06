@@ -22,6 +22,7 @@ namespace nm
 				return config[key];
 			}
 			
+			bool contains(std::string key) const;
 			bool save() const;
 			bool save(const std::string& filename) const;
 			bool load(const std::string& filename, bool merge = true);
