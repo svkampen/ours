@@ -21,6 +21,7 @@
 #define ANSI_BLUE "\033[34m"
 #define ANSI_GREEN "\033[32m"
 #define ANSI_RED "\033[31m"
+#define ANSI_CLEAR "\033[0m"
 
 namespace expr = boost::log::expressions;
 namespace logging = boost::log;
@@ -48,7 +49,7 @@ void logging_init(std::string fname, bool log_to_stderr = false) {
 
 			stream_ref << ANSI_RED << std::put_time(std::gmtime(&result), "%a %d-%m-%Y %H:%M:%S")
 			<< ANSI_BLUE " [" << record[logging::trivial::severity] << "] " ANSI_GREEN
-			<< record[expr::smessage];
+			<< record[expr::smessage] << ANSI_CLEAR;
 		});
 
 	boost::log::core::get()->add_sink(sink);
