@@ -145,8 +145,14 @@ int main(int argc, char *argv[])
 			logging_init(nm::config["log_file"]);
 			startClient();
 		}
-
-	} catch (nm::utils::exit_unwind_stack &e) {
+	}
+	catch (nm::utils::exit_unwind_stack& e)
+	{
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << "Exception received, exiting netmine..." << std::endl
+				  << e.what() << std::endl;
 	}
 	return 0;
 }
