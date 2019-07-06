@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <nm/ConnectionManager.hpp>
 #include <iostream>
 #include <cstdio>
@@ -12,9 +13,9 @@ namespace nm
 {
 	namespace server
 	{
-		Connection::Connection(boost::asio::io_service& io_service) : socket_(io_service)
-		{
-		};
+		Connection::Connection(boost::asio::io_service& io_service):
+			_closed(false),
+			socket_(io_service) {};
 
 		void Connection::start()
 		{
@@ -73,6 +74,7 @@ namespace nm
 			message::MessageWrapper wrapper;
 			wrapper.set_type(message::MessageWrapper_Type_PLAYER_QUIT);
 			this->ev_message_received(shared_from_this(), wrapper);
+			this->_closed = true;
 		}
 
 		void Connection::header_callback(std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes)
@@ -133,12 +135,33 @@ namespace nm
 			event_map.fire(message.type(), connection, message);
 		}
 
-		void ConnectionManager::send_all(const message::MessageWrapper& wrapper)
+		void ConnectionManager::remove_closed_connections()
 		{
-			for(auto&& conn : this->connections)
+			/* Lazily remove connections that are closed. */
+			size_t prev_length = this->connections.size();
+			this->connections.erase(
+				std::remove_if(this->connections.begin(),
+							   this->connections.end(),
+							   [](auto& conn) { return conn->is_closed(); }),
+				this->connections.end());
+			size_t new_length = this->connections.size();
+
+			if (new_length != prev_length)
+			{
+				std::cout << "Removed " << (prev_length - new_length)
+						  << " stale connection(s)" << '\n';
+			}
+		}
+
+		void
+		ConnectionManager::send_all(const message::MessageWrapper& wrapper)
+		{
+			for (auto&& conn : this->connections)
 			{
 				conn->sendMessage(wrapper);
 			}
+
+			this->remove_closed_connections();
 		}
 
 		void ConnectionManager::send_all_other(const Connection::ptr& exclusion, const message::MessageWrapper& wrapper)
@@ -150,6 +173,8 @@ namespace nm
 					conn->sendMessage(wrapper);
 				}
 			}
+
+			this->remove_closed_connections();
 		}
 
 		void ConnectionManager::start_accept()

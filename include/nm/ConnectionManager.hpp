@@ -36,12 +36,18 @@ namespace server
 				return socket_;
 			}
 
+			bool is_closed()
+			{
+				return this->_closed;
+			}
+
 			void start();
 			void sendMessage(const message::MessageWrapper&);
 
 			events::signal<void (ptr, nm::message::MessageWrapper&)> ev_message_received;
 
 		private:
+			bool _closed;
 			void start_read();
 			void connection_closed();
 			void write_callback(const boost::system::error_code& ec, const size_t nbytes);
@@ -59,6 +65,7 @@ namespace server
 
 			std::vector<Connection::ptr> connections;
 			void start_accept();
+			void remove_closed_connections();
 			void message_handler(Connection::ptr connection, nm::message::MessageWrapper& message);
 			void handle_accept(Connection::ptr new_connection, const boost::system::error_code& error);
 
