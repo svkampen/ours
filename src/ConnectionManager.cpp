@@ -65,7 +65,11 @@ namespace nm
 
 		void Connection::write_callback(const boost::system::error_code& ec, const size_t nbytes)
 		{
-            BOOST_LOG_TRIVIAL(info) << "Write done with error code " << ec << " (message " << ec.message() << ")";
+			if (ec.value() != 0)
+			{
+				BOOST_LOG_TRIVIAL(info) << "Write done with error code " << ec
+										<< " (message " << ec.message() << ")";
+			}
 		};
 
 		void Connection::connection_closed()
@@ -107,7 +111,10 @@ namespace nm
 
 		void Connection::message_callback(uint32_t length, std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes)
 		{
-            BOOST_LOG_TRIVIAL(info) << "Read done with error code " << ec;
+			if (ec.value() != 0)
+			{
+				BOOST_LOG_TRIVIAL(info) << "Read done with error code " << ec;
+			}
 			message::MessageWrapper wrapper;
 			wrapper.ParseFromArray(data.get(), length);
 
