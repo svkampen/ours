@@ -68,6 +68,7 @@ namespace nm::curses
 			std::unordered_map<int32_t, CursorData> cursors;
 
 			bool chunk_view_enabled = false;
+			bool sidebar_visible = true;
 			nm::BoardView boardview;
 			nm::ChunkView chunkview;
 			nm::View *current_view;
@@ -82,6 +83,7 @@ namespace nm::curses
 
 			void switch_views();
 
+			void maybe_draw_sidebar();
 			void draw_open_square(int x, int y, Square& square);
 			void draw_closed_square(int x, int y);
 			void draw_flag_square(int x, int y, Square& square);

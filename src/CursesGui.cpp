@@ -32,7 +32,7 @@ namespace nm::curses
         BOOST_LOG_TRIVIAL(info) << "Removing player with ID " << player.id();
 		cursors.erase(player.id());
 		draw_board();
-		this->current_view->draw_sidebar(this->squareSource, this->cursors);
+		this->maybe_draw_sidebar();
 	}
 
 	void CursesGui::new_player_handler(const message::Player& player)
@@ -46,7 +46,7 @@ namespace nm::curses
 			.color = rand() % 4 + 2
 		};
 		draw_board();
-		this->current_view->draw_sidebar(this->squareSource, this->cursors);
+		this->maybe_draw_sidebar();
 	}
 
 	void CursesGui::cursor_move_handler(const message::MessageWrapper& mwpr)
@@ -57,7 +57,7 @@ namespace nm::curses
 		data.x = msg.x();
 		data.y = msg.y();
 		draw_board();
-		this->current_view->draw_sidebar(this->squareSource, this->cursors);
+		this->maybe_draw_sidebar();
 	}
 
 	void CursesGui::handle_resize()
@@ -72,25 +72,38 @@ namespace nm::curses
 
 		resize_term(LINES, COLS);
 
-		this->width = COLS - 21;
+		int sidebar_size;
+
+		if (!this->sidebar_visible)
+			sidebar_size = 0;
+		else
+			sidebar_size = 21;
+
+		this->width = COLS - sidebar_size;
 		this->height = LINES - 1;
 
 		this->main.resize(0, 0, this->width, this->height);
-		this->sidebar.resize(COLS - 20, 0, 20, this->height);
+		this->sidebar.resize(COLS - sidebar_size, 0, sidebar_size - 1, this->height);
 		this->command.resize(0, LINES - 1, COLS, 1);
 
 		this->current_view->center_cursor();
 
 		refresh();
 
-		this->current_view->draw_sidebar(this->squareSource, this->cursors);
+		this->maybe_draw_sidebar();
+	}
+
+	void CursesGui::maybe_draw_sidebar()
+	{
+		if (this->sidebar_visible)
+			this->current_view->draw_sidebar(this->squareSource, this->cursors);
 	}
 
 	void CursesGui::draw()
 	{
         handle_input();
         draw_board();
-		this->current_view->draw_sidebar(this->squareSource, this->cursors);
+		this->maybe_draw_sidebar();
 
 		if (!command_mode)
 		{
@@ -141,6 +154,11 @@ namespace nm::curses
             case 'p':
                 this->save_png("board");
                 break;
+
+			case 't':
+				this->sidebar_visible = !this->sidebar_visible;
+				handle_resize();
+				break;
 
             case KEY_RESIZE:
                 handle_resize();
