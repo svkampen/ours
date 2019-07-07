@@ -10,13 +10,13 @@ namespace nm
 		CLOSED = 0, OPENED, FLAGGED
 	};
 
-	typedef struct __attribute__((packed))
+	struct Square
 	{
 		SquareState state   : 2;
 		bool		overflag: 1;
 		bool		is_mine : 1;
 		uint8_t	 	number  : 4;
-	} Square;
+	} __attribute__((packed));
 }
 
 #endif //SQUARE_HPP
