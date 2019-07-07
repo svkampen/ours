@@ -11,17 +11,13 @@ namespace nm
 		private:
 			nlohmann::json config;
 			std::string filename;
-			
-			using T = nlohmann::json;
+
 		public:
 			Config();
 			~Config();
 
-			T& operator[](std::string key)
-			{
-				return config[key];
-			}
-			
+			nlohmann::json& operator[](const std::string& key);
+
 			bool contains(std::string key) const;
 			bool save() const;
 			bool save(const std::string& filename) const;

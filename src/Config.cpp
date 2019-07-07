@@ -22,6 +22,11 @@ namespace nm
 		return this->config.find(key) != this->config.end();
 	}
 
+	nlohmann::json& Config::operator[](const std::string& key)
+	{
+		return this->config[key];
+	}
+
 	bool Config::save() const
 	{
 		return this->save(this->filename);
