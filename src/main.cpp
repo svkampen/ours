@@ -1,34 +1,20 @@
-#include <nm/Utils.hpp>
+#include <cxxabi.h>
+#include <fstream>
+#include <iostream>
+#include <json.hpp>
+#include <nm/Argparse.hpp>
+#include <nm/Client.hpp>
 #include <nm/Config.hpp>
 #include <nm/CursesGui.hpp>
-#include <nm/Client.hpp>
-#include <nm/NetworkGame.hpp>
-#include <nm/Square.hpp>
-#include <nm/ConnectionManager.hpp>
-#include <nm/Argparse.hpp>
-#include <nm/Logging.hpp>
-#include <nm/Server.hpp>
-#include <nm/SaveLoad.hpp>
 #include <nm/CursesSetupTeardown.hpp>
-#include <iostream>
-
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/sinks/text_ostream_backend.hpp>
-
-#include <ctime>
-#include <typeinfo>
+#include <nm/ImageSaver.hpp>
+#include <nm/Logging.hpp>
+#include <nm/NetworkGame.hpp>
+#include <nm/SaveLoad.hpp>
+#include <nm/Server.hpp>
+#include <nm/Utils.hpp>
 #include <sys/ioctl.h>
-
-#include <fstream>
-#include <json.hpp>
-#include <cxxabi.h>
+#include <typeinfo>
 
 extern const char* const VERSION = "v0.1";
 
@@ -90,19 +76,6 @@ void startServer()
 
 	nm::server::Server server(game, std::stoi(nm::config["port"].get<std::string>()));
 	server.start();
-}
-
-std::string demangle(const char* mangled)
-{
-#ifdef __GNUG__
-	int status = -1;
-	char *demangled = nullptr;
-
-	demangled = abi::__cxa_demangle(mangled, 0, 0, &status);
-	return std::string(demangled);
-#else
-	return std::string(mangled);
-#endif
 }
 
 int main(int argc, char *argv[])
