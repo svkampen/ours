@@ -7,44 +7,15 @@
 #include <nm/Gui.hpp>
 #include <nm/Game.hpp>
 #include <nm/ChunkSquareSource.hpp>
-#include <nm/Flag.hpp>
 #include <nm/View.hpp>
 #include <nm/BoardView.hpp>
 #include <nm/ChunkView.hpp>
-#include <nm/Client.hpp>
 #include <nm/Window.hpp>
 
 #include <netmine.pb.h>
 #include <unordered_map>
 
 #include <boost/asio.hpp>
-
-namespace std
-{
-	template<>
-	struct hash<nm::message::CursorMove>
-	{
-		typedef nm::message::CursorMove argument_type;
-		std::size_t operator()(argument_type const& c) const
-		{
-			std::size_t const h1(std::hash<int32_t>()(c.x()));
-			std::size_t const h2(std::hash<int32_t>()(c.y()));
-			std::size_t const h3(std::hash<int32_t>()(c.id()));
-
-			return (h1 ^ h2) ^ h3;
-		}
-	};
-
-	template<>
-	struct equal_to<nm::message::CursorMove>
-	{
-		typedef nm::message::CursorMove T;
-		bool operator()(const T& lhs, const T& rhs) const
-		{
-			return (lhs.x() == rhs.x() && lhs.y() == rhs.y() && lhs.id() == rhs.id());
-		}
-	};
-}
 
 namespace nm::curses
 {
