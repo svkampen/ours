@@ -106,7 +106,8 @@ int main(int argc, char *argv[])
 
 		nm::config.merge(arguments);
 
-		signal(SIGINT, [](int _sig){throw nm::utils::exit_unwind_stack(); });
+		signal(SIGINT, [](int _sig) { throw nm::utils::exit_unwind_stack(); });
+		signal(SIGTERM, [](int _sig) { throw nm::utils::exit_unwind_stack(); });
 
 		if (nm::config["server"] == "true")
 		{
