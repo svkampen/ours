@@ -28,7 +28,7 @@ namespace nm::curses
 
 	void CursesGui::player_quit_handler(const message::MessageWrapper& mwpr)
 	{
-		auto player = mwpr.player();
+		auto player = mwpr.playerquit();
         BOOST_LOG_TRIVIAL(info) << "Removing player with ID " << player.id();
 		cursors.erase(player.id());
 		draw_board();
