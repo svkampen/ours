@@ -36,6 +36,7 @@ void startClient()
 	boost::asio::io_service io_service;
 	nm::Client client(io_service);
 	nm::NetworkGame game(client);
+	nm::ImageSaver im(game);
 	nm::curses::CursesGui gui(io_service, game);
 
 	gui.ev_square_open.connect(boost::bind(&nm::NetworkGame::open_square_handler, &game, _1, _2));
@@ -43,6 +44,8 @@ void startClient()
 	gui.ev_cursor_move.connect(boost::bind(&nm::NetworkGame::cursor_move_handler, &game, _1, _2));
 
 	gui.ev_exit.connect([&io_service](){ io_service.stop(); });
+
+	gui.ev_save_image.connect(boost::bind(&nm::ImageSaver::save, &im, _1));
 
     void (nm::Gui::*nph_player) (const nm::message::Player&) = &nm::Gui::new_player_handler;
     void (nm::Gui::*nph_mwrper) (const nm::message::MessageWrapper&) = &nm::Gui::new_player_handler;
