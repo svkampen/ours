@@ -1,213 +1,176 @@
-#include <algorithm>
-#include <nm/ConnectionManager.hpp>
-#include <iostream>
-#include <cstdio>
-
-#include <boost/log/trivial.hpp>
 #include <boost/bind.hpp>
+#include <boost/log/trivial.hpp>
+#include <cstdio>
+#include <iostream>
+#include <nm/ConnectionManager.hpp>
 
 using boost::asio::ip::tcp;
 namespace placeholders = boost::asio::placeholders;
 
-namespace nm
+namespace nm::server
 {
-	namespace server
+	using error_code = boost::system::error_code;
+
+	Connection::Connection(boost::asio::io_context& io_context): socket_(io_context) {};
+
+	void Connection::start()
 	{
-		Connection::Connection(boost::asio::io_service& io_service):
-			_closed(false),
-			socket_(io_service) {};
+		start_read();
+	}
 
-		void Connection::start()
+	void Connection::sendMessage(const message::MessageWrapper& wrapper)
+	{
+		size_t message_size = wrapper.ByteSizeLong();
+
+		// Reserve 4 bytes for the length of the packet
+		size_t total_size = message_size + 4;
+
+		uint8_t buffer[total_size];
+		wrapper.SerializeToArray(buffer + 4, message_size);
+
+		uint32_t header = htonl(message_size);
+		memcpy(buffer, &header, 4);
+
+		boost::asio::async_write(socket_,
+								 boost::asio::buffer(buffer, total_size),
+								 boost::asio::transfer_all(),
+								 boost::bind(&Connection::write_callback,
+											 this,
+											 placeholders::error,
+											 placeholders::bytes_transferred));
+	}
+
+	void Connection::start_read()
+	{
+		std::shared_ptr<uint8_t[]> header_buf(new uint8_t[4]);
+
+		boost::asio::async_read(socket_,
+								boost::asio::buffer(header_buf.get(), 4),
+								boost::asio::transfer_exactly(4),
+								boost::bind(&Connection::header_callback,
+											this,
+											header_buf,
+											placeholders::error,
+											placeholders::bytes_transferred));
+	}
+
+	void Connection::write_callback(const error_code& ec, const size_t)
+	{
+		BOOST_LOG_TRIVIAL(debug) << "Write done with error code " << ec;
+	};
+
+	void Connection::connection_closed()
+	{
+		BOOST_LOG_TRIVIAL(info) << "[net] Connection closed.";
+		message::MessageWrapper wrapper;
+		wrapper.set_type(message::MessageWrapper_Type_PLAYER_QUIT);
+		this->ev_message_received(*this, wrapper);
+	}
+
+	void Connection::header_callback(std::shared_ptr<uint8_t[]> data, const error_code& ec,
+									 const size_t)
+	{
+		if (ec.value() != 0)
 		{
-			start_read();
+			return this->connection_closed();
 		}
 
-		void Connection::sendMessage(const message::MessageWrapper& wrapper)
+		const uint8_t* bytes = data.get();
+		uint32_t header;
+		memcpy(&header, bytes, 4);
+
+		uint32_t length = ntohl(header);
+
+		std::shared_ptr<uint8_t[]> message_buf(new uint8_t[length]);
+
+		boost::asio::async_read(socket_,
+								boost::asio::buffer(message_buf.get(), length),
+								boost::asio::transfer_exactly(length),
+								boost::bind(&Connection::message_callback,
+											this,
+											length,
+											message_buf,
+											placeholders::error,
+											placeholders::bytes_transferred));
+	}
+
+	void Connection::message_callback(uint32_t length, std::shared_ptr<uint8_t[]> data,
+									  const error_code& ec, const size_t)
+	{
+		BOOST_LOG_TRIVIAL(debug) << "Read done with error code " << ec;
+		message::MessageWrapper wrapper;
+		wrapper.ParseFromArray(data.get(), length);
+
+		this->ev_message_received(*this, wrapper);
+		this->start_read();
+	}
+
+	ConnectionManager::ConnectionManager(tcp::endpoint& endpoint):
+		acceptor(this->io_context, endpoint), accepting_connection(this->io_context) {};
+
+	ConnectionManager::ConnectionManager(tcp::endpoint endpoint):
+		acceptor(this->io_context, endpoint), accepting_connection(this->io_context) {};
+
+	void ConnectionManager::start()
+	{
+		BOOST_LOG_TRIVIAL(info) << "[net] Starting server";
+		start_accept();
+		io_context.run();
+	}
+
+	void ConnectionManager::message_handler(Connection& connection,
+											message::MessageWrapper& message)
+	{
+		event_map.fire(message.type(), connection, message);
+	}
+
+	void ConnectionManager::send_all(const message::MessageWrapper& wrapper)
+	{
+		for (auto& conn : this->connections)
 		{
-			size_t message_size = wrapper.ByteSize();
-
-			// Reserve 4 bytes for the length of the packet
-			size_t total_size = message_size + 4;
-
-			uint8_t buffer[total_size];
-			wrapper.SerializeToArray(buffer + 4, message_size);
-
-			uint32_t header = htonl(message_size);
-			memcpy(buffer, &header, 4);
-
-			boost::asio::async_write(
-					socket_,
-					boost::asio::buffer(buffer, total_size),
-					boost::asio::transfer_all(),
-					boost::bind(
-						&Connection::write_callback,
-						shared_from_this(),
-						placeholders::error,
-						placeholders::bytes_transferred));
-		}
-
-		void Connection::start_read()
-		{
-
-			std::shared_ptr<uint8_t> header_buf(new uint8_t[4], std::default_delete<uint8_t[]>());
-
-			boost::asio::async_read(
-					socket_,
-					boost::asio::buffer(header_buf.get(), 4),
-					boost::asio::transfer_exactly(4),
-					boost::bind(
-						&Connection::header_callback,
-						shared_from_this(),
-						header_buf,
-						placeholders::error,
-						placeholders::bytes_transferred));
-		}
-
-		void Connection::write_callback(const boost::system::error_code& ec, const size_t nbytes)
-		{
-			if (ec.value() != 0)
-			{
-				BOOST_LOG_TRIVIAL(info) << "Write done with error code " << ec
-										<< " (message " << ec.message() << ")";
-			}
-		};
-
-		void Connection::connection_closed()
-		{
-			BOOST_LOG_TRIVIAL(info) << "[net] Connection closed.";
-			message::MessageWrapper wrapper;
-			wrapper.set_type(message::MessageWrapper_Type_PLAYER_QUIT);
-			this->ev_message_received(shared_from_this(), wrapper);
-			this->_closed = true;
-		}
-
-		void Connection::header_callback(std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes)
-		{
-			if (ec != boost::system::errc::success)
-			{
-				return this->connection_closed();
-			}
-			
-			const uint8_t* bytes = data.get();
-			uint32_t header;
-			memcpy(&header, bytes, 4);
-
-			uint32_t length = ntohl(header);
-
-			std::shared_ptr<uint8_t> message_buf(new uint8_t[length], std::default_delete<uint8_t[]>());
-
-			boost::asio::async_read(
-					socket_,
-					boost::asio::buffer(message_buf.get(), length),
-					boost::asio::transfer_exactly(length),
-					boost::bind(
-						&Connection::message_callback,
-						shared_from_this(),
-						length,
-						message_buf,
-						placeholders::error,
-						placeholders::bytes_transferred));
-		}
-
-		void Connection::message_callback(uint32_t length, std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes)
-		{
-			if (ec.value() != 0)
-			{
-				BOOST_LOG_TRIVIAL(info) << "Read done with error code " << ec;
-			}
-			message::MessageWrapper wrapper;
-			wrapper.ParseFromArray(data.get(), length);
-
-			this->ev_message_received(shared_from_this(), wrapper);
-			this->start_read();
-		}
-
-		ConnectionManager::ConnectionManager(tcp::endpoint& endpoint) : acceptor(io_service, endpoint)
-		{
-		};
-
-		ConnectionManager::ConnectionManager(tcp::endpoint endpoint) : acceptor(io_service, endpoint)
-		{
-		};
-
-		void ConnectionManager::start()
-		{
-			BOOST_LOG_TRIVIAL(info) << "[net] Starting server";
-			start_accept();
-			io_service.run();
-		}
-
-		void ConnectionManager::message_handler(Connection::ptr connection, message::MessageWrapper& message)
-		{
-			event_map.fire(message.type(), connection, message);
-		}
-
-		void ConnectionManager::remove_closed_connections()
-		{
-			/* Lazily remove connections that are closed. */
-			size_t prev_length = this->connections.size();
-			this->connections.erase(
-				std::remove_if(this->connections.begin(),
-							   this->connections.end(),
-							   [](auto& conn) { return conn->is_closed(); }),
-				this->connections.end());
-			size_t new_length = this->connections.size();
-
-			if (new_length != prev_length)
-			{
-				std::cout << "Removed " << (prev_length - new_length)
-						  << " stale connection(s)" << '\n';
-			}
-		}
-
-		void
-		ConnectionManager::send_all(const message::MessageWrapper& wrapper)
-		{
-			for (auto&& conn : this->connections)
-			{
-				conn->sendMessage(wrapper);
-			}
-
-			this->remove_closed_connections();
-		}
-
-		void ConnectionManager::send_all_other(const Connection::ptr& exclusion, const message::MessageWrapper& wrapper)
-		{
-			for(auto&& conn : this->connections)
-			{
-				if (conn != exclusion)
-				{
-					conn->sendMessage(wrapper);
-				}
-			}
-
-			this->remove_closed_connections();
-		}
-
-		void ConnectionManager::start_accept()
-		{
-			Connection::ptr new_connection = Connection::create(acceptor.get_io_service());
-			new_connection->ev_message_received.connect(boost::bind(
-					&ConnectionManager::message_handler,
-					this,
-					_1,
-					_2));
-
-			acceptor.async_accept(new_connection->socket(),
-				boost::bind(&ConnectionManager::handle_accept, this, new_connection, placeholders::error));
-		}
-
-		void ConnectionManager::handle_accept(Connection::ptr new_connection, const boost::system::error_code& error)
-		{
-			if (error == boost::system::errc::success )
-			{
-				std::string ip_addr = new_connection->socket().remote_endpoint().address().to_string();
-				connections.push_back(new_connection);
-				BOOST_LOG_TRIVIAL(info) << "[net] Accepted new connection from " << ip_addr;
-				new_connection->start();
-			}
-
-			start_accept();
+			conn.sendMessage(wrapper);
 		}
 	}
-}
+
+	void ConnectionManager::send_all_other(Connection& excluded,
+										   const message::MessageWrapper& wrapper)
+	{
+		for (auto& conn : this->connections)
+		{
+			if (conn != excluded)
+			{
+				conn.sendMessage(wrapper);
+			}
+		}
+	}
+
+	void ConnectionManager::start_accept()
+	{
+		accepting_connection =
+			Connection(static_cast<boost::asio::io_context&>(acceptor.get_executor().context()));
+
+		accepting_connection.ev_message_received.connect(
+			boost::bind(&ConnectionManager::message_handler, this, _1, _2));
+
+		acceptor.async_accept(accepting_connection.socket(), [this](auto&& ec) {
+			this->handle_accept(std::forward<decltype(ec)>(ec));
+		});
+	}
+
+	void ConnectionManager::handle_accept(const error_code& error)
+	{
+		if (!error)
+		{
+			Connection& c = connections.emplace_back(std::move(accepting_connection));
+			auto ip_addr  = c.socket().remote_endpoint().address().to_string();
+			c.start();
+			BOOST_LOG_TRIVIAL(info) << "[net] Accepted new connection from " << ip_addr;
+		}
+		start_accept();
+	}
+
+	void ConnectionManager::disconnect(Connection& to_disconnect)
+	{
+		connections.erase(std::find(connections.cbegin(), connections.cend(), to_disconnect));
+	}
+}  // namespace nm::server

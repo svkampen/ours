@@ -1,10 +1,13 @@
 #include <nm/Argparse.hpp>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
 extern const char* const VERSION;
 
 namespace nm
 {
-	std::unordered_map<std::string, std::string> parse_options(int argc, char* argv[])
+	options_map parse_options(int argc, char* argv[])
 	{
 
 		std::unordered_map<std::string, std::string> options;

@@ -1,5 +1,6 @@
 .kdev4/
 build/
+bin/
 **/*.pb.h
 **/*.pb.cc
 *.json

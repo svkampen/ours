@@ -1,20 +1,34 @@
-#include <cxxabi.h>
-#include <fstream>
-#include <iostream>
-#include <json.hpp>
-#include <nm/Argparse.hpp>
-#include <nm/Client.hpp>
+#include <nm/Utils.hpp>
 #include <nm/Config.hpp>
 #include <nm/CursesGui.hpp>
-#include <nm/CursesSetupTeardown.hpp>
-#include <nm/ImageSaver.hpp>
-#include <nm/Logging.hpp>
+#include <nm/Client.hpp>
 #include <nm/NetworkGame.hpp>
-#include <nm/SaveLoad.hpp>
+#include <nm/Square.hpp>
+#include <nm/ConnectionManager.hpp>
+#include <nm/Argparse.hpp>
+#include <nm/Logging.hpp>
 #include <nm/Server.hpp>
-#include <nm/Utils.hpp>
-#include <sys/ioctl.h>
+#include <nm/SaveLoad.hpp>
+#include <nm/CursesSetupTeardown.hpp>
+#include <iostream>
+
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/sources/record_ostream.hpp>
+#include <boost/log/sinks/text_ostream_backend.hpp>
+
+#include <ctime>
 #include <typeinfo>
+#include <sys/ioctl.h>
+
+#include <fstream>
+#include <json.hpp>
+#include <cxxabi.h>
 
 extern const char* const VERSION = "v0.1";
 
@@ -122,14 +136,8 @@ int main(int argc, char *argv[])
 			logging_init(nm::config["log_file"]);
 			startClient();
 		}
-	}
-	catch (nm::utils::exit_unwind_stack& e)
-	{
-	}
-	catch (std::exception& e)
-	{
-		std::cerr << "Exception received, exiting netmine..." << std::endl
-				  << e.what() << std::endl;
+
+	} catch (nm::utils::exit_unwind_stack &e) {
 	}
 	return 0;
 }

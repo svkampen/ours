@@ -1,86 +1,84 @@
-#ifndef NM_CONNECTION_HPP
-#define NM_CONNECTION_HPP
+#pragma once
 
-#include <memory>
-
-#include <nm/EventMap.hpp>
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
-
+#include <memory>
 #include <netmine.pb.h>
+#include <nm/EventMap.hpp>
 
 namespace events = boost::signals2;
 
-namespace nm
+namespace nm::server
 {
-namespace server
-{
-	template<typename ToCast, typename FromCast>
-	ToCast deref_cast(FromCast fromCast)
+	class Connection
 	{
-		return *reinterpret_cast<ToCast*>(fromCast);
-	}
+	  public:
+		const boost::asio::ip::tcp::socket& socket() const
+		{
+			return socket_;
+		}
 
-	class Connection : public std::enable_shared_from_this<Connection>
-	{
-		public:
-			typedef std::shared_ptr<Connection> ptr;
+		boost::asio::ip::tcp::socket& socket()
+		{
+			return socket_;
+		}
 
-			static ptr create(boost::asio::io_service& io_service)
-			{
-				return ptr(new Connection(io_service));
-			}
+		bool operator==(const Connection& other) const
+		{
+			return (other.socket_.is_open() == this->socket_.is_open()) &&
+				   (other.socket_.remote_endpoint() == this->socket_.remote_endpoint());
+		}
 
-			boost::asio::ip::tcp::socket& socket()
-			{
-				return socket_;
-			}
+		bool operator!=(const Connection& other) const
+		{
+			return !(other == *this);
+		}
 
-			bool is_closed()
-			{
-				return this->_closed;
-			}
+		Connection(boost::asio::io_context& io_context);
 
-			void start();
-			void sendMessage(const message::MessageWrapper&);
+		void start();
+		void sendMessage(const message::MessageWrapper&);
 
-			events::signal<void (ptr, nm::message::MessageWrapper&)> ev_message_received;
+		events::signal<void(Connection&, nm::message::MessageWrapper&)> ev_message_received;
 
-		private:
-			bool _closed;
-			void start_read();
-			void connection_closed();
-			void write_callback(const boost::system::error_code& ec, const size_t nbytes);
-			void message_callback(uint32_t length, std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes);
-			void header_callback(std::shared_ptr<uint8_t> data, const boost::system::error_code& ec, const size_t nbytes);
-			boost::asio::ip::tcp::socket socket_;
-			Connection(boost::asio::io_service& io_service);
+	  private:
+		void start_read();
+		void connection_closed();
+
+		void write_callback(const boost::system::error_code& ec, const size_t nbytes);
+
+		void message_callback(uint32_t length, std::shared_ptr<uint8_t[]> data,
+							  const boost::system::error_code& ec, const size_t nbytes);
+
+		void header_callback(std::shared_ptr<uint8_t[]> data, const boost::system::error_code& ec,
+							 const size_t nbytes);
+		boost::asio::ip::tcp::socket socket_;
 	};
 
 	class ConnectionManager
 	{
-		private:
-			boost::asio::io_service io_service;
-			boost::asio::ip::tcp::acceptor acceptor;
+	  private:
+		boost::asio::io_context io_context;
+		boost::asio::ip::tcp::acceptor acceptor;
 
-			std::vector<Connection::ptr> connections;
-			void start_accept();
-			void remove_closed_connections();
-			void message_handler(Connection::ptr connection, nm::message::MessageWrapper& message);
-			void handle_accept(Connection::ptr new_connection, const boost::system::error_code& error);
+		Connection accepting_connection;
+		std::deque<Connection> connections;
 
+		void start_accept();
+		void handle_accept(const boost::system::error_code& error);
 
-		public:
-			nm::EventMap<message::MessageWrapper_Type, Connection::ptr, const message::MessageWrapper&> event_map;
+		void message_handler(Connection& connection, nm::message::MessageWrapper& message);
 
-			ConnectionManager(boost::asio::ip::tcp::endpoint& endpoint);
-			ConnectionManager(boost::asio::ip::tcp::endpoint endpoint);
+	  public:
+		nm::EventMap<message::MessageWrapper_Type, Connection&, const message::MessageWrapper&>
+			event_map;
 
-			void send_all(const message::MessageWrapper&);
-			void send_all_other(const Connection::ptr&, const message::MessageWrapper&);
-			void start();
+		ConnectionManager(boost::asio::ip::tcp::endpoint& endpoint);
+		ConnectionManager(boost::asio::ip::tcp::endpoint endpoint);
+
+		void send_all(const message::MessageWrapper&);
+		void send_all_other(Connection&, const message::MessageWrapper&);
+		void start();
+		void disconnect(Connection& to_disconnect);
 	};
-}
-}
-
-#endif // NM_CONNECTION_HPP
+}  // namespace nm::server

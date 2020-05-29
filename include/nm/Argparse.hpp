@@ -1,8 +1,9 @@
 #ifndef NM_ARGPARSE_HPP
 #define NM_ARGPARSE_HPP
 
-#include <getopt.h>
 #include <unordered_map>
+#include <string>
+#include <getopt.h>
 
 namespace nm
 {

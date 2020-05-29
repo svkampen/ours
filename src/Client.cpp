@@ -167,7 +167,7 @@ fail:
 	void Client::send_message(const message::MessageWrapper& wrapper)
 	{
 		BOOST_LOG_TRIVIAL(info) << "Sending message. ";
-		size_t message_size = wrapper.ByteSize();
+		size_t message_size = wrapper.ByteSizeLong();
 
 		// Reserve 4 bytes for the header
 		size_t total_size = message_size + 4;
