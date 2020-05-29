@@ -6,7 +6,7 @@
 
 namespace nm
 {
-    Game::Game() : board()
+    Game::Game(): board()
     {
     }
 
@@ -16,10 +16,8 @@ namespace nm
             return;
         try
         {
-            BOOST_LOG_TRIVIAL(info)
-                << "Destructing game, so saving to default save path.";
-            nm::Saver::saveGame(*this,
-                                nm::config["save_path"].get<std::string>());
+            BOOST_LOG_TRIVIAL(info) << "Destructing game, so saving to default save path.";
+            nm::Saver::saveGame(*this, nm::config["save_path"].get<std::string>());
         }
         catch (...)
         {
@@ -27,36 +25,35 @@ namespace nm
             {
                 throw;
             }
-            catch (std::exception &e)
+            catch (std::exception& e)
             {
                 // If this is a std::exception, log some information about it.
-                std::cerr << "Received exception while saving game: "
-                          << e.what() << std::endl;
+                std::cerr << "Received exception while saving game: " << e.what() << std::endl;
             }
         }
     }
 
-    Game::Game(Board &&board) : board(std::move(board)){};
+    Game::Game(Board&& board): board(std::move(board)) {};
 
-    Game::Game(const Game &other) : board(other.board){};
+    Game::Game(const Game& other): board(other.board) {};
 
-    Game::Game(Game &&other) : board(std::move(other.board)){};
+    Game::Game(Game&& other): board(std::move(other.board)) {};
 
-    Game &Game::operator=(const Game &other)
+    Game& Game::operator=(const Game& other)
     {
         board = other.board;
         return *this;
     }
 
-    Game &Game::operator=(Game &&other)
+    Game& Game::operator=(Game&& other)
     {
         board = std::move(other.board);
         return *this;
     }
 
-    void Game::number_square(const Coordinates &c)
+    void Game::number_square(const Coordinates& c)
     {
-        Square &square = board.get(c);
+        Square& square = board.get(c);
 
         if (square.state != SquareState::OPENED)
             return;
@@ -71,7 +68,7 @@ namespace nm
 
     std::optional<open_results> Game::open_square(int x, int y)
     {
-        Square &square = board.get({x, y});
+        Square& square = board.get({x, y});
         if (square.state == SquareState::OPENED)
             return std::optional<open_results>();
         square.state                  = SquareState::OPENED;
@@ -79,35 +76,33 @@ namespace nm
 
         this->number_square({x, y});
 
-        return open_results{chunk_coordinates, square.is_mine};
+        return open_results {chunk_coordinates, square.is_mine};
     }
 
-    void Game::renumber_chunk(const Coordinates &c,
-                              const bool renumber_original = true)
+    void Game::renumber_chunk(const Coordinates& c, const bool renumber_original = true)
     {
-        utils::for_around(
-            c.x(), c.y(), [this, c, renumber_original](int x, int y) {
-                if (x == c.x() && y == c.y() && !renumber_original)
-                    return;
+        utils::for_around(c.x(), c.y(), [this, c, renumber_original](int x, int y) {
+            if (x == c.x() && y == c.y() && !renumber_original)
+                return;
 
-                const Coordinates current = {x, y};
+            const Coordinates current = {x, y};
 
-                for (int chunk_x = 0; chunk_x < NM_CHUNK_SIZE; chunk_x++)
+            for (int chunk_x = 0; chunk_x < NM_CHUNK_SIZE; chunk_x++)
+            {
+                for (int chunk_y = 0; chunk_y < NM_CHUNK_SIZE; chunk_y++)
                 {
-                    for (int chunk_y = 0; chunk_y < NM_CHUNK_SIZE; chunk_y++)
-                    {
-                        this->number_square(nm::utils::to_global_coordinates(
-                            {chunk_x, chunk_y}, current));
-                    }
+                    this->number_square(
+                        nm::utils::to_global_coordinates({chunk_x, chunk_y}, current));
                 }
+            }
 
-                this->updated_chunks.insert(current);
-            });
+            this->updated_chunks.insert(current);
+        });
     }
 
     void Game::flag_square_handler(int x, int y)
     {
-        Square &square = board.get(x, y);
+        Square& square = board.get(x, y);
 
         if (square.state == SquareState::OPENED)
         {
@@ -129,7 +124,7 @@ namespace nm
             /* Update overflagging stuff. */
             auto is_overflagged = [this](int x, int y) {
                 int number       = 0;
-                const Square &sq = board.get(x, y);
+                const Square& sq = board.get(x, y);
                 nm::utils::for_around(x, y, [&number, this](int x, int y) {
                     if (board.get(x, y).state == SquareState::FLAGGED)
                         number++;
@@ -150,28 +145,25 @@ namespace nm
     bool Game::completely_flagged(int x, int y)
     {
         int nflags     = 0;
-        Square &square = board.get(x, y);
+        Square& square = board.get(x, y);
         utils::for_around(x, y, [this, &nflags](int x, int y) {
-            Square &s = board.get(x, y);
+            Square& s = board.get(x, y);
             if (s.state == SquareState::FLAGGED)
                 nflags++;
         });
 
         // Necessary because BOOST_LOG_TRIVIAL takes references, and
         // square.number is a bitfield (you can only take const references)
-        BOOST_LOG_TRIVIAL(info)
-            << "Number of flags: " << nflags
-            << ", square number: " << (const int)square.number;
+        BOOST_LOG_TRIVIAL(info) << "Number of flags: " << nflags
+                                << ", square number: " << (const int) square.number;
         return (nflags == square.number);
     }
 
-    void Game::open_square_handler(const int x, const int y,
-                                   const bool check_flags)
+    void Game::open_square_handler(const int x, const int y, const bool check_flags)
     {
-        std::unordered_set<Coordinates, int_pair_hash<Coordinates>>
-            affected_chunks;
+        std::unordered_set<Coordinates, int_pair_hash<Coordinates>> affected_chunks;
 
-        Square &square         = board.get(x, y);
+        Square& square         = board.get(x, y);
         SquareState orig_state = square.state;
 
         if (square.state == SquareState::OPENED)
@@ -211,9 +203,7 @@ namespace nm
         // open the squares around it.
         if (square.number == 0 && orig_state != SquareState::OPENED)
         {
-            utils::for_around(x, y, [this](int x, int y) {
-                open_square_handler(x, y, false);
-            });
+            utils::for_around(x, y, [this](int x, int y) { open_square_handler(x, y, false); });
         }
     }
-}
+}  // namespace nm

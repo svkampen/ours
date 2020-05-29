@@ -5,25 +5,26 @@
 
 namespace nm
 {
-	class ChunkGenerator
-	{
-		private:
-			double mean_density, variation;
-		public:
-			ChunkGenerator(double mean_density, double variation);
+    class ChunkGenerator
+    {
+      private:
+        double mean_density, variation;
 
-			Chunk generate() const;
+      public:
+        ChunkGenerator(double mean_density, double variation);
 
-			void setMeanDensity(double density)
-			{
-				this->mean_density = density;
-			}
+        Chunk generate() const;
 
-			void setVariation(double variation)
-			{
-				this->variation = variation;
-			}
-	};
-}
+        void setMeanDensity(double density)
+        {
+            this->mean_density = density;
+        }
 
-#endif // CHUNKGENERATOR_HPP
+        void setVariation(double variation)
+        {
+            this->variation = variation;
+        }
+    };
+}  // namespace nm
+
+#endif  // CHUNKGENERATOR_HPP

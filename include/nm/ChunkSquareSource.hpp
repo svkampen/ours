@@ -6,9 +6,9 @@
 
 namespace nm
 {
-	class ChunkSquareSource : public ChunkSource, public SquareSource
-	{
-	};
-}
+    class ChunkSquareSource : public ChunkSource, public SquareSource
+    {
+    };
+}  // namespace nm
 
 #endif

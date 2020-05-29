@@ -5,31 +5,30 @@
 
 class Vec
 {
-public:
+  public:
     int x, y;
 
-    Vec(const int &new_x = 0, const int &new_y = 0) : x(new_x), y(new_y)
+    Vec(const int& new_x = 0, const int& new_y = 0): x(new_x), y(new_y)
     {
-
     }
 
-    Vec operator- () const
+    Vec operator-() const
     {
         return Vec(-x, -y);
     }
 };
 
-inline Vec operator+ (const Vec &lhs, const Vec &rhs)
+inline Vec operator+(const Vec& lhs, const Vec& rhs)
 {
     return Vec(lhs.x + rhs.x, lhs.y + rhs.y);
 }
 
-inline Vec operator- (const Vec &lhs, const Vec &rhs)
+inline Vec operator-(const Vec& lhs, const Vec& rhs)
 {
     return Vec(lhs.x - rhs.x, lhs.y - rhs.y);
 }
 
-inline bool operator< (const Vec &lhs, const Vec &rhs)
+inline bool operator<(const Vec& lhs, const Vec& rhs)
 {
     if (lhs.x < rhs.x)
         return true;
@@ -37,7 +36,7 @@ inline bool operator< (const Vec &lhs, const Vec &rhs)
         return lhs.y < rhs.y;
 }
 
-inline std::ostream& operator<< (std::ostream &out, const Vec &v)
+inline std::ostream& operator<<(std::ostream& out, const Vec& v)
 {
     out << "(" << v.x << ", " << v.y << ")";
     return out;
@@ -90,4 +89,4 @@ std::ostream& operator<< (std::ostream &out, const Vec_<T> &v)
 
 typedef Vec_<int> Vec;*/
 
-#endif // VEC_H
+#endif  // VEC_H

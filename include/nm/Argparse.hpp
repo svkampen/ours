@@ -1,26 +1,23 @@
 #ifndef NM_ARGPARSE_HPP
 #define NM_ARGPARSE_HPP
 
-#include <unordered_map>
-#include <string>
 #include <getopt.h>
+#include <string>
+#include <unordered_map>
 
 namespace nm
 {
-	typedef std::unordered_map<std::string, std::string> options_map;
-	static struct option long_options[] =
-	{
-		{"config_file", required_argument, 0, 'c'},
-		{"server", no_argument, 0, 's'},
-		{"port", required_argument, 0, 'p'},
-		{"log", required_argument, 0, 'l'},
-		{"help", no_argument, 0, 'h'},
-		{"host", required_argument, 0, 0},
-		{"game", required_argument, 0, 'g'},
-		{0, 0, 0, 0}
-	};
+    typedef std::unordered_map<std::string, std::string> options_map;
+    static struct option long_options[] = {{"config_file", required_argument, 0, 'c'},
+                                           {"server", no_argument, 0, 's'},
+                                           {"port", required_argument, 0, 'p'},
+                                           {"log", required_argument, 0, 'l'},
+                                           {"help", no_argument, 0, 'h'},
+                                           {"host", required_argument, 0, 0},
+                                           {"game", required_argument, 0, 'g'},
+                                           {0, 0, 0, 0}};
 
-	options_map parse_options(int argc, char* argv[]);
-}
+    options_map parse_options(int argc, char* argv[]);
+}  // namespace nm
 
-#endif //NM_ARG_PARSE_HPP
+#endif  // NM_ARG_PARSE_HPP

@@ -10,27 +10,27 @@ namespace nm
 {
 #define MessageType(X) nm::message::MessageWrapper_Type_##X
 
-	template <typename Key, typename... Params>
-	class EventMap
-	{
-	  private:
-		std::unordered_map<Key, boost::signals2::signal<void(Params...)>> map;
+    template <typename Key, typename... Params>
+    class EventMap
+    {
+      private:
+        std::unordered_map<Key, boost::signals2::signal<void(Params...)>> map;
 
-	  public:
-		void connect(Key t, std::function<void(Params...)> fn)
-		{
-			map[t].connect(fn);
-		}
+      public:
+        void connect(Key t, std::function<void(Params...)> fn)
+        {
+            map[t].connect(fn);
+        }
 
-		void fire(Key t, Params... data)
-		{
-			auto it = map.find(t);
-			if (it != map.end())
-			{
-				it->second(data...);
-			}
-		}
-	};
+        void fire(Key t, Params... data)
+        {
+            auto it = map.find(t);
+            if (it != map.end())
+            {
+                it->second(data...);
+            }
+        }
+    };
 }  // namespace nm
 
 #endif
