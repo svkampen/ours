@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <boost/log/trivial.hpp>
-#include <netmine.pb.h>
+#include <ours.pb.h>
 #include <nm/Config.hpp>
 #include <nm/ImageSaver.hpp>
 #include <nm/NetworkGame.hpp>

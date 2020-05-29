@@ -2,7 +2,7 @@
 #define _NM_GUI_
 
 #include <boost/signals2.hpp>
-#include <netmine.pb.h>
+#include <ours.pb.h>
 #include <nm/ChunkSquareSource.hpp>
 #include <nm/Game.hpp>
 #include <nm/Typedefs.hpp>

@@ -3,7 +3,7 @@
 
 #include <boost/signals2.hpp>
 #include <functional>
-#include <netmine.pb.h>
+#include <ours.pb.h>
 #include <unordered_map>
 
 namespace nm

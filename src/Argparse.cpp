@@ -29,10 +29,10 @@ namespace nm
                     options["log_file"] = optarg;
                     break;
                 case 'h':
-                    printf("netmine %s - copyright (c) 2016 Sam van Kampen\n", VERSION);
-                    printf("usage: netmine [-slpcgh]\n");
+                    printf("ours %s - copyright (c) 2016 Sam van Kampen\n", VERSION);
+                    printf("usage: ours [-slpcgh]\n");
                     printf("  -s\t\tTurn on server mode\n");
-                    printf("  -l\t\tSpecify a different log file (default: netmine.log)\n");
+                    printf("  -l\t\tSpecify a different log file (default: ours.log)\n");
                     printf("  -p [port]\tSpecify a different port (default: 4096)\n");
                     printf("  -c [file]\tSpecify a different config file (default: ~/.nmrc)\n");
                     printf("  -g [file]\tSpecify a game to load.\n");

@@ -4,7 +4,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/signals2.hpp>
-#include <netmine.pb.h>
+#include <ours.pb.h>
 #include <nm/EventMap.hpp>
 #include <string>
 

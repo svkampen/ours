@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <ncurses.h>
-#include <netmine.pb.h>
+#include <ours.pb.h>
 #include <nm/Chunk.hpp>
 #include <nm/ChunkSquareSource.hpp>
 #include <nm/Window.hpp>

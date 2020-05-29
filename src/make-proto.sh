@@ -1,2 +1,2 @@
-protoc --cpp_out=../include netmine.proto
-mv ../include/netmine.pb.cc .
+protoc --cpp_out=../include ours.proto
+mv ../include/ours.pb.cc .

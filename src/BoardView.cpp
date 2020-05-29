@@ -53,7 +53,7 @@ namespace nm
         main << Refresh;
     }
 
-    void BoardView::draw_cursor(ChunkSquareSource& css, CursorMap& cm)
+    void BoardView::draw_cursor(ChunkSquareSource&, CursorMap&)
     {
         main << Move({3 * cursor.x, cursor.y}) << "[" << Move({3 * cursor.x + 2, cursor.y}) << "]";
 
@@ -179,16 +179,27 @@ namespace nm
         return HandlerResult::DRAW_CURSORS;
     }
 
-    void BoardView::draw_sidebar(ChunkSquareSource& squareSource,
+    void BoardView::draw_sidebar(ChunkSquareSource&,
                                  std::unordered_map<int32_t, CursorData>& cursors)
     {
-        sidebar << nm::Erase << L"   Netamphetamine   " << L"        Help        "
-                << L"┌──────────────────┐" << L"│ V to open chunk  │" << L"│      view.       │"
-                << L"│                  │" << L"│ F to flag.       │" << L"│ Q to quit.       │"
-                << L"│ C to center.     │" << L"│ B to show chunks.│" << L"│ 0 to goto origin.│"
-                << L"│ SPC to open sqre.│" << L"└──────────────────┘\n";
+        // clang-format off
+        sidebar << nm::Erase << L"        Ours        "
+                             << L"        Help        "
+                             << L"┌──────────────────┐"
+                             << L"│ Open       Space │"
+                             << L"│ Flag           F │"
+                             << L"│ Center         C │"
+                             << L"│ Chunk view     V │"
+                             << L"│ Center         C │"
+                             << L"│ Goto origin    0 │"
+                             << L"│ Show chunks    B │"
+                             << L"│ Save image     P │"
+                             << L"│ Toggle sidebar T │"
+                             << L"│ Quit           Q │"
+                             << L"└──────────────────┘\n";
 
-        sidebar << L"       Clients      " << L"┌──────────────────┐";
+        sidebar << L"       Clients      "
+                << L"┌──────────────────┐";
 
         for (auto&& pair : cursors)
         {
@@ -205,13 +216,14 @@ namespace nm
 
         sidebar << L"└──────────────────┘\n";
 
-        sidebar << L"      Infostats     " << L"┌──────────────────┐" << L"│ Chn: "
-                << this->chunk_x() << ", " << this->chunk_y();
+        sidebar << L"     Information    "
+                << L"┌──────────────────┐"
+                << L"│ Chunk " << this->chunk_x() << ", " << this->chunk_y();
 
         int line = sidebar.gety();
         sidebar << nm::Move({19, line}) << L"│" << nm::Move({0, line + 1});
 
-        sidebar << L"│ Pos: " << this->global_x() << ", " << this->global_y();
+        sidebar << L"│ Pos " << this->global_x() << ", " << this->global_y();
 
         line = sidebar.gety();
         sidebar << nm::Move({19, line}) << L"│" << nm::Move({0, line + 1});
@@ -219,6 +231,7 @@ namespace nm
         sidebar << L"└──────────────────┘\n";
 
         sidebar << nm::Refresh;
+        // clang-format on
     }
 
     void BoardView::handle_sticky_flag()

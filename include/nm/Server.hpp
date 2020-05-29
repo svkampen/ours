@@ -23,7 +23,7 @@ namespace nm
     namespace server
     {
         /**
-         * The netmine server, which takes care of all the minesweeper-specific networking.
+         * The ours server, which takes care of all the minesweeper-specific networking.
          *
          * Not to be confused with the game implementation or the non-specific networking classes.
          * @see Game
@@ -76,7 +76,7 @@ namespace nm
             /**
              * The handler for cursor moves.
              *
-             * Since netmine shows other players' cursors in real time, this handler is necessary
+             * Since ours shows other players' cursors in real time, this handler is necessary
              * to relay cursor moves to other clients. Additionally, this updates the server-local
              * statistics for the player.
              *

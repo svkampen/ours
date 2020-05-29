@@ -2,7 +2,7 @@
 #define NM_NETWORKGAME_HPP
 
 #include <boost/signals2.hpp>
-#include <netmine.pb.h>
+#include <ours.pb.h>
 #include <nm/Board.hpp>
 #include <nm/ChunkGenerator.hpp>
 #include <nm/ChunkSquareSource.hpp>

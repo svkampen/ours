@@ -3,7 +3,7 @@
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
 #include <memory>
-#include <netmine.pb.h>
+#include <ours.pb.h>
 #include <nm/EventMap.hpp>
 
 namespace events = boost::signals2;

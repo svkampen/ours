@@ -5,7 +5,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/signals2.hpp>
 #include <ncurses.h>
-#include <netmine.pb.h>
+#include <ours.pb.h>
 #include <nm/BoardView.hpp>
 #include <nm/ChunkSquareSource.hpp>
 #include <nm/ChunkView.hpp>

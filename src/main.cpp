@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
         nlohmann::json default_arguments = {{"port", "4096"},
                                             {"save_path", "./save.nm"},
                                             {"game", "save.nm"},
-                                            {"log_file", "nm.log"},
+                                            {"log_file", "ours.log"},
                                             {"show_overflagged", true}};
         nm::config.merge(default_arguments);
 
