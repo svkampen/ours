@@ -5,6 +5,7 @@
 #include <nm/Utils.hpp>
 
 using boost::asio::ip::tcp;
+using namespace std::placeholders;
 
 namespace nm
 {
@@ -16,7 +17,7 @@ namespace nm
     void Client::connect(const std::string& ip, const std::string& port)
     {
         tcp::resolver::query query(ip, port);
-        resolver_.async_resolve(query, boost::bind(&Client::handle_resolve, this, _1, _2));
+        resolver_.async_resolve(query, std::bind(&Client::handle_resolve, this, _1, _2));
     }
 
     void Client::handle_resolve(const boost::system::error_code& ec,
@@ -26,7 +27,7 @@ namespace nm
         {
             auto endpoint = *ep_iter;
             socket_.async_connect(endpoint,
-                                  boost::bind(&Client::handle_connect, this, _1, ++ep_iter));
+                                  std::bind(&Client::handle_connect, this, _1, ++ep_iter));
         }
         else
         {
@@ -93,7 +94,7 @@ namespace nm
             {
                 auto endpoint = *ep_iter;
                 socket_.async_connect(endpoint,
-                                      boost::bind(&Client::handle_connect, this, _1, ++ep_iter));
+                                      std::bind(&Client::handle_connect, this, _1, ++ep_iter));
             }
             else
             {
@@ -112,7 +113,7 @@ namespace nm
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(header_buf.get(), 4),
                                 boost::asio::transfer_exactly(4),
-                                boost::bind(&Client::header_callback, this, header_buf, _1, _2));
+                                std::bind(&Client::header_callback, this, header_buf, _1, _2));
     }
 
     void Client::header_callback(std::shared_ptr<uint8_t> data, const boost::system::error_code& ec,
@@ -139,7 +140,7 @@ namespace nm
             socket_,
             boost::asio::buffer(message_buf.get(), length),
             boost::asio::transfer_exactly(length),
-            boost::bind(&Client::message_callback, this, length, message_buf, _1, _2));
+            std::bind(&Client::message_callback, this, length, message_buf, _1, _2));
     }
 
     void Client::message_callback(uint32_t length, std::shared_ptr<uint8_t> data,
@@ -175,7 +176,7 @@ namespace nm
         boost::asio::async_write(socket_,
                                  boost::asio::buffer(buffer, total_size),
                                  boost::asio::transfer_all(),
-                                 boost::bind(&Client::write_callback, this, _1, _2));
+                                 std::bind(&Client::write_callback, this, _1, _2));
     }
 
     void Client::write_callback(const boost::system::error_code& ec, const size_t nbytes)

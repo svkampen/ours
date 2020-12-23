@@ -1,4 +1,3 @@
-#include <boost/bind.hpp>
 #include <boost/log/trivial.hpp>
 #include <cstdio>
 #include <iostream>
@@ -6,6 +5,7 @@
 
 using boost::asio::ip::tcp;
 namespace placeholders = boost::asio::placeholders;
+using namespace std::placeholders;
 
 namespace nm::server
 {
@@ -34,10 +34,8 @@ namespace nm::server
         boost::asio::async_write(socket_,
                                  boost::asio::buffer(buffer, total_size),
                                  boost::asio::transfer_all(),
-                                 boost::bind(&Connection::write_callback,
-                                             this,
-                                             placeholders::error,
-                                             placeholders::bytes_transferred));
+                                 std::bind(&Connection::write_callback,
+                                             this, _1, _2));
     }
 
     void Connection::start_read()
@@ -47,11 +45,8 @@ namespace nm::server
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(header_buf.get(), 4),
                                 boost::asio::transfer_exactly(4),
-                                boost::bind(&Connection::header_callback,
-                                            this,
-                                            header_buf,
-                                            placeholders::error,
-                                            placeholders::bytes_transferred));
+                                std::bind(&Connection::header_callback,
+                                            this, header_buf, _1, _2));
     }
 
     void Connection::write_callback(const error_code& ec, const size_t)
@@ -86,12 +81,8 @@ namespace nm::server
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(message_buf.get(), length),
                                 boost::asio::transfer_exactly(length),
-                                boost::bind(&Connection::message_callback,
-                                            this,
-                                            length,
-                                            message_buf,
-                                            placeholders::error,
-                                            placeholders::bytes_transferred));
+                                std::bind(&Connection::message_callback,
+                                            this, length, message_buf, _1, _2));
     }
 
     void Connection::message_callback(uint32_t length, std::shared_ptr<uint8_t[]> data,
@@ -150,7 +141,7 @@ namespace nm::server
             Connection(static_cast<boost::asio::io_context&>(acceptor.get_executor().context()));
 
         accepting_connection.ev_message_received.connect(
-            boost::bind(&ConnectionManager::message_handler, this, _1, _2));
+            std::bind(&ConnectionManager::message_handler, this, _1, _2));
 
         acceptor.async_accept(accepting_connection.socket(), [this](auto&& ec) {
             this->handle_accept(std::forward<decltype(ec)>(ec));

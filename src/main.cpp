@@ -33,6 +33,7 @@ extern const char* const VERSION = "v0.1";
 using boost::asio::ip::tcp;
 using nlohmann::json;
 using namespace std::literals;
+using namespace std::placeholders;
 
 void startClient()
 {
@@ -51,30 +52,30 @@ void startClient()
     nm::ImageSaver im(game);
     nm::curses::CursesGui gui(io_service, game);
 
-    gui.ev_square_open.connect(boost::bind(&nm::NetworkGame::open_square_handler, &game, _1, _2));
-    gui.ev_square_flag.connect(boost::bind(&nm::NetworkGame::flag_square_handler, &game, _1, _2));
-    gui.ev_cursor_move.connect(boost::bind(&nm::NetworkGame::cursor_move_handler, &game, _1, _2));
+    gui.ev_square_open.connect(std::bind(&nm::NetworkGame::open_square_handler, &game, _1, _2));
+    gui.ev_square_flag.connect(std::bind(&nm::NetworkGame::flag_square_handler, &game, _1, _2));
+    gui.ev_cursor_move.connect(std::bind(&nm::NetworkGame::cursor_move_handler, &game, _1, _2));
 
     gui.ev_exit.connect([&io_service]() { io_service.stop(); });
 
-    gui.ev_save_image.connect(boost::bind(&nm::ImageSaver::save, &im, _1));
+    gui.ev_save_image.connect(std::bind(&nm::ImageSaver::save, &im, _1));
 
     void (nm::Gui::*nph_player)(const nm::message::Player&)         = &nm::Gui::new_player_handler;
     void (nm::Gui::*nph_mwrper)(const nm::message::MessageWrapper&) = &nm::Gui::new_player_handler;
 
     client.event_map.connect(MessageType(CHUNK_BYTES),
-                             boost::bind(&nm::NetworkGame::chunk_update_handler, &game, _1));
+                             std::bind(&nm::NetworkGame::chunk_update_handler, &game, _1));
 
     client.event_map.connect(MessageType(CURSOR_MOVE),
-                             boost::bind(&nm::Gui::cursor_move_handler, &gui, _1));
+                             std::bind(&nm::Gui::cursor_move_handler, &gui, _1));
 
-    client.event_map.connect(MessageType(PLAYER_JOIN), boost::bind(nph_mwrper, &gui, _1));
+    client.event_map.connect(MessageType(PLAYER_JOIN), std::bind(nph_mwrper, &gui, _1));
 
     client.event_map.connect(MessageType(PLAYER_QUIT),
-                             boost::bind(&nm::Gui::player_quit_handler, &gui, _1));
+                             std::bind(&nm::Gui::player_quit_handler, &gui, _1));
 
-    game.ev_board_update.connect(boost::bind(&nm::Gui::draw_board, &gui));
-    game.ev_new_player.connect(boost::bind(nph_player, &gui, _1));
+    game.ev_board_update.connect(std::bind(&nm::Gui::draw_board, &gui));
+    game.ev_new_player.connect(std::bind(nph_player, &gui, _1));
 
     client.connect(nm::config["host"], nm::config["port"]);
 

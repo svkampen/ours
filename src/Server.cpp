@@ -4,6 +4,7 @@
 #include <nm/Server.hpp>
 
 using boost::asio::ip::tcp;
+using namespace std::placeholders;
 
 namespace nm
 {
@@ -13,26 +14,26 @@ namespace nm
             connectionManager(tcp::endpoint(tcp::v4(), port)), game(game)
         {
             connectionManager.event_map.connect(
-                MessageType(PLAYER_JOIN), boost::bind(&Server::player_join_handler, this, _1, _2));
+                MessageType(PLAYER_JOIN), std::bind(&Server::player_join_handler, this, _1, _2));
 
             connectionManager.event_map.connect(
-                MessageType(PLAYER_QUIT), boost::bind(&Server::player_quit_handler, this, _1, _2));
+                MessageType(PLAYER_QUIT), std::bind(&Server::player_quit_handler, this, _1, _2));
 
             connectionManager.event_map.connect(
-                MessageType(CURSOR_MOVE), boost::bind(&Server::cursor_move_handler, this, _1, _2));
+                MessageType(CURSOR_MOVE), std::bind(&Server::cursor_move_handler, this, _1, _2));
 
             connectionManager.event_map.connect(
-                MessageType(SQUARE_OPEN), boost::bind(&Server::square_open_handler, this, _1, _2));
+                MessageType(SQUARE_OPEN), std::bind(&Server::square_open_handler, this, _1, _2));
 
             connectionManager.event_map.connect(
-                MessageType(SQUARE_FLAG), boost::bind(&Server::square_flag_handler, this, _1, _2));
+                MessageType(SQUARE_FLAG), std::bind(&Server::square_flag_handler, this, _1, _2));
 
             connectionManager.event_map.connect(
                 MessageType(CHUNK_REQUEST),
-                boost::bind(&Server::chunk_request_handler, this, _1, _2));
+                std::bind(&Server::chunk_request_handler, this, _1, _2));
 
             connectionManager.event_map.connect(
-                MessageType(CLEAR_AT), boost::bind(&Server::clear_at_handler, this, _1, _2));
+                MessageType(CLEAR_AT), std::bind(&Server::clear_at_handler, this, _1, _2));
         }
 
         Server::Server(Game& game): Server(game, 4096) {};

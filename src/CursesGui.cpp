@@ -26,7 +26,7 @@ namespace nm::curses
         this->current_view->center_cursor(0, 0);
 
         this->draw_board();
-        in.async_read_some(boost::asio::null_buffers(), boost::bind(&CursesGui::draw, this));
+        in.async_read_some(boost::asio::null_buffers(), std::bind(&CursesGui::draw, this));
     }
 
     void CursesGui::player_quit_handler(const message::MessageWrapper& mwpr)
@@ -109,7 +109,7 @@ namespace nm::curses
         if (!command_mode)
         {
             // readline weirdness
-            in.async_read_some(boost::asio::null_buffers(), boost::bind(&CursesGui::draw, this));
+            in.async_read_some(boost::asio::null_buffers(), std::bind(&CursesGui::draw, this));
         }
     }
 

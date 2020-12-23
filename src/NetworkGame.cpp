@@ -5,6 +5,9 @@
 #include <nm/ImageSaver.hpp>
 #include <nm/NetworkGame.hpp>
 #include <nm/Utils.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 namespace nm
 {
@@ -16,7 +19,7 @@ namespace nm
         client.ev_connected.connect(boost::bind(&NetworkGame::connected_handler, this));
 
         client.event_map.connect(message::MessageWrapper_Type_WELCOME,
-                                 boost::bind(&NetworkGame::welcome_handler, this, _1));
+                                 std::bind(&NetworkGame::welcome_handler, this, _1));
     }
 
     void NetworkGame::connected_handler()
