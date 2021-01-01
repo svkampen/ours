@@ -79,6 +79,17 @@ namespace nm
     HandlerResult BoardView::handle_input(int input_character)
     {
         bool full_redraw = false;
+        int control = 0;
+        std::string key = keyname(input_character);
+        if (key == "kRIT5")
+            control = 1, input_character = KEY_RIGHT;
+        else if (key == "kLFT5")
+            control = 1, input_character = KEY_LEFT;
+        else if (key == "kUP5")
+            control = 1, input_character = KEY_UP;
+        else if (key == "kDN5")
+            control = 1, input_character = KEY_DOWN;
+
         switch (input_character)
         {
             case ' ':
@@ -114,46 +125,46 @@ namespace nm
 
             /* ARROW KEYS */
             case KEY_LEFT:
-                if (cursor.x > 0)
+                if (cursor.x > (0 + 4 * control))
                 {
-                    cursor.x--;
+                    cursor.x -= 1 + 4 * control;
                 }
                 else
                 {
-                    cursor.offset_x -= 1;
+                    cursor.offset_x -= 1 + 4 * control;
                     full_redraw = true;
                 }
                 break;
             case KEY_RIGHT:
-                if (cursor.x < (main.cols / 3) - 1)
+                if (cursor.x < (main.cols / 3) - (1 + 4 * control))
                 {
-                    cursor.x++;
+                    cursor.x += 1 + 4 * control;
                 }
                 else
                 {
-                    cursor.offset_x += 1;
+                    cursor.offset_x += 1 + 4 * control;
                     full_redraw = true;
                 }
                 break;
             case KEY_UP:
-                if (cursor.y > 0)
+                if (cursor.y > (0 + 4 * control))
                 {
-                    cursor.y--;
+                    cursor.y -= 1 + 4 * control;
                 }
                 else
                 {
-                    cursor.offset_y -= 1;
+                    cursor.offset_y -= 1 + 4 * control;
                     full_redraw = true;
                 }
                 break;
             case KEY_DOWN:
-                if (cursor.y < main.lines - 1)
+                if (cursor.y < main.lines - (1 + 4 * control))
                 {
-                    cursor.y++;
+                    cursor.y += 1 + 4 * control;
                 }
                 else
                 {
-                    cursor.offset_y += 1;
+                    cursor.offset_y += 1 + 4 * control;
                     full_redraw = true;
                 }
                 break;
