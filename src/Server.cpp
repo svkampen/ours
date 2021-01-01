@@ -54,7 +54,7 @@ namespace nm
             p->set_id(client.id());
             p->set_x(0);
             p->set_y(0);
-            BOOST_LOG_TRIVIAL(info) << "Sending player quits.";
+            BOOST_LOG_TRIVIAL(debug) << "Sending player quits.";
 
             this->clients.erase(connection.socket().remote_endpoint());
             connectionManager.disconnect(connection);
@@ -93,7 +93,7 @@ namespace nm
             cBytes->set_x(x);
             cBytes->set_y(y);
 
-            BOOST_LOG_TRIVIAL(info) << "[Server] Sending chunk update: (" << x << ", " << y << ")";
+            BOOST_LOG_TRIVIAL(debug) << "[Server] Sending chunk update: (" << x << ", " << y << ")";
 
             this->connectionManager.send_all(chunkWrapper);
         }
@@ -123,7 +123,7 @@ namespace nm
         void Server::square_open_handler(Connection&, const message::MessageWrapper& wrapper)
         {
             auto& msg = wrapper.squareopen();
-            BOOST_LOG_TRIVIAL(info)
+            BOOST_LOG_TRIVIAL(debug)
                 << "[Server] Received SQUARE_OPEN message: " << msg.ShortDebugString();
             game.open_square_handler(msg.x(), msg.y());
 
@@ -143,7 +143,7 @@ namespace nm
         void Server::square_flag_handler(Connection&, const message::MessageWrapper& wrapper)
         {
             auto& msg = wrapper.squareflag();
-            BOOST_LOG_TRIVIAL(info)
+            BOOST_LOG_TRIVIAL(debug)
                 << "[Server] Received SQUARE_FLAG message: " << msg.ShortDebugString();
             game.flag_square_handler(msg.x(), msg.y());
 
@@ -177,7 +177,7 @@ namespace nm
             player.set_id(hash);
 
             player_for(connection) = player;
-            BOOST_LOG_TRIVIAL(info) << "[Server] received PLAYER_JOIN message (X: " << msg.x()
+            BOOST_LOG_TRIVIAL(debug) << "[Server] received PLAYER_JOIN message (X: " << msg.x()
                                     << " Y: " << msg.y() << " ID: " << player.id() << ")";
 
             /* Then, send the playerjoin (including ID) to every other client */
