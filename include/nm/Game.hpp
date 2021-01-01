@@ -24,6 +24,7 @@ namespace nm
         std::optional<open_results> open_square(int x, int y);
         void number_square(const Coordinates& c);
         void renumber_chunk(const Coordinates& c, const bool renumber_original);
+        void compute_overflagging(const Coordinates& c);
         bool completely_flagged(int x, int y);
         bool save = false;
 

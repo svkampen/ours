@@ -85,18 +85,40 @@ namespace nm
             if (x == c.x() && y == c.y() && !renumber_original)
                 return;
 
-            const Coordinates current = {x, y};
+            const Coordinates chunk_current = {x, y};
 
-            for (int chunk_x = 0; chunk_x < NM_CHUNK_SIZE; chunk_x++)
+            for (int local_x = 0; local_x < NM_CHUNK_SIZE; local_x++)
             {
-                for (int chunk_y = 0; chunk_y < NM_CHUNK_SIZE; chunk_y++)
+                for (int local_y = 0; local_y < NM_CHUNK_SIZE; local_y++)
                 {
-                    this->number_square(
-                        nm::utils::to_global_coordinates({chunk_x, chunk_y}, current));
+                    auto global_coords =
+                        nm::utils::to_global_coordinates({local_x, local_y}, chunk_current);
+                    this->number_square(global_coords);
+                    this->compute_overflagging(global_coords);
                 }
             }
 
-            this->updated_chunks.insert(current);
+            this->updated_chunks.insert(chunk_current);
+        });
+    }
+
+    void Game::compute_overflagging(const Coordinates& c)
+    {
+        /* Update overflagging stuff. */
+        auto is_overflagged = [this](int x, int y) {
+            int number       = 0;
+            const Square& sq = board.get(x, y);
+            nm::utils::for_around(x, y, [&number, this](int x, int y) {
+                if (board.get(x, y).state == SquareState::FLAGGED)
+                    number++;
+            });
+            if (number > sq.number && sq.state == SquareState::OPENED)
+                return true;
+            return false;
+        };
+
+        nm::utils::for_around(c.x(), c.y(), [&is_overflagged, this](int x, int y) {
+            board.get(x, y).overflag = is_overflagged(x, y);
         });
     }
 
@@ -120,24 +142,7 @@ namespace nm
         }
 
         if (nm::config["show_overflagged"])
-        {
-            /* Update overflagging stuff. */
-            auto is_overflagged = [this](int x, int y) {
-                int number       = 0;
-                const Square& sq = board.get(x, y);
-                nm::utils::for_around(x, y, [&number, this](int x, int y) {
-                    if (board.get(x, y).state == SquareState::FLAGGED)
-                        number++;
-                });
-                if (number > sq.number && sq.state == SquareState::OPENED)
-                    return true;
-                return false;
-            };
-
-            nm::utils::for_around(x, y, [&is_overflagged, this](int x, int y) {
-                board.get(x, y).overflag = is_overflagged(x, y);
-            });
-        }
+            this->compute_overflagging({x, y});
 
         updated_chunks.insert(nm::utils::to_chunk_coordinates({x, y}));
     }
