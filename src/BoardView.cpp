@@ -375,6 +375,8 @@ namespace nm
                             this->border_enabled;
 
         chunk_border = chunk_border || square.overflag;
+        if (square.overflag)
+            color = BORDER_COLOR;
 
         if (color == -1)
         {
