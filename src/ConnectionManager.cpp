@@ -3,6 +3,7 @@
 #include <iostream>
 #include <nm/ConnectionManager.hpp>
 
+using boost::asio::io_context;
 using boost::asio::ip::tcp;
 namespace placeholders = boost::asio::placeholders;
 using namespace std::placeholders;
@@ -11,7 +12,9 @@ namespace nm::server
 {
     using error_code = boost::system::error_code;
 
-    Connection::Connection(boost::asio::io_context& io_context): socket_(io_context) {};
+    Connection::Connection(io_context& io_context): socket_(io_context)
+    {
+    }
 
     void Connection::start()
     {
@@ -100,8 +103,10 @@ namespace nm::server
         return remote_endpoint_;
     }
 
-    ConnectionManager::ConnectionManager(const tcp::endpoint& endpoint):
-        acceptor(this->io_context, endpoint), accepting_connection(this->io_context) {};
+    ConnectionManager::ConnectionManager(class io_context& ctx, const tcp::endpoint& endpoint):
+        io_context(ctx),
+        acceptor(this->io_context, endpoint),
+        accepting_connection(this->io_context) {};
 
     void ConnectionManager::start()
     {

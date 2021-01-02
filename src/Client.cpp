@@ -1,8 +1,6 @@
 #include <boost/log/trivial.hpp>
-#include <cassert>
 #include <nm/Client.hpp>
 #include <nm/Config.hpp>
-#include <nm/Utils.hpp>
 
 using boost::asio::ip::tcp;
 using namespace std::placeholders;
@@ -117,7 +115,7 @@ namespace nm
     }
 
     void Client::header_callback(std::shared_ptr<uint8_t> data, const boost::system::error_code& ec,
-                                 const size_t nbytes)
+                                 const size_t)
     {
         if (ec.value() != 0)
         {
@@ -133,7 +131,6 @@ namespace nm
 
         std::shared_ptr<uint8_t> message_buf(new uint8_t[length], std::default_delete<uint8_t[]>());
 
-        assert(length < 512);
         BOOST_LOG_TRIVIAL(info) << "Header read, reading rest of package (length " << length << ")";
 
         boost::asio::async_read(
@@ -144,7 +141,7 @@ namespace nm
     }
 
     void Client::message_callback(uint32_t length, std::shared_ptr<uint8_t> data,
-                                  const boost::system::error_code& ec, const size_t nbytes)
+                                  const boost::system::error_code& ec, const size_t)
     {
         if (ec.value() != 0)
         {
@@ -179,7 +176,7 @@ namespace nm
                                  std::bind(&Client::write_callback, this, _1, _2));
     }
 
-    void Client::write_callback(const boost::system::error_code& ec, const size_t nbytes)
+    void Client::write_callback(const boost::system::error_code& ec, const size_t)
     {
         BOOST_LOG_TRIVIAL(info) << "Write done with error code " << ec;
     };

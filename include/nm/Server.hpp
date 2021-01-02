@@ -35,17 +35,19 @@ namespace nm
             /**
              * Construct a new server with a given game instance.
              *
+             * @param ctx The io_context to use.
              * @param game The game instance.
              */
-            Server(Game& game);
+            Server(boost::asio::io_context& ctx, Game& game);
 
             /**
              * Construct a new server on a non-standard port.
              *
+             * @param ctx The io_context to use.
              * @param game The game instance.
              * @param port The port.
              */
-            Server(Game& game, int port);
+            Server(boost::asio::io_context& ctx, Game& game, int port);
 
             /**
              * Run the server, starting its connection manager.

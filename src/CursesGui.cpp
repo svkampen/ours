@@ -12,21 +12,15 @@ namespace nm::curses
         Gui(squareSource),
         main(0, 0, COLS - 21, LINES - 1),
         sidebar(COLS - 20, 0, 20, LINES - 1),
+        command(0, LINES - 1, COLS, 1),
         in(io_service, ::dup(STDIN_FILENO)),
         io_service(io_service),
         boardview(self_cursor, main, sidebar, ev_square_open, ev_square_flag, ev_cursor_move),
         chunkview(self_cursor, main, sidebar),
-        current_view(&boardview),
-        command(0, LINES - 1, COLS, 1)
+        current_view(&boardview)
     {
         main.nowrap = true;
         width = height = 0;
-        handle_resize();
-
-        this->current_view->center_cursor(0, 0);
-
-        this->draw_board();
-        in.async_read_some(boost::asio::null_buffers(), std::bind(&CursesGui::draw, this));
     }
 
     void CursesGui::player_quit_handler(const message::MessageWrapper& mwpr)
@@ -186,6 +180,10 @@ namespace nm::curses
 
     void CursesGui::start()
     {
+        this->handle_resize();
+        this->current_view->center_cursor(0, 0);
+        this->draw_board();
+        in.async_read_some(boost::asio::null_buffers(), std::bind(&CursesGui::draw, this));
         io_service.run();
     }
 }  // namespace nm::curses

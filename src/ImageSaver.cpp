@@ -22,7 +22,6 @@ namespace nm
     {
         ft::get_face_glyph_and_render(this->face, charcode, FT_RENDER_MODE_MONO);
 
-        auto& bitmap = this->face->glyph->bitmap;
         auto&& buf   = ft::expand_monochrome_bitmap(this->face);
 
         int x = position.x * glyph_size.x;

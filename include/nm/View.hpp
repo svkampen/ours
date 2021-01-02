@@ -44,26 +44,27 @@ namespace nm
         virtual void switched_in_handler()
         {
         }
+
         virtual void switched_out_handler()
         {
         }
 
-        inline int global_x()
+        [[nodiscard]] inline int global_x() const
         {
             return cursor.x + cursor.offset_x;
         }
 
-        inline int global_y()
+        [[nodiscard]] inline int global_y() const
         {
             return cursor.y + cursor.offset_y;
         }
 
-        inline int chunk_x()
+        [[nodiscard]] inline int chunk_x() const
         {
             return std::floor(global_x() / (double) NM_CHUNK_SIZE);
         }
 
-        inline int chunk_y()
+        [[nodiscard]] inline int chunk_y() const
         {
             return std::floor(global_y() / (double) NM_CHUNK_SIZE);
         }

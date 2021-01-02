@@ -186,9 +186,7 @@ namespace nm
         {
             if (check_flags && completely_flagged(x, y))
             {
-                utils::for_around(x, y, [this, &affected_chunks](int x, int y) {
-                    open_square_handler(x, y, false);
-                });
+                utils::for_around(x, y, [this](int x, int y) { open_square_handler(x, y, false); });
             }
         }
 

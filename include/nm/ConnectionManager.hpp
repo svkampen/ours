@@ -60,7 +60,7 @@ namespace nm::server
     class ConnectionManager
     {
       private:
-        boost::asio::io_context io_context;
+        boost::asio::io_context& io_context;
         boost::asio::ip::tcp::acceptor acceptor;
 
         Connection accepting_connection;
@@ -75,7 +75,8 @@ namespace nm::server
         nm::EventMap<message::MessageWrapper_Type, Connection&, const message::MessageWrapper&>
             event_map;
 
-        explicit ConnectionManager(const boost::asio::ip::tcp::endpoint& endpoint);
+        explicit ConnectionManager(boost::asio::io_context& ctx,
+                                   const boost::asio::ip::tcp::endpoint& endpoint);
 
         void send_all(const message::MessageWrapper&);
         void send_all_other(Connection&, const message::MessageWrapper&);

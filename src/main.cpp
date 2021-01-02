@@ -1,12 +1,4 @@
-#include <boost/log/core.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/sinks/text_ostream_backend.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/utility/setup/file.hpp>
 #include <ctime>
 #include <cxxabi.h>
 #include <fstream>
@@ -27,6 +19,7 @@
 #include <nm/Utils.hpp>
 #include <sys/ioctl.h>
 #include <typeinfo>
+#include <unistd.h>
 
 extern const char* const VERSION = "v0.1";
 
@@ -34,6 +27,8 @@ using boost::asio::ip::tcp;
 using nlohmann::json;
 using namespace std::literals;
 using namespace std::placeholders;
+
+int exit_event = eventfd(0, EFD_SEMAPHORE);
 
 void startClient()
 {
@@ -47,6 +42,7 @@ void startClient()
     nm::CursesSetupTeardown cst;
 
     boost::asio::io_service io_service;
+
     nm::Client client(io_service);
     nm::NetworkGame game(client);
     nm::ImageSaver im(game);
@@ -79,6 +75,12 @@ void startClient()
 
     client.connect(nm::config["host"], nm::config["port"]);
 
+    boost::asio::posix::stream_descriptor exit_event_desc(io_service, exit_event);
+    exit_event_desc.async_read_some(boost::asio::null_buffers(),
+                                    [](const boost::system::error_code&, const size_t) {
+                                        throw nm::utils::exit_unwind_stack {};
+                                    });
+
     gui.start();
 }
 
@@ -89,8 +91,23 @@ void startServer()
 
     game.save_on_destruct();
 
-    nm::server::Server server(game, std::stoi(nm::config["port"].get<std::string>()));
+    boost::asio::io_context ctx;
+    boost::asio::posix::stream_descriptor exit_event_desc(ctx, exit_event);
+    exit_event_desc.async_read_some(boost::asio::null_buffers(),
+                                    [](const boost::system::error_code&, const size_t) {
+                                        throw nm::utils::exit_unwind_stack {};
+                                    });
+
+    nm::server::Server server(ctx, game, std::stoi(nm::config["port"].get<std::string>()));
     server.start();
+}
+
+/* Signal to the event loop, by writing a byte
+ * on the exit_event eventfd, that we should exit the game. */
+void signal_exit()
+{
+    size_t val = 1;
+    write(exit_event, &val, sizeof val);
 }
 
 int main(int argc, char* argv[])
@@ -121,8 +138,8 @@ int main(int argc, char* argv[])
 
         nm::config.merge(arguments);
 
-        signal(SIGINT, [](int _sig) { throw nm::utils::exit_unwind_stack(); });
-        signal(SIGTERM, [](int _sig) { throw nm::utils::exit_unwind_stack(); });
+        signal(SIGINT, [](int) { signal_exit(); });
+        signal(SIGTERM, [](int) { signal_exit(); });
 
         if (nm::config["server"] == "true")
         {

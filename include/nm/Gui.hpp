@@ -16,7 +16,7 @@ namespace nm
       protected:
         ChunkSquareSource& squareSource;
         CursorData self_cursor {};
-        Gui(ChunkSquareSource& squareSource): squareSource(squareSource) {};
+        Gui(ChunkSquareSource& squareSource);
 
       public:
         SquareEvent ev_square_open;
@@ -28,30 +28,20 @@ namespace nm
         virtual void handle_input(int ch) = 0;
         virtual void handle_command_input(std::string_view) {};
 
-        virtual const ChunkSquareSource& get_squaresource()
-        {
-            return squareSource;
-        }
+        virtual const ChunkSquareSource& get_squaresource();
+        virtual const CursorData& get_cursor();
 
-        virtual const CursorData& get_cursor()
-        {
-            return self_cursor;
-        }
-
-        virtual void display_command(std::string_view cmd) {};
-        virtual void display_command(std::string_view cmd, std::optional<int> endpos) {};
+        virtual void display_command(std::string_view cmd);
+        virtual void display_command(std::string_view cmd, std::optional<int> endpos);
 
         virtual void cursor_move_handler(const message::MessageWrapper& mwpr) = 0;
         virtual void player_quit_handler(const message::MessageWrapper& mwpr) = 0;
-        virtual void new_player_handler(const nm::message::MessageWrapper& mwpr)
-        {
-            new_player_handler(mwpr.player());
-        };
+        virtual void new_player_handler(const nm::message::MessageWrapper& mwpr);
         virtual void new_player_handler(const nm::message::Player& player) = 0;
 
         virtual void draw_board() = 0;
         virtual void draw()       = 0;
-        virtual void handle_resize() {};
+        virtual void handle_resize();
 
         virtual void start() = 0;
     };

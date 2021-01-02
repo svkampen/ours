@@ -10,8 +10,8 @@ namespace nm
 {
     namespace server
     {
-        Server::Server(Game& game, int port):
-            connectionManager(tcp::endpoint(tcp::v4(), port)), game(game)
+        Server::Server(boost::asio::io_context& ctx, Game& game, int port):
+            connectionManager(ctx, tcp::endpoint(tcp::v4(), port)), game(game)
         {
             connectionManager.event_map.connect(
                 MessageType(PLAYER_JOIN), std::bind(&Server::player_join_handler, this, _1, _2));
@@ -32,11 +32,11 @@ namespace nm
                 MessageType(CHUNK_REQUEST),
                 std::bind(&Server::chunk_request_handler, this, _1, _2));
 
-            connectionManager.event_map.connect(
-                MessageType(CLEAR_AT), std::bind(&Server::clear_at_handler, this, _1, _2));
+            connectionManager.event_map.connect(MessageType(CLEAR_AT),
+                                                std::bind(&Server::clear_at_handler, this, _1, _2));
         }
 
-        Server::Server(Game& game): Server(game, 4096) {};
+        Server::Server(boost::asio::io_context& ctx, Game& game): Server(ctx, game, 4096) {};
 
         message::Player& Server::player_for(const Connection& for_connection)
         {
@@ -200,8 +200,6 @@ namespace nm
             welcome->set_version(1);
             welcome->set_nplayers(this->clients.size() - 1);
             downstream.set_type(message::MessageWrapper::WELCOME);
-
-            int i = 0;
 
             for (auto& [endpoint, player] : clients)
             {
