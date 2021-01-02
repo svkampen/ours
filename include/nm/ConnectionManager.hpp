@@ -41,6 +41,8 @@ namespace nm::server
 
         events::signal<void(Connection&, nm::message::MessageWrapper&)> ev_message_received;
 
+        [[nodiscard]] boost::asio::ip::tcp::endpoint remote_endpoint() const;
+
       private:
         void start_read();
         void connection_closed();
@@ -52,6 +54,7 @@ namespace nm::server
                              size_t nbytes);
 
         boost::asio::ip::tcp::socket socket_;
+        boost::asio::ip::tcp::endpoint remote_endpoint_;
     };
 
     class ConnectionManager

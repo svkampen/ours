@@ -15,6 +15,7 @@ namespace nm::server
 
     void Connection::start()
     {
+        this->remote_endpoint_ = socket_.remote_endpoint();
         start_read();
     }
 
@@ -94,8 +95,10 @@ namespace nm::server
         this->start_read();
     }
 
-    ConnectionManager::ConnectionManager(tcp::endpoint& endpoint):
-        acceptor(this->io_context, endpoint), accepting_connection(this->io_context) {};
+    tcp::endpoint Connection::remote_endpoint() const
+    {
+        return remote_endpoint_;
+    }
 
     ConnectionManager::ConnectionManager(const tcp::endpoint& endpoint):
         acceptor(this->io_context, endpoint), accepting_connection(this->io_context) {};
