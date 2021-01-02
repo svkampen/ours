@@ -237,7 +237,7 @@ namespace nm
 
         try
         {
-            nm::Saver::saveGame(this->board, save_path);
+            nm::Saver::saveGame(*this, save_path);
         }
         catch (std::exception& e)
         {
