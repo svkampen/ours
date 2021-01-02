@@ -56,7 +56,7 @@ namespace nm
             p->set_y(0);
             BOOST_LOG_TRIVIAL(debug) << "Sending player quits.";
 
-            this->clients.erase(connection.socket().remote_endpoint());
+            this->clients.erase(connection.remote_endpoint());
             connectionManager.disconnect(connection);
             connectionManager.send_all(wp);
         }
@@ -165,7 +165,7 @@ namespace nm
         {
             auto& msg = wrapper.player();
             /* Generate an ID and add an entry in the client dict. */
-            auto endpoint = connection.socket().remote_endpoint();
+            auto endpoint = connection.remote_endpoint();
             std::string endpoint_and_port =
                 endpoint.address().to_string() + std::to_string(endpoint.port());
 

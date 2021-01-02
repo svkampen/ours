@@ -26,7 +26,7 @@ namespace nm::server
         bool operator==(const Connection& other) const
         {
             return (other.socket_.is_open() == this->socket_.is_open()) &&
-                   (other.socket_.remote_endpoint() == this->socket_.remote_endpoint());
+                   (other.remote_endpoint_ == this->remote_endpoint_);
         }
 
         bool operator!=(const Connection& other) const
