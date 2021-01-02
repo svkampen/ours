@@ -86,7 +86,7 @@ namespace nm
             auto data = transformed_chunk.serialize();
 
             message::MessageWrapper chunkWrapper;
-            chunkWrapper.set_type(chunkWrapper.CHUNK_BYTES);
+            chunkWrapper.set_type(message::MessageWrapper::CHUNK_BYTES);
             auto cBytes = chunkWrapper.mutable_chunkbytes();
             cBytes->set_data(std::string(data.get(), NM_CHUNK_SIZE * NM_CHUNK_SIZE));
 
@@ -183,7 +183,7 @@ namespace nm
             /* Then, send the playerjoin (including ID) to every other client */
 
             message::MessageWrapper downstream;
-            downstream.set_type(downstream.PLAYER_JOIN);
+            downstream.set_type(message::MessageWrapper::PLAYER_JOIN);
 
             auto pJoin = downstream.mutable_player();
             pJoin->CopyFrom(msg);
@@ -199,7 +199,7 @@ namespace nm
 
             welcome->set_version(1);
             welcome->set_nplayers(this->clients.size() - 1);
-            downstream.set_type(downstream.WELCOME);
+            downstream.set_type(message::MessageWrapper::WELCOME);
 
             int i = 0;
 
