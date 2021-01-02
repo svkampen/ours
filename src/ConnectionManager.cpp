@@ -97,7 +97,7 @@ namespace nm::server
     ConnectionManager::ConnectionManager(tcp::endpoint& endpoint):
         acceptor(this->io_context, endpoint), accepting_connection(this->io_context) {};
 
-    ConnectionManager::ConnectionManager(tcp::endpoint endpoint):
+    ConnectionManager::ConnectionManager(const tcp::endpoint& endpoint):
         acceptor(this->io_context, endpoint), accepting_connection(this->io_context) {};
 
     void ConnectionManager::start()

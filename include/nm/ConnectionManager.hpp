@@ -13,7 +13,7 @@ namespace nm::server
     class Connection
     {
       public:
-        const boost::asio::ip::tcp::socket& socket() const
+        [[nodiscard]] const boost::asio::ip::tcp::socket& socket() const
         {
             return socket_;
         }
@@ -34,7 +34,7 @@ namespace nm::server
             return !(other == *this);
         }
 
-        Connection(boost::asio::io_context& io_context);
+        explicit Connection(boost::asio::io_context& io_context);
 
         void start();
         void sendMessage(const message::MessageWrapper&);
@@ -46,10 +46,10 @@ namespace nm::server
         void connection_closed();
 
         void message_callback(uint32_t length, std::shared_ptr<uint8_t[]> data,
-                              const boost::system::error_code& ec, const size_t nbytes);
+                              const boost::system::error_code& ec, size_t nbytes);
 
         void header_callback(std::shared_ptr<uint8_t[]> data, const boost::system::error_code& ec,
-                             const size_t nbytes);
+                             size_t nbytes);
 
         boost::asio::ip::tcp::socket socket_;
     };
@@ -72,8 +72,7 @@ namespace nm::server
         nm::EventMap<message::MessageWrapper_Type, Connection&, const message::MessageWrapper&>
             event_map;
 
-        ConnectionManager(boost::asio::ip::tcp::endpoint& endpoint);
-        ConnectionManager(boost::asio::ip::tcp::endpoint endpoint);
+        explicit ConnectionManager(const boost::asio::ip::tcp::endpoint& endpoint);
 
         void send_all(const message::MessageWrapper&);
         void send_all_other(Connection&, const message::MessageWrapper&);
