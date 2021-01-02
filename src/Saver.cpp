@@ -29,7 +29,8 @@ namespace nm
             std::stringstream stream;
             stream << chunkpair.first.x() << ":" << chunkpair.first.y();
 
-            BOOST_LOG_TRIVIAL(info) << "[Saver] Writing chunk " << stream.str() << " to save file.";
+            BOOST_LOG_TRIVIAL(debug)
+                << "[Saver] Writing chunk " << stream.str() << " to save file.";
             auto data                      = chunkpair.second.serialize();
             output["chunks"][stream.str()] = std::string(data.get(), NM_CHUNK_SIZE * NM_CHUNK_SIZE);
         }
