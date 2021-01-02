@@ -5,6 +5,24 @@ namespace nm
 {
     namespace utils
     {
+        constexpr int32_t modulo(const int32_t n, const int32_t mod)
+        {
+            int32_t temp = n % mod;
+            if (temp < 0)
+                return mod + temp;
+            return temp;
+        }
+
+        bool on_chunk_boundary(const Coordinates& local)
+        {
+            return (local.x() == 0 || local.x() == 15 || local.y() == 0 || local.y() == 15);
+        }
+
+        const Coordinates to_local_coordinates(const Coordinates& global)
+        {
+            return {modulo(global.x(), NM_CHUNK_SIZE), modulo(global.y(), NM_CHUNK_SIZE)};
+        }
+
         const Coordinates to_chunk_coordinates(const Coordinates& c)
         {
             int x = ((int) std::floor(c.x() / (double) NM_CHUNK_SIZE));

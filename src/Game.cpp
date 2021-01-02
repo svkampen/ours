@@ -142,7 +142,16 @@ namespace nm
         }
 
         if (nm::config["show_overflagged"])
+        {
             this->compute_overflagging({x, y});
+            if (nm::utils::on_chunk_boundary(nm::utils::to_local_coordinates({x, y})))
+            {
+                auto chunk_coordinates = nm::utils::to_chunk_coordinates({x, y});
+                nm::utils::for_around(chunk_coordinates.x(), chunk_coordinates.y(), [this](int cx, int cy) {
+                        updated_chunks.insert({cx, cy});
+                });
+            }
+        }
 
         updated_chunks.insert(nm::utils::to_chunk_coordinates({x, y}));
 

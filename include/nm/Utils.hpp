@@ -43,6 +43,8 @@ namespace nm
         std::string ctsgdb(const char* s);
         const Coordinates to_chunk_coordinates(const Coordinates& c);
         const Coordinates to_global_coordinates(const Coordinates& local, const Coordinates& chunk);
+        const Coordinates to_local_coordinates(const Coordinates& global);
+        bool on_chunk_boundary(const Coordinates& local);
         void for_around(int x, int y, const std::function<void(int, int)>& functor);
     }  // namespace utils
 }  // namespace nm
