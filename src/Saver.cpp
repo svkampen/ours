@@ -12,7 +12,7 @@ namespace nm
         json output;
         std::ofstream stream;
 
-        stream.open(filename.c_str(), stream.out);
+        stream.open(filename.c_str(), std::ofstream::out);
 
         if (!stream.is_open())
         {
