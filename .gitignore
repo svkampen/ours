@@ -4,3 +4,6 @@ bin/
 **/*.pb.h
 **/*.pb.cc
 *.json
+cmake*
+.idea/
+.cache/
