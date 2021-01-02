@@ -34,25 +34,22 @@ namespace nm::server
         boost::asio::async_write(socket_,
                                  boost::asio::buffer(buffer, total_size),
                                  boost::asio::transfer_all(),
-                                 std::bind(&Connection::write_callback,
-                                             this, _1, _2));
+                                 [](const error_code& ec, const size_t) {
+                                     BOOST_LOG_TRIVIAL(debug)
+                                         << "Write done with error code " << ec;
+                                 });
     }
 
     void Connection::start_read()
     {
         std::shared_ptr<uint8_t[]> header_buf(new uint8_t[4]);
 
-        boost::asio::async_read(socket_,
-                                boost::asio::buffer(header_buf.get(), 4),
-                                boost::asio::transfer_exactly(4),
-                                std::bind(&Connection::header_callback,
-                                            this, header_buf, _1, _2));
+        boost::asio::async_read(
+            socket_,
+            boost::asio::buffer(header_buf.get(), 4),
+            boost::asio::transfer_exactly(4),
+            [=](const error_code& ec, const size_t sz) { header_callback(header_buf, ec, sz); });
     }
-
-    void Connection::write_callback(const error_code& ec, const size_t)
-    {
-        BOOST_LOG_TRIVIAL(debug) << "Write done with error code " << ec;
-    };
 
     void Connection::connection_closed()
     {
@@ -81,8 +78,9 @@ namespace nm::server
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(message_buf.get(), length),
                                 boost::asio::transfer_exactly(length),
-                                std::bind(&Connection::message_callback,
-                                            this, length, message_buf, _1, _2));
+                                [=](const error_code& ec, const size_t sz) {
+                                    message_callback(length, message_buf, ec, sz);
+                                });
     }
 
     void Connection::message_callback(uint32_t length, std::shared_ptr<uint8_t[]> data,
@@ -141,11 +139,10 @@ namespace nm::server
             Connection(static_cast<boost::asio::io_context&>(acceptor.get_executor().context()));
 
         accepting_connection.ev_message_received.connect(
-            std::bind(&ConnectionManager::message_handler, this, _1, _2));
+            [=](Connection& c, message::MessageWrapper& w) { message_handler(c, w); });
 
-        acceptor.async_accept(accepting_connection.socket(), [this](auto&& ec) {
-            this->handle_accept(std::forward<decltype(ec)>(ec));
-        });
+        acceptor.async_accept(accepting_connection.socket(),
+                              [this](const error_code& ec) { this->handle_accept(ec); });
     }
 
     void ConnectionManager::handle_accept(const error_code& error)
