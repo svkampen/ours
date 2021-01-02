@@ -40,7 +40,7 @@ namespace nm
 
         message::Player& Server::player_for(const Connection& for_connection)
         {
-            return this->clients[for_connection.socket().remote_endpoint()];
+            return this->clients[for_connection.remote_endpoint()];
         }
 
         void Server::player_quit_handler(Connection& connection, const message::MessageWrapper&)
