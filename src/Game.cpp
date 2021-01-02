@@ -4,6 +4,8 @@
 #include <nm/SaveLoad.hpp>
 #include <nm/Utils.hpp>
 
+using namespace std::literals;
+
 namespace nm
 {
     Game::Game(): board()
@@ -12,42 +14,40 @@ namespace nm
 
     Game::~Game()
     {
-        if (!save)
-            return;
-        try
-        {
-            BOOST_LOG_TRIVIAL(info) << "Destructing game, so saving to default save path.";
-            nm::Saver::saveGame(*this, nm::config["save_path"].get<std::string>());
-        }
-        catch (...)
-        {
-            try
-            {
-                throw;
-            }
-            catch (std::exception& e)
-            {
-                // If this is a std::exception, log some information about it.
-                std::cerr << "Received exception while saving game: " << e.what() << std::endl;
-            }
-        }
+        this->save_game();
     }
 
-    Game::Game(Board&& board): board(std::move(board)) {};
+    void Game::initialize()
+    {
+        this->last_autosave = std::chrono::system_clock::now();
+    }
 
-    Game::Game(const Game& other): board(other.board) {};
+    Game::Game(Board&& board): board(std::move(board))
+    {
+        initialize();
+    };
 
-    Game::Game(Game&& other): board(std::move(other.board)) {};
+    Game::Game(const Game& other): board(other.board)
+    {
+        initialize();
+    };
+
+    Game::Game(Game&& other) noexcept: board(std::move(other.board))
+    {
+        initialize();
+    };
 
     Game& Game::operator=(const Game& other)
     {
         board = other.board;
+        initialize();
         return *this;
     }
 
-    Game& Game::operator=(Game&& other)
+    Game& Game::operator=(Game&& other) noexcept
     {
         board = std::move(other.board);
+        initialize();
         return *this;
     }
 
@@ -145,6 +145,8 @@ namespace nm
             this->compute_overflagging({x, y});
 
         updated_chunks.insert(nm::utils::to_chunk_coordinates({x, y}));
+
+        maybe_autosave();
     }
 
     bool Game::completely_flagged(int x, int y)
@@ -209,6 +211,40 @@ namespace nm
         if (square.number == 0 && orig_state != SquareState::OPENED)
         {
             utils::for_around(x, y, [this](int x, int y) { open_square_handler(x, y, false); });
+        }
+
+        maybe_autosave();
+    }
+
+    void Game::save_game() const
+    {
+        this->save_game(nm::config["save_path"].get<std::string>());
+    }
+
+    void Game::save_game(std::string save_path) const
+    {
+        if (!save)
+            return;
+
+        try
+        {
+            nm::Saver::saveGame(this->board, save_path);
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Received exception while saving game: " << e.what() << std::endl;
+        }
+    }
+
+    void Game::maybe_autosave()
+    {
+        using namespace std::chrono;
+        if (duration_cast<seconds>(system_clock::now() - this->last_autosave).count() > 300)
+        {
+            static const std::string save_path =
+                nm::config["save_path"].get<std::string>() + ".autosave"s;
+            this->save_game(save_path);
+            this->last_autosave = system_clock::now();
         }
     }
 }  // namespace nm

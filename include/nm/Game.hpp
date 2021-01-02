@@ -3,6 +3,7 @@
 
 #include "Board.hpp"
 
+#include <chrono>
 #include <iostream>
 #include <nm/SquareSource.hpp>
 #include <nm/Typedefs.hpp>
@@ -21,22 +22,25 @@ namespace nm
     class Game
     {
       private:
+        void initialize();
         std::optional<open_results> open_square(int x, int y);
         void number_square(const Coordinates& c);
         void renumber_chunk(const Coordinates& c, const bool renumber_original);
         void compute_overflagging(const Coordinates& c);
         bool completely_flagged(int x, int y);
+        void save_game() const;
         bool save = false;
+        std::chrono::time_point<std::chrono::system_clock> last_autosave;
 
       public:
         Game();
         Game(Board&& board);
 
         Game(const Game& other);
-        Game(Game&& other);
+        Game(Game&& other) noexcept;
 
         Game& operator=(const Game& other);
-        Game& operator=(Game&& other);
+        Game& operator=(Game&& other) noexcept;
 
         ~Game();
         Board board;
@@ -49,6 +53,8 @@ namespace nm
         };
 
         std::unordered_set<Coordinates, int_pair_hash<Coordinates>> updated_chunks;
+        void maybe_autosave();
+        void save_game(std::string save_path) const;
     };
 }  // namespace nm
 
