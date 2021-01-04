@@ -94,6 +94,9 @@ namespace nm::server
         message::MessageWrapper wrapper;
         wrapper.ParseFromArray(data.get(), length);
 
+        if (!wrapper.IsInitialized())
+            return;
+
         this->ev_message_received(*this, wrapper);
         this->start_read();
     }
