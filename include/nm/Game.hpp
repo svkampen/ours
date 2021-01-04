@@ -54,7 +54,7 @@ namespace nm
 
         std::unordered_set<Coordinates, int_pair_hash<Coordinates>> updated_chunks;
         void maybe_autosave();
-        void save_game(std::string save_path) const;
+        void save_game(const std::string& save_path) const;
     };
 }  // namespace nm
 

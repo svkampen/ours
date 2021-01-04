@@ -228,7 +228,7 @@ namespace nm
         this->save_game(nm::config["save_path"].get<std::string>());
     }
 
-    void Game::save_game(std::string save_path) const
+    void Game::save_game(const std::string& save_path) const
     {
         if (!save)
             return;
