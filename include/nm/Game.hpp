@@ -50,7 +50,7 @@ namespace nm
         void save_on_destruct()
         {
             save = true;
-        };
+        }
 
         std::unordered_set<Coordinates, int_pair_hash<Coordinates>> updated_chunks;
         void maybe_autosave();

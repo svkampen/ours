@@ -25,17 +25,17 @@ namespace nm
     Game::Game(Board&& board): board(std::move(board))
     {
         initialize();
-    };
+    }
 
     Game::Game(const Game& other): board(other.board)
     {
         initialize();
-    };
+    }
 
     Game::Game(Game&& other) noexcept: board(std::move(other.board))
     {
         initialize();
-    };
+    }
 
     Game& Game::operator=(const Game& other)
     {
