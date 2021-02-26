@@ -313,7 +313,7 @@ namespace nm
 
     void BoardView::draw_closed_square(int x, int y, Square& square)
     {
-        main << Move({3 * x, y}) << AttrOn(COLOR_PAIR(7)) << "   " << AttrOff(COLOR_PAIR(7));
+        main << Move({3 * x, y}) << AttrOn(A_REVERSE) << "   " << AttrOff(A_REVERSE);
         this->draw_border(square, x, y);
     }
 
