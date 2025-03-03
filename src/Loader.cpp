@@ -11,16 +11,15 @@ namespace nm
     {
         ChunkList chunkList;
 
-        for (auto& pair : json::iterator_wrapper(chunk_map))
+        for (auto& [key, value] : chunk_map.items())
         {
-            std::string key    = pair.key();
-            size_t split_point = key.find(":");
+            size_t split_point = key.find(':');
 
             int x = std::stoi(key.substr(0, split_point));
             int y = std::stoi(key.substr(split_point + 1));
 
             Chunk chunk;
-            chunk.deserialize(pair.value().get<std::string>().c_str());
+            chunk.deserialize(value.get<std::string>().c_str());
             chunkList[Coordinates(x, y)] = chunk;
         }
 
@@ -30,23 +29,24 @@ namespace nm
     std::optional<Game> Loader::loadGame(const std::string& filename)
     {
         std::ifstream stream;
-        stream.open(filename.c_str(), stream.in);
+        stream.open(filename.c_str(), std::ifstream::in);
 
         if (!stream.is_open())
         {
             BOOST_LOG_TRIVIAL(error)
                 << "[Loader] Unable to open savegame, does '" << filename << "' exist?";
-            return std::optional<Game>();
+            return {};
         }
 
-        json saveGame(stream);
+        json saveGame;
+        stream >> saveGame;
 
         if (saveGame["version"].get<int>() != NM_FORMAT_VERSION)
         {
             BOOST_LOG_TRIVIAL(error)
                 << "[Loader] Save game uses NM_FORMAT_VERSION " << saveGame["version"].get<int>()
                 << ", instead of required " << NM_FORMAT_VERSION;
-            return std::optional<Game>();
+            return {};
         }
 
         ChunkList chunks = json_to_chunks(saveGame["chunks"]);

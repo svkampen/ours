@@ -8,7 +8,7 @@
 
 namespace nm::curses
 {
-    CursesGui::CursesGui(boost::asio::io_service& io_service, ChunkSquareSource& squareSource):
+    CursesGui::CursesGui(boost::asio::io_context& io_service, ChunkSquareSource& squareSource):
         Gui(squareSource),
         main(0, 0, COLS - 21, LINES - 1),
         sidebar(COLS - 20, 0, 20, LINES - 1),

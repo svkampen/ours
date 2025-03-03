@@ -5,6 +5,7 @@
 #include "Typedefs.hpp"
 
 #include <unordered_map>
+#include <optional>
 
 namespace nm
 {

@@ -1,7 +1,8 @@
 #ifndef PAIRHASH_HPP
 #define PAIRHASH_HPP
 
-#include <cinttypes>
+#include <cstdint>
+#include <cstddef>
 
 namespace nm
 {

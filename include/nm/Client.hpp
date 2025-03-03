@@ -19,14 +19,14 @@ namespace nm
         std::string ip;
         boost::asio::ip::tcp::resolver resolver_;
         boost::asio::ip::tcp::socket socket_;
-        boost::asio::io_service& io_service;
+        boost::asio::io_context& io_service;
 
         void parse_message(char* message, int length);
         void start_read();
         void handle_resolve(const boost::system::error_code& ec,
-                            boost::asio::ip::tcp::resolver::iterator ep_iter);
+                            boost::asio::ip::tcp::resolver::results_type res);
         void handle_connect(const boost::system::error_code& ec,
-                            boost::asio::ip::tcp::resolver::iterator ep_iter);
+                            boost::asio::ip::tcp::resolver::results_type::const_iterator ep_iter);
         void header_callback(std::shared_ptr<uint8_t> data, const boost::system::error_code& ec,
                              const size_t nbytes);
         void message_callback(uint32_t length, std::shared_ptr<uint8_t> data,
@@ -34,7 +34,7 @@ namespace nm
         void write_callback(const boost::system::error_code& ec, const size_t nbytes);
 
       public:
-        Client(boost::asio::io_service& io_service);
+        Client(boost::asio::io_context& io_service);
 
         void send_message(const message::MessageWrapper& wrapper);
         void connect(const std::string& ip, const std::string& port);

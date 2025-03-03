@@ -7,10 +7,10 @@ set(ours_SRC_FILES main.cpp Board.cpp BoardView.cpp Chunk.cpp ChunkGenerator.cpp
 		CursesStream.cpp CursesStreamBuf.cpp Window.cpp Utils.cpp ImageSaver.cpp PairHash.cpp Gui.cpp)
 
 FIND_PACKAGE(PkgConfig)
-pkg_check_modules(PC_MODS freetype2 ncursesw protobuf)
+pkg_check_modules(PC_MODS REQUIRED freetype2 ncursesw protobuf libpng readline)
 
 INCLUDE_DIRECTORIES(${ours_SOURCE_DIR}/include ${PC_MODS_INCLUDE_DIRS})
-LINK_DIRECTORIES(${ours_SOURCE_DIR}/bin)
+LINK_DIRECTORIES(${ours_SOURCE_DIR}/bin ${PC_MODS_LIBRARY_DIRS})
 
 ADD_CUSTOM_COMMAND(
 		COMMAND cd ${ours_SOURCE_DIR}/src && ./make-proto.sh
@@ -22,9 +22,9 @@ FIND_PACKAGE(Boost COMPONENTS REQUIRED system thread log)
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${SAVED_LIB_SUFFIXES})
 
-ADD_DEFINITIONS(-std=gnu++17 -O2 -march=native -Wall -Wextra -Wno-unused-parameter
+ADD_DEFINITIONS(-std=c++20 -O2 -Wall -Wextra -Wno-unused-parameter
 		-fdiagnostics-color=always -fno-omit-frame-pointer -fPIC
 		-ggdb -g3
 		-DBOOST_LOG_DYN_LINK -DNCURSES_NOMACROS)
 ADD_EXECUTABLE(ours ${ours_SRC_FILES})
-TARGET_LINK_LIBRARIES(ours ${PROTOBUF} ${Boost_LIBRARIES} gmp crypt ${PC_MODS_LIBRARIES} ffi pthread dl readline z png)
+TARGET_LINK_LIBRARIES(ours ${PROTOBUF} ${Boost_LIBRARIES} ${PC_MODS_LIBRARIES} ffi pthread dl z png)

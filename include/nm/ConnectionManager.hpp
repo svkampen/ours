@@ -5,6 +5,8 @@
 #include <memory>
 #include <ours.pb.h>
 #include <nm/EventMap.hpp>
+#include <optional>
+#include <deque>
 
 namespace events = boost::signals2;
 

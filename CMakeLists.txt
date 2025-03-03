@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 project(ours CXX)
 set(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
-set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_COMPILER g++)
 add_subdirectory(src)

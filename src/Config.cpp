@@ -54,7 +54,11 @@ namespace nm
         if (file.is_open())
         {
             if (merge)
-                this->merge(nlohmann::json(file));
+            {
+                nlohmann::json j;
+                file >> j;
+                this->merge(j);
+            }
             else
                 file >> this->config;
         }

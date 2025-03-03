@@ -121,6 +121,7 @@ namespace nm
         }
         else
         {
+            to_write[1] = L'!';
             main << AttrOn(COLOR_PAIR(13)) << to_write << AttrOff(COLOR_PAIR(13));
         }
     }

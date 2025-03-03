@@ -32,7 +32,7 @@ namespace nm::curses
         nm::Window main, sidebar, command;
 
         boost::asio::posix::stream_descriptor in;
-        boost::asio::io_service& io_service;
+        boost::asio::io_context& io_service;
 
         std::unordered_map<int32_t, CursorData> cursors;
 
@@ -66,7 +66,7 @@ namespace nm::curses
         boost::signals2::signal<void(std::string)> ev_save_image;
         boost::signals2::signal<void()> ev_exit;
 
-        CursesGui(boost::asio::io_service& io_service, nm::ChunkSquareSource& squareSource);
+        CursesGui(boost::asio::io_context& io_service, nm::ChunkSquareSource& squareSource);
 
         void handle_input(int ch);
 

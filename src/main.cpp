@@ -28,7 +28,9 @@ using nlohmann::json;
 using namespace std::literals;
 using namespace std::placeholders;
 
+#ifdef LINUX
 int exit_event = eventfd(0, EFD_SEMAPHORE);
+#endif
 
 void startClient()
 {
@@ -41,7 +43,7 @@ void startClient()
     }
     nm::CursesSetupTeardown cst;
 
-    boost::asio::io_service io_service;
+    boost::asio::io_context io_service;
 
     nm::Client client(io_service);
     nm::NetworkGame game(client);
@@ -75,12 +77,12 @@ void startClient()
 
     client.connect(nm::config["host"], nm::config["port"]);
 
+#ifdef LINUX
     boost::asio::posix::stream_descriptor exit_event_desc(io_service, exit_event);
     exit_event_desc.async_read_some(boost::asio::null_buffers(),
-                                    [](const boost::system::error_code&, const size_t) {
-                                        throw nm::utils::exit_unwind_stack {};
-                                    });
-
+                                    [](const boost::system::error_code&, const size_t)
+                                    { throw nm::utils::exit_unwind_stack {}; });
+#endif
     gui.start();
 }
 
@@ -92,12 +94,12 @@ void startServer()
     game.save_on_destruct();
 
     boost::asio::io_context ctx;
+#ifdef LINUX
     boost::asio::posix::stream_descriptor exit_event_desc(ctx, exit_event);
     exit_event_desc.async_read_some(boost::asio::null_buffers(),
-                                    [](const boost::system::error_code&, const size_t) {
-                                        throw nm::utils::exit_unwind_stack {};
-                                    });
-
+                                    [](const boost::system::error_code&, const size_t)
+                                    { throw nm::utils::exit_unwind_stack {}; });
+#endif
     nm::server::Server server(ctx, game, std::stoi(nm::config["port"].get<std::string>()));
     server.start();
 }
@@ -106,8 +108,10 @@ void startServer()
  * on the exit_event eventfd, that we should exit the game. */
 void signal_exit()
 {
+#ifdef LINUX
     size_t val = 1;
     write(exit_event, &val, sizeof val);
+#endif
 }
 
 int main(int argc, char* argv[])

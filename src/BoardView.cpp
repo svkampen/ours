@@ -108,23 +108,14 @@ namespace nm
                 this->border_enabled = !this->border_enabled;
                 full_redraw          = true;
                 break;
-            case 's':
-                sticky_flags = !sticky_flags;
-                break;
             case 'f':
-                if (sticky_flags)
-                {
-                    handle_sticky_flag();
-                }
-                else
-                {
                     this->ev_square_flag(cursor.offset_x + cursor.x, cursor.offset_y + cursor.y);
-                }
                 full_redraw = true;
                 break;
 
             /* ARROW KEYS */
             case KEY_LEFT:
+            case 'a':
                 if (cursor.x > (0 + 4 * control))
                 {
                     cursor.x -= 1 + 4 * control;
@@ -136,6 +127,7 @@ namespace nm
                 }
                 break;
             case KEY_RIGHT:
+            case 'd':
                 if (cursor.x < (main.cols / 3) - (1 + 4 * control))
                 {
                     cursor.x += 1 + 4 * control;
@@ -147,6 +139,7 @@ namespace nm
                 }
                 break;
             case KEY_UP:
+            case 'w':
                 if (cursor.y > (0 + 4 * control))
                 {
                     cursor.y -= 1 + 4 * control;
@@ -158,6 +151,7 @@ namespace nm
                 }
                 break;
             case KEY_DOWN:
+            case 's':
                 if (cursor.y < main.lines - (1 + 4 * control))
                 {
                     cursor.y += 1 + 4 * control;
@@ -307,7 +301,7 @@ namespace nm
 
     void BoardView::draw_flag_square(int x, int y, Square& square)
     {
-        main << Move({3 * x, y}) << " # ";
+        main << Move({3 * x, y}) << AttrOn(A_BOLD) << " # " << AttrOff(A_BOLD);
         this->draw_border(square, x, y);
     }
 
