@@ -15,4 +15,3 @@ Ours requires a number of libraries:
 - zlib
 
 If these libraries and development headers are present, building should be as easy as running `make`.
-- 
